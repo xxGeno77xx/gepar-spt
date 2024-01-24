@@ -1,8 +1,9 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
+use App\Support\Database\StatesClass;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 return new class extends Migration
 {
@@ -15,6 +16,12 @@ return new class extends Migration
             $table->id();
 
             $table->string('type_carburant');
+
+            $table->enum('state',[
+                StatesClass::Activated()->value,
+                StatesClass::Deactivated()->value,
+                StatesClass::Suspended()->value,
+            ]);
             
             $table->timestamps();
         });

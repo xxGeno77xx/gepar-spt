@@ -29,18 +29,18 @@ class EditChauffeur extends EditRecord
             {
                 return [
                     // Actions\DeleteAction::make(),
-                    Actions\Action::make('Supprimer')
-                        ->color('danger')
-                        ->action(function (?Chauffeur $record) {
-                            $this->record->update(['state' => StatesClass::Deactivated()->value]);
-                            redirect('/chauffeurs');
-                            Notification::make()
-                                ->title('Supprimé(e)')
-                                ->success()
-                                ->persistent()
-                                ->send();
-                        })
-                        ->requiresConfirmation(),
+                    // Actions\Action::make('Supprimer')
+                    //     ->color('danger')
+                    //     ->action(function (?Chauffeur $record) {
+                    //         $this->record->update(['state' => StatesClass::Deactivated()->value]);
+                    //         redirect('/chauffeurs');
+                    //         Notification::make()
+                    //             ->title('Supprimé(e)')
+                    //             ->success()
+                    //             ->persistent()
+                    //             ->send();
+                    //     })
+                    //     ->requiresConfirmation(),
                         
                 ];
 

@@ -35,10 +35,10 @@ class VisistesASurveiller extends BaseWidget
                 ->whereNull('visites.deleted_at');
         })
             ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
-            // ->join('departements', 'engines.departement_id', 'departements.id')
+            ->join('departements', 'engines.departement_id', 'departements.id')
 
             ->leftJoin('chauffeurs', 'engines.chauffeur_id', 'chauffeurs.id')
-            ->leftjoin('departements', 'chauffeurs.departement_id', 'departements.id')
+            // ->leftjoin('departements', 'chauffeurs.departement_id', 'departements.id')
             ->join('marques', 'modeles.marque_id', '=', 'marques.id')
             ->select('engines.*', 'departements.nom_departement', 'marques.logo as logo', 'visites.date_initiale as date_initiale', DB::raw('DATE(visites.date_expiration) as date_expiration'))
             ->where('engines.state', '<>', StatesClass::Deactivated()->value)

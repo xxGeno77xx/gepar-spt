@@ -20,6 +20,12 @@ return new class extends Migration
 
             $table->unsignedBigInteger('type_reparation_id')->nullable();
             $table->foreign('type_reparation_id')->references('id')->on('type_reparations');
+
+            $table->enum('state',[
+                StatesClass::Activated()->value,
+                StatesClass::Deactivated()->value,
+                StatesClass::Suspended()->value,
+            ]);
  
 
             $table->timestamps();

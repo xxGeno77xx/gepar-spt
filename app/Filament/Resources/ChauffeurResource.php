@@ -28,6 +28,8 @@ class ChauffeurResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-user-circle';
 
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static function getNavigationBadge(): ?string
     {
         return static::getModel()::count();
@@ -36,59 +38,59 @@ class ChauffeurResource extends Resource
     public static function form(Form $form): Form
     {
 
-        return $form
-            ->schema([
-                TextInput::make('name')
-                    ->label('Nom')
-                    ->required(),
+        return $form;
+            // ->schema([
+            //     TextInput::make('name')
+            //         ->label('Nom')
+            //         ->required(),
 
-                Select::make('departement_id')
-                    ->label('Département')
-                    ->options(
-                        Departement::where('state', StatesClass::Activated())
-                            // ->whereNull('chauffeur_id')
-                            ->pluck('nom_departement', 'id')
-                    )
-                    ->searchable()
-                    ->required(),
+            //     Select::make('departement_id')
+            //         ->label('Département')
+            //         ->options(
+            //             Departement::where('state', StatesClass::Activated())
+            //                 // ->whereNull('chauffeur_id')
+            //                 ->pluck('nom_departement', 'id')
+            //         )
+            //         ->searchable()
+            //         ->required(),
 
-                Card::make()
-                    ->schema([
-                        Placeholder::make('created_at')
-                            ->label('Ajouté')
-                            ->content(fn(Chauffeur $record): ?string => $record->created_at),
+            //     Card::make()
+            //         ->schema([
+            //             Placeholder::make('created_at')
+            //                 ->label('Ajouté')
+            //                 ->content(fn(Chauffeur $record): ?string => $record->created_at),
 
-                        Placeholder::make('updated_at')
-                            ->label('Mise à jour')
-                            ->content(fn(Chauffeur $record): ?string => $record->updated_at),
+            //             Placeholder::make('updated_at')
+            //                 ->label('Mise à jour')
+            //                 ->content(fn(Chauffeur $record): ?string => $record->updated_at),
 
-                    ])
-                    ->columnSpan(['lg' => 1])
-                    ->hidden(fn(?Chauffeur $record) => $record === null),
-            ]);
+            //         ])
+            //         ->columnSpan(['lg' => 1])
+            //         ->hidden(fn(?Chauffeur $record) => $record === null),
+            // ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                TextColumn::make('name')
-                    ->searchable()
-                    ->placeholder('-'),
+                // TextColumn::make('name')
+                //     ->searchable()
+                //     ->placeholder('-'),
 
-                TextColumn::make('nom_departement')
-                    ->label('Département')
-                    ->placeholder('-'),
+                // TextColumn::make('nom_departement')
+                //     ->label('Département')
+                //     ->placeholder('-'),
 
-                TextColumn::make('plate_number')
-                    ->label('Engin')
-                    ->placeholder('-'),
+                // TextColumn::make('plate_number')
+                //     ->label('Engin')
+                //     ->placeholder('-'),
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                // Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 // Tables\Actions\DeleteBulkAction::make(),

@@ -74,6 +74,10 @@ class RolesPermissionsSeeder extends Seeder
         ]);
 
 
+        $usersPermissions =[
+            
+        ];
+
         $sptUsers = collect([
             ["name" =>"DJAGBANI Paguedame", "email" => "Paguedame.Djagbani@laposte.tg", "notification" => 1, "password" => Hash::make("L@poste+2024"), "login_attempts" => 0, "created_at" => now(), "updated_at" => now()],
             ["name" =>"TCHOYO Yaou", "email" => "Yaou.Tchoyo@laposte.tg", "notification" => 1, "password" => Hash::make("L@poste+2024"), "login_attempts" => 0, "created_at" => now(), "updated_at" => now()],

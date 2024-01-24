@@ -89,7 +89,7 @@ class ReparationResource extends Resource
 
                                 Select::make('révisions')
                                     ->label("Type de la réparation")
-                                    ->relationship('typeReparations', 'libelle')
+                                    ->relationship('typeReparations', 'libelle', fn (Builder $query) => $query->where('state', StatesClass::Activated()->value))
                                     ->multiple()
                                     ->searchable()
                                     ->preload(true)
@@ -127,22 +127,22 @@ class ReparationResource extends Resource
 
                                             ]),
 
-                                        FilamentBuilder\Block::make('Détails')
-                                            ->icon('heroicon-o-bookmark')
-                                            ->schema([
-                                                MarkdownEditor::make('details')
-                                                    ->disableAllToolbarButtons()
-                                                    ->enableToolbarButtons([
-                                                        'bold',
-                                                        'bulletList',
-                                                        'edit',
-                                                        'italic',
-                                                        'preview',
-                                                        'strike',
-                                                    ])
-                                                    ->placeholder('Détails de la révision (maximum 255 caractères)')
-                                                    ->rules(['max:255']),
-                                            ]),
+                                        // FilamentBuilder\Block::make('Détails')
+                                        //     ->icon('heroicon-o-bookmark')
+                                        //     ->schema([
+                                        //         MarkdownEditor::make('details')
+                                        //             ->disableAllToolbarButtons()
+                                        //             ->enableToolbarButtons([
+                                        //                 'bold',
+                                        //                 'bulletList',
+                                        //                 'edit',
+                                        //                 'italic',
+                                        //                 'preview',
+                                        //                 'strike',
+                                        //             ])
+                                        //             ->placeholder('Détails de la révision (maximum 255 caractères)')
+                                        //             ->rules(['max:255']),
+                                        //     ]),
 
                                     ])
                                     ->minItems(1)
@@ -235,6 +235,18 @@ class ReparationResource extends Resource
                         FileUpload::make('facture')
                             ->enableDownload()
                             ->enableOpen(),
+
+                            MarkdownEditor::make('details')
+                                        ->disableAllToolbarButtons()
+                                        ->enableToolbarButtons([
+                                            // 'bold',
+                                            // 'bulletList',
+                                            // 'edit',
+                                            // 'italic',
+                                            // 'preview',
+                                            // 'strike',
+                                        ])
+                                        ->placeholder('Détails de la révision'),
 
                         Hidden::make('user_id')->default(auth()->user()->id),
 

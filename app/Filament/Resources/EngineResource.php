@@ -2,10 +2,12 @@
 
 namespace App\Filament\Resources;
 
+use Closure;
 use Filament\Forms;
 use App\Models\Type;
 use App\Models\User;
 use Filament\Tables;
+use App\Models\Engine;
 use App\Models\Modele;
 use App\Models\Carburant;
 use App\Models\Chauffeur;
@@ -72,7 +74,19 @@ class EngineResource extends Resource
                             ->regex('/^\d{4}-[A-Z]{2}$/')
                             ->maxLength(7)
                             ->required()
-                            ->unique(ignoreRecord: true),
+                            // ->unique(ignoreRecord: true)
+                            ->rules([
+                                function () {
+                                    return function (string $attribute, $value, Closure $fail) {
+
+                                        $existingEngine = Engine::where('plate_number', $value)->first();
+
+                                        if ($existingEngine) {
+                                            $fail('Un engin avec ce numéro de plaque existe déjà.');
+                                        }
+                                    };
+                                },
+                            ]),
 
                         DatePicker::make('circularization_date')
                             ->label("Mise en circulation"),
@@ -105,23 +119,23 @@ class EngineResource extends Resource
 
                                 TextInput::make('numero_chassis')
                                     ->label("Numéro de chassis")
-                                    ->unique(ignoreRecord: true)
-                                    ->required(),
+                                    // ->unique(ignoreRecord: true)
+                                    ->required()
+                                    ->rules([
+                                        function () {
+                                            return function (string $attribute, $value, Closure $fail) {
 
+                                                $existingEngine = Engine::where('numero_chassis', $value)->first();
 
-                                TextInput::make('moteur')
-                                    ->label("Moteur")
-                                    ->numeric()
-                                    ->required(),
-
-
-                                TextInput::make('carosserie')
-                                    ->label("Carosserie")
-                                    ->required(),
-
-                                ColorPicker::make('couleur')
-                                    ->label("Couleur")
-                                    ->required(),
+                                                if ($existingEngine) {
+                                                    $fail('Un engin avec ce numéro de chassis existe déjà.');
+                                                }
+                                            };
+                                        },
+                                    ]),
+                                TextInput::make('moteur')->label("Moteur")->numeric()->required(),
+                                TextInput::make('carosserie')->label("Carosserie")->required(),
+                                ColorPicker::make('couleur')->label("Couleur")->required(),
 
                             ]),
 
@@ -230,11 +244,11 @@ class EngineResource extends Resource
                             ]),
 
 
-                        Radio::make('carburant_id')
+                        Select::make('carburant_id')
                             ->options(Carburant::all()
                                 ->pluck('type_carburant', 'id'))
-                            ->inline()
                             ->label('Carburant')
+                            ->searchable()
                             ->required(),
 
                     ])
@@ -273,7 +287,7 @@ class EngineResource extends Resource
                 Hidden::make('visites_mail_sent')
                     ->default(0),
 
-                    CommonInfos::PlaceholderCard(),
+                CommonInfos::PlaceholderCard(),
 
             ]);
     }

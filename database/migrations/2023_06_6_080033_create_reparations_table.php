@@ -22,6 +22,8 @@ return new class extends Migration
 
             $table->string('facture')->nullable();
 
+            $table->text('details')->nullable();
+
             $table->unsignedBigInteger('engine_id');
             $table->foreign('engine_id')->references('id')->on('engines');
 

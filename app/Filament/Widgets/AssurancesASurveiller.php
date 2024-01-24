@@ -43,9 +43,9 @@ class AssurancesASurveiller extends BaseWidget
                 ->whereNull('assurances.deleted_at');
         })
             ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
-            // ->join('departements', 'engines.departement_id', 'departements.id')
+            ->join('departements', 'engines.departement_id', 'departements.id')
             ->leftJoin('chauffeurs', 'engines.chauffeur_id', 'chauffeurs.id')
-            ->leftjoin('departements', 'chauffeurs.departement_id', 'departements.id')
+            // ->leftjoin('departements', 'chauffeurs.departement_id', 'departements.id')
             ->join('marques', 'modeles.marque_id', '=', 'marques.id')
             ->select('engines.*', 'departements.nom_departement', 'marques.logo as logo', 'assurances.date_debut as date_debut', DB::raw('DATE(assurances.date_fin) as date_fin'))
             ->where('engines.state', '<>', StatesClass::Deactivated()->value)
