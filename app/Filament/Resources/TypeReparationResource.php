@@ -32,7 +32,8 @@ class TypeReparationResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('libelle'),
+                TextInput::make('libelle')
+                    ->unique(ignoreRecord:true),
             ]);
     }
 

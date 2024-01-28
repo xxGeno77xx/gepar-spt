@@ -44,16 +44,16 @@ class ListEngines extends ListRecords
         })
         ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
         ->join('marques', 'modeles.marque_id', '=', 'marques.id')
-        ->Join('departements','engines.departement_id','departements.id')
+        // ->Join('departements','engines.departement_id','departements.id')
         // ->leftJoin('chauffeurs','engines.chauffeur_id','chauffeurs.id')
         // ->leftjoin('departements','chauffeurs.departement_id','departements.id')
         ->leftjoin('users','engines.user_id','users.id')
         ->where('engines.state',  '<>', StatesClass::Deactivated()->value)
-        ->select('engines.*', 'departements.nom_departement', 'modeles.nom_modele', 'marques.nom_marque', 'marques.logo',
+        ->select('engines.*', /*'departements.nom_departement',*/ 'modeles.nom_modele', 'marques.nom_marque', 'marques.logo',
                      DB::raw('MAX(assurances.date_fin) as date_fin'),
                      DB::raw('MAX(visites.date_expiration) as date_expiration'), 'users.name', /*'chauffeurs.name as chauffeur'*/
         )
-        ->groupBy('engines.id', 'departements.nom_departement', 'modeles.nom_modele', 'marques.nom_marque', 'marques.logo');
+        ->groupBy('engines.id', /*'departements.nom_departement',*/ 'modeles.nom_modele', 'marques.nom_marque', 'marques.logo');
 
     }
 

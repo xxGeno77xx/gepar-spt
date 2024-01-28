@@ -30,22 +30,7 @@ class CreateEngine extends CreateRecord
         return $this->getResource()::getUrl('index');
     }
 
-    protected function getCreateFormAction(): Action
-    {
-        return Action::make('create')
-            ->label(__('Ajouter '))
-            ->submit('create')
-            ->keyBindings(['mod+s']);
-    }
-    protected function getCreateAnotherFormAction(): Action
-    {
-        return Action::make('createAnother')
-            ->label(__('filament::resources/pages/create-record.form.actions.create_another.label'))
-            ->action('createAnother')
-            ->label('Ajouter & ajouter un(e) autre')
-            ->keyBindings(['mod+shift+s'])
-            ->color('secondary');
-    }
+   
 
     // public function afterCreate()
     // {

@@ -17,7 +17,7 @@ class ListTypes extends ListRecords
     protected function getActions(): array
     {
         return [
-            Actions\CreateAction::make()->label('Ajouter un type'),
+            Actions\CreateAction::make()->label('Ajouter un type d\'engin'),
         ];
     }
     protected function getTableRecordsPerPageSelectOptions(): array 

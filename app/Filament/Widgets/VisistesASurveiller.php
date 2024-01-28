@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Tables\Columns\DepartementColumn;
 use Closure;
 use Filament\Tables;
 use App\Models\Engine;
@@ -35,12 +36,12 @@ class VisistesASurveiller extends BaseWidget
                 ->whereNull('visites.deleted_at');
         })
             ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
-            ->join('departements', 'engines.departement_id', 'departements.id')
+            // ->join('departements', 'engines.departement_id', 'departements.id')
 
-            ->leftJoin('chauffeurs', 'engines.chauffeur_id', 'chauffeurs.id')
+            // ->leftJoin('chauffeurs', 'engines.chauffeur_id', 'chauffeurs.id')
             // ->leftjoin('departements', 'chauffeurs.departement_id', 'departements.id')
             ->join('marques', 'modeles.marque_id', '=', 'marques.id')
-            ->select('engines.*', 'departements.nom_departement', 'marques.logo as logo', 'visites.date_initiale as date_initiale', DB::raw('DATE(visites.date_expiration) as date_expiration'))
+            ->select('engines.*', /*'departements.nom_departement',*/ 'marques.logo as logo', 'visites.date_initiale as date_initiale', DB::raw('DATE(visites.date_expiration) as date_expiration'))
             ->where('engines.state', '<>', StatesClass::Deactivated()->value)
             ->groupBy('engines.id', 'marques.nom_marque', 'visites.date_initiale', 'visites.date_expiration')
             ->distinct('engines.id');
@@ -54,9 +55,8 @@ class VisistesASurveiller extends BaseWidget
                 ->label('Numéro de plaque')
                 ->searchable(),
 
-            TextColumn::make('nom_departement')
+            DepartementColumn::make('departement_id')
                 ->searchable()
-                ->placeholder('-')
                 ->label('Département'),
 
             ImageColumn::make('logo')

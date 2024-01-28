@@ -2,17 +2,18 @@
 
 namespace App\Filament\Widgets;
 
-use App\Support\Database\StatesClass;
 use Closure;
 use Filament\Tables;
 use App\Models\Engine;
-use Illuminate\Support\Str;
 use App\Models\Parametre;
+use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use App\Support\Database\StatesClass;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\ImageColumn;
+use App\Tables\Columns\DepartementColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Contracts\Support\Htmlable;
 use Filament\Widgets\TableWidget as BaseWidget;
@@ -43,11 +44,11 @@ class AssurancesASurveiller extends BaseWidget
                 ->whereNull('assurances.deleted_at');
         })
             ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
-            ->join('departements', 'engines.departement_id', 'departements.id')
-            ->leftJoin('chauffeurs', 'engines.chauffeur_id', 'chauffeurs.id')
+            // ->join('departements', 'engines.departement_id', 'departements.id')
+            // ->leftJoin('chauffeurs', 'engines.chauffeur_id', 'chauffeurs.id')
             // ->leftjoin('departements', 'chauffeurs.departement_id', 'departements.id')
             ->join('marques', 'modeles.marque_id', '=', 'marques.id')
-            ->select('engines.*', 'departements.nom_departement', 'marques.logo as logo', 'assurances.date_debut as date_debut', DB::raw('DATE(assurances.date_fin) as date_fin'))
+            ->select('engines.*', /*'departements.nom_departement',*/ 'marques.logo as logo', 'assurances.date_debut as date_debut', DB::raw('DATE(assurances.date_fin) as date_fin'))
             ->where('engines.state', '<>', StatesClass::Deactivated()->value)
             ->groupBy('engines.id', 'marques.nom_marque', 'assurances.date_debut', 'assurances.date_fin')
             ->distinct('engines.id');
@@ -66,9 +67,8 @@ class AssurancesASurveiller extends BaseWidget
                 ->label('Numéro de plaque')
                 ->searchable(),
 
-            TextColumn::make('nom_departement')
+                DepartementColumn::make('departement_id')
                 ->searchable()
-                ->placeholder('-')
                 ->label('Département'),
 
             ImageColumn::make('logo')

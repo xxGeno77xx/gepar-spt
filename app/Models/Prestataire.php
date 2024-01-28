@@ -9,6 +9,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Prestataire extends Model
 {
     use HasFactory;
+    protected $table = 'fournisseur';
+    public $timestamps = false;
+    protected $primaryKey = 'code_fr';
+    protected $connection ="oracle";
+
 
     public function reparations():HasMany
     {

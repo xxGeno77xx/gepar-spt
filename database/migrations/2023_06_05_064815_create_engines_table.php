@@ -22,7 +22,7 @@ return new class extends Migration
             $table->integer('power');
 
             $table->unsignedBigInteger('departement_id')->nullable();
-            $table->foreign('departement_id')->references('id')->on('departements');
+            // $table->foreign('departement_id')->references('code_centre')->on('CENTRE');
            
             $table->string('price')->nullable();
 

@@ -17,7 +17,7 @@ use App\Filament\Resources\DepartementResource\Pages;
 class DepartementResource extends Resource
 {
     protected static ?string $model = Departement::class;
-    // protected static bool $shouldRegisterNavigation = false;
+    protected static bool $shouldRegisterNavigation = false;
 
     protected static ?string $navigationIcon = 'heroicon-o-office-building';
 protected static ?string $modelLabel = "Départements";
@@ -25,10 +25,10 @@ protected static ?string $modelLabel = "Départements";
     {
         return $form
             ->schema([
-                TextInput::make('nom_departement')
-                ->label("Nom du département")
-                ->required()
-                ->unique(ignoreRecord:true,)
+                // TextInput::make('nom_departement')
+                // ->label("Nom du département")
+                // ->required()
+                // ->unique(ignoreRecord:true,)
                 
                 // Hidden::make('user_id')->label('Ajoutée par')
                 // ->default(auth()->user()->name)
@@ -41,7 +41,7 @@ protected static ?string $modelLabel = "Départements";
         return $table
             ->columns([
 
-                TextColumn::make('nom_departement')->label('Nom'),
+                // TextColumn::make('nom_departement')->label('Nom'),
 
             ])->defaultSort('created_at','desc')
             ->filters([
@@ -66,9 +66,9 @@ protected static ?string $modelLabel = "Départements";
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListDepartements::route('/'),
-            'create' => Pages\CreateDepartement::route('/create'),
-            'edit' => Pages\EditDepartement::route('/{record}/edit'),
+            // 'index' => Pages\ListDepartements::route('/'),
+            // 'create' => Pages\CreateDepartement::route('/create'),
+            // 'edit' => Pages\EditDepartement::route('/{record}/edit'),
         ];
     }    
     public static function canViewAny(): bool

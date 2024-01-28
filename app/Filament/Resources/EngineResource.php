@@ -28,6 +28,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\ImageColumn;
+use App\Tables\Columns\DepartementColumn;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
@@ -76,14 +77,17 @@ class EngineResource extends Resource
                             ->required()
                             // ->unique(ignoreRecord: true)
                             ->rules([
-                                function () {
-                                    return function (string $attribute, $value, Closure $fail) {
+                                function ($record) {
+
+                                    return function (string $attribute, $value, Closure $fail) use ($record) {
 
                                         $existingEngine = Engine::where('plate_number', $value)->first();
 
-                                        if ($existingEngine) {
-                                            $fail('Un engin avec ce numéro de plaque existe déjà.');
-                                        }
+                                        if ($existingEngine && $record) {
+                                            if ($existingEngine->id != $record->id) {
+                                                $fail('Un engin avec ce numéro de plaque existe déjà.');
+                                            }
+                                        };
                                     };
                                 },
                             ]),
@@ -122,19 +126,23 @@ class EngineResource extends Resource
                                     // ->unique(ignoreRecord: true)
                                     ->required()
                                     ->rules([
-                                        function () {
-                                            return function (string $attribute, $value, Closure $fail) {
+                                        function ($record) {
+                                            return function (string $attribute, $value, Closure $fail) use ($record) {
 
                                                 $existingEngine = Engine::where('numero_chassis', $value)->first();
 
-                                                if ($existingEngine) {
-                                                    $fail('Un engin avec ce numéro de chassis existe déjà.');
+                                                if ($existingEngine && $record) {
+                                                    if ($existingEngine->id != $record->id) {
+                                                        $fail('Un engin avec ce numéro de chassis existe déjà.');
+                                                    }
                                                 }
                                             };
                                         },
                                     ]),
                                 TextInput::make('moteur')->label("Moteur")->numeric()->required(),
+
                                 TextInput::make('carosserie')->label("Carosserie")->required(),
+
                                 ColorPicker::make('couleur')->label("Couleur")->required(),
 
                             ]),
@@ -190,7 +198,21 @@ class EngineResource extends Resource
 
                         TextInput::make('numero_carte_grise')
                             ->label("Numéro de la carte grise")
-                            ->required(),
+                            ->required()
+                            ->rules([
+                                function ($record) {
+                                    return function (string $attribute, $value, Closure $fail) use ($record) {
+
+                                        $existingEngine = Engine::where('numero_carte_grise', $value)->first();
+
+                                        if ($existingEngine && $record) {
+                                            if ($existingEngine->id != $record->id) {
+                                                $fail('Un engin avec ce numéro de carte grise existe déjà.');
+                                            }
+                                        }
+                                    };
+                                },
+                            ]),
 
 
                         Grid::make(1)
@@ -250,17 +272,16 @@ class EngineResource extends Resource
                             ->label('Carburant')
                             ->searchable()
                             ->required(),
+                        Select::make('departement_id')
+                            ->label('Département')
+                            ->options(Departement::pluck('sigle_centre', 'code_centre'))
+                            ->searchable()
+                            ->reactive(),
 
                     ])
                     ->columns(2),
 
-                Select::make('departement_id')
-                    ->label('Département')
-                    ->options(Departement::where('state', StatesClass::Activated())->pluck('nom_departement', 'id'))
-                    ->searchable()
-                    // ->dehydrated(false)
-                    ->reactive()
-                    ->hiddenOn('view'),
+
 
                 // Select::make('chauffeur_id')
                 //     ->label('Chauffeur')
@@ -307,10 +328,9 @@ class EngineResource extends Resource
                 //     ->searchable()
                 //     ->placeholder('-'),
 
-                TextColumn::make('nom_departement')
-                    ->label('Département')
-                    ->placeholder('-')
-                    ->sortable(),
+                DepartementColumn::make('departement_id')
+                    ->searchable()
+                    ->label('Département'),
 
                 ImageColumn::make('logo')
                     ->label('Marque')
@@ -353,9 +373,25 @@ class EngineResource extends Resource
             ->defaultSort('engines.created_at', 'desc')
 
             ->filters([
-                SelectFilter::make('Département')
-                    ->multiple()
-                    ->relationship('departement', 'nom_departement'),
+
+                Filter::make('Département')
+                    ->form([
+                        Select::make('departement_id')
+                            ->searchable()
+                            ->label('Département')
+                            ->options(Departement::pluck('sigle_centre', 'code_centre'))
+
+                    ])->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['departement_id'],
+                                function (Builder $query, $status) {
+                                    $search = Departement::where('code_centre', $status)->value('code_centre');
+
+                                    return $query->where('departement_id', $search);
+                                }
+                            );
+                    }),
 
                 Filter::make('Etat')
                     ->form([

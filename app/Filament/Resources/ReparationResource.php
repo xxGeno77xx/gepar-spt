@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Tables\Columns\PrestataireColumn;
 use Carbon\Carbon;
 use App\Models\User;
 use Filament\Tables;
@@ -69,7 +70,7 @@ class ReparationResource extends Resource
 
                                 Select::make('prestataire_id')
                                     ->label("Prestataire")
-                                    ->options(Prestataire::pluck('nom', 'id'))
+                                    ->options(Prestataire::pluck('raison_social_fr', 'code_fr'))
                                     ->searchable()
                                     ->preload(true)
                                     ->required(),
@@ -283,8 +284,9 @@ class ReparationResource extends Resource
                     ->limit(3)
                     ->searchable(),
 
-                TextColumn::make('prestataire')
-                    ->searchable(),
+                PrestataireColumn::make('prestataire')
+                    ->searchable()
+                    ->label('Prestataire'),
 
                 TextColumn::make('name')
                     ->label("Enregistré par")
@@ -331,9 +333,35 @@ class ReparationResource extends Resource
                         return null;
                     }),
 
-                SelectFilter::make('Prestataire')
-                    ->multiple()
-                    ->relationship('prestataire', 'nom'),
+                // SelectFilter::make('Prestataire')
+                //     ->multiple()
+                //     ->relationship('prestataire', 'nom'),
+
+                Filter::make('Prestataire')
+                ->form([
+                    Select::make('prestataire_id')
+                        ->searchable()
+                        ->label('Prestataire')
+                        ->options(Prestataire::pluck('raison_social_fr','code_fr'))
+
+                ])->query(function (Builder $query, array $data): Builder {
+                    return $query
+                        ->when(
+                            $data['prestataire_id'],
+                            function(Builder $query, $status)
+                            {
+                                $search = Prestataire::where('code_fr', $status)->value('code_fr');
+
+                                return $query->where('prestataire_id',$search);
+                            }
+                        );
+                })->indicateUsing(function (array $data): ?string {
+                    if (! $data['prestataire_id']) {
+                        return null;
+                    }
+             
+                    return 'Prestataire: ' . Prestataire::where('code_fr', $data['prestataire_id'])->value('raison_social_fr');
+                }),
 
                 SelectFilter::make('Type de la réparation')
                     ->multiple()

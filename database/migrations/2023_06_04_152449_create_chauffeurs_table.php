@@ -12,10 +12,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('chauffeurs', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('prenom');
+        // Schema::create('chauffeurs', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->string('name');
+        //     $table->string('prenom');
             // $table->string('age');
 
 
@@ -28,15 +28,15 @@ return new class extends Migration
 
 
 
-            $table->enum('state', [StatesClass::Activated()->value,StatesClass::Deactivated()->value,StatesClass::Suspended()->value,]);
+        //     $table->enum('state', [StatesClass::Activated()->value,StatesClass::Deactivated()->value,StatesClass::Suspended()->value,]);
 
-            $table->unsignedBigInteger('departement_id');
-            $table->foreign('departement_id')->references('id')->on('departements');
+        //     $table->unsignedBigInteger('departement_id');
+        //     $table->foreign('departement_id')->references('id')->on('departements');
 
           
             
-            $table->timestamps();
-        });
+        //     $table->timestamps();
+        // });
     }
 
     /**

@@ -11,7 +11,12 @@ use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class Departement extends Model
 {
-    use HasFactory, softDeletes;
+    use HasFactory;
+
+    protected $table = 'CENTRE';
+    public $timestamps = false;
+    protected $primaryKey = 'code_centre';
+    protected $connection ="oracle";
     
 
     public function engins()

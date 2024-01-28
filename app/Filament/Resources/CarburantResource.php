@@ -30,7 +30,8 @@ class CarburantResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('type_carburant'),
+                TextInput::make('type_carburant')
+                    ->unique(ignoreRecord:true),
             ]);
     }
 

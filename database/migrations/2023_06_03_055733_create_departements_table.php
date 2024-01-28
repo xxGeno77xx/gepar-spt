@@ -13,16 +13,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('departements', function (Blueprint $table) {
-            $table->id();
+        // Schema::create('departements', function (Blueprint $table) {
+        //     $table->id();
 
-            $table->string('nom_departement');
+        //     $table->string('nom_departement');
 
-            $table->enum('state', [StatesClass::Activated()->value, StatesClass::Deactivated()->value, StatesClass::Suspended()->value,]);
+        //     $table->enum('state', [StatesClass::Activated()->value, StatesClass::Deactivated()->value, StatesClass::Suspended()->value,]);
 
-            $table->softDeletes();
-            $table->timestamps();
-        });
+        //     $table->softDeletes();
+        //     $table->timestamps();
+        // });
     }
 
     /**
