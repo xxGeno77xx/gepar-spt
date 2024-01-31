@@ -2,20 +2,17 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
-use Filament\Tables;
-use Filament\Resources\Form;
-use Filament\Resources\Table;
+use App\Filament\Resources\TypeReparationResource\Pages;
 use App\Models\TypeReparation;
-use Filament\Resources\Resource;
+use App\Support\Database\PermissionsClass;
 use App\Support\Database\StatesClass;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\TypeReparationResource\Pages;
-use App\Filament\Resources\TypeReparationResource\RelationManagers;
+use Filament\Resources\Form;
+use Filament\Resources\Resource;
+use Filament\Resources\Table;
+use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 
 class TypeReparationResource extends Resource
 {
@@ -27,13 +24,12 @@ class TypeReparationResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-chart-pie';
 
-
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 TextInput::make('libelle')
-                    ->unique(ignoreRecord:true),
+                    ->unique(ignoreRecord: true),
             ]);
     }
 
@@ -41,7 +37,7 @@ class TypeReparationResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('libelle')
+                TextColumn::make('libelle'),
             ])
             ->filters([
                 //
@@ -73,5 +69,14 @@ class TypeReparationResource extends Resource
         return [
             'index' => Pages\ManageTypeReparations::route('/'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->hasAnyPermission([
+            PermissionsClass::TypesCarburant_create()->value,
+            PermissionsClass::TypesCarburant_read()->value,
+            PermissionsClass::TypesCarburant_update()->value,
+        ]);
     }
 }

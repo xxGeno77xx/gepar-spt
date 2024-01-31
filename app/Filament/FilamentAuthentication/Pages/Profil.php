@@ -2,16 +2,15 @@
 
 namespace App\Filament\FilamentAuthentication\Pages;
 
-use Filament\Pages\Page;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Grid;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Filament\Forms\Components\Section;
-use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
-use Illuminate\Validation\Rules\Password;
 use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Pages\Page;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 
 /**
  * @TODO - fix translations
@@ -23,7 +22,9 @@ class Profile extends Page
     use InteractsWithForms;
 
     protected ?string $heading = 'Profil';
+
     protected static ?string $modelLabel = 'Profil';
+
     protected static string $view = 'filament-authentication::filament.pages.profile';
 
     protected static bool $shouldRegisterNavigation = false;
@@ -77,8 +78,8 @@ class Profile extends Page
             // @phpstan-ignore-next-line
             Filament::auth()->login($this->getFormModel(), (bool) $this->getFormModel()->getRememberToken());
         }
-            
-       $this->notify('success', strval(__('filament::resources/pages/edit-record.messages.saved')));
+
+        $this->notify('success', strval(__('filament::resources/pages/edit-record.messages.saved')));
     }
 
     public function getCancelButtonUrlProperty(): string

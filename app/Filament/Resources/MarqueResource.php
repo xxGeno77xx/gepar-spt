@@ -2,27 +2,23 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
-use Filament\Tables;
-use App\Models\Marque;
-use App\Models\Modele;
-use Filament\Resources\Form;
-use Filament\Resources\Table;
-use Filament\Resources\Resource;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Forms\Components\FileUpload;
-
-use App\Support\Database\PermissionsClass;
 use App\Filament\Resources\MarqueResource\Pages;
-
+use App\Models\Marque;
+use App\Support\Database\PermissionsClass;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\TextInput;
+use Filament\Resources\Form;
+use Filament\Resources\Resource;
+use Filament\Resources\Table;
+use Filament\Tables;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
 
 class MarqueResource extends Resource
 {
     protected static ?string $model = Marque::class;
-    protected static ?string $navigationGroup = 'Flotte automobile';
 
+    protected static ?string $navigationGroup = 'Flotte automobile';
 
     protected static ?string $navigationIcon = 'heroicon-o-scissors';
 
@@ -31,10 +27,10 @@ class MarqueResource extends Resource
         return $form
             ->schema([
                 TextInput::make('nom_marque')
-                    ->label("Nom de la marque")
+                    ->label('Nom de la marque')
                     ->required()
-                    ->unique(ignoreRecord:true),
-                
+                    ->unique(ignoreRecord: true),
+
                 FileUpload::make('logo')
                     ->imageResizeTargetWidth('1300')
                     ->imageResizeTargetHeight('1200'),
@@ -48,12 +44,12 @@ class MarqueResource extends Resource
                 // TextColumn::make('id')->label('ID'),
 
                 TextColumn::make('nom_marque')
-                ->searchable(),
+                    ->searchable(),
 
                 ImageColumn::make('logo')
                     ->alignment('center'),
-            ])->defaultSort('created_at','desc')
-            
+            ])->defaultSort('created_at', 'desc')
+
             ->filters([
                 //
             ])
@@ -65,14 +61,14 @@ class MarqueResource extends Resource
                 // Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -80,12 +76,13 @@ class MarqueResource extends Resource
             'create' => Pages\CreateMarque::route('/create'),
             'edit' => Pages\EditMarque::route('/{record}/edit'),
         ];
-    }  
+    }
+
     public static function canViewAny(): bool
     {
         return auth()->user()->hasAnyPermission([
             PermissionsClass::marques_read()->value,
             PermissionsClass::marques_update()->value,
         ]);
-    }  
+    }
 }

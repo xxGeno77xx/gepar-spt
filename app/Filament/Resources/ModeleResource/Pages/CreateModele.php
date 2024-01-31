@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\ModeleResource\Pages;
 
-use Filament\Pages\Actions\Action;
 use App\Filament\Resources\ModeleResource;
 use App\Support\Database\PermissionsClass;
+use Filament\Pages\Actions\Action;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateModele extends CreateRecord
@@ -12,26 +12,27 @@ class CreateModele extends CreateRecord
     protected static ?string $title = 'Ajouter un modèle';
 
     protected static string $resource = ModeleResource::class;
+
     public static function canViewAny(): bool
     {
         return auth()->user()->hasAnyPermission([
             PermissionsClass::modeles_create()->value,
-          
+
         ]);
     }
 
     protected function authorizeAccess(): void
     {
         $user = auth()->user();
-    
+
         $userPermission = $user->hasAnyPermission([PermissionsClass::modeles_create()->value]);
-    
+
         abort_if(! $userPermission, 403, __("Vous n'avez pas access à cette page"));
     }
 
     protected function getRedirectUrl(): string
     {
-     return $this->getResource()::getUrl('index');
+        return $this->getResource()::getUrl('index');
     }
 
     protected function getCreateFormAction(): Action

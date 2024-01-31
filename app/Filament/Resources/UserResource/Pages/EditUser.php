@@ -2,10 +2,10 @@
 
 namespace App\Filament\Resources\UserResource\Pages;
 
-use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Config;
-use Filament\Resources\Pages\EditRecord;
 use App\Support\Database\PermissionsClass;
+use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Event;
 use Phpsa\FilamentAuthentication\Events\UserUpdated;
 
 class EditUser extends EditRecord
@@ -32,9 +32,9 @@ class EditUser extends EditRecord
     protected function authorizeAccess(): void
     {
         $user = auth()->user();
-    
+
         $userPermission = $user->hasAnyPermission([PermissionsClass::Users_update()->value]);
-    
+
         abort_if(! $userPermission, 403, __("Vous n'avez pas access à cette page"));
     }
 }

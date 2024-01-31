@@ -19,11 +19,10 @@ class DatabaseSeeder extends Seeder
         $this->call(ParametersSeeder::class);
         $this->call(RolesPermissionsSeeder::class);
         $this->call(TypesSeeder::class);
-        // $this->call(EnginesSeeder::class);
+        $this->call(EnginesSeeder::class);
         $this->call(TypeReparationSeeder::class);
         // $this->call(PrestataireSeeder::class);
         // $this->call(ChauffeurSeeder::class);
-
 
     }
 }

@@ -4,10 +4,10 @@ namespace App\Support\Database;
 
 use Spatie\Enum\Enum;
 
-/** 
+/**
  * @method static self Vidange()
- * =====================================================
- * CHANGEMENT DE PIECES
+ *                               =====================================================
+ *                               CHANGEMENT DE PIECES
  * @method static self Changement_de_filtreHuile()
  * @method static self Changement_de_filtreCarburant()
  * @method static self Changement_de_filtreAir()
@@ -46,16 +46,14 @@ use Spatie\Enum\Enum;
  * @method static self Changement_de_courroie()
  * @method static self Changement_de_phares()
  * @method static self Changement_de_clignotants()
- * =======================================================
- * AUTRES
+ *                                                 =======================================================
+ *                                                 AUTRES
  * @method static self Tolerie()
  * @method static self Peinture()
- * ======================================================
- * AUTRES AUTRES XDXD
+ *                                ======================================================
+ *                                AUTRES AUTRES XDXD
  * @method static self Inscription_des_produits_de_la_SPT()
  * @method static self Climatisation()
- 
-
  */
 class TypesReparation extends Enum
 {
@@ -63,7 +61,7 @@ class TypesReparation extends Enum
     {
         return function (string $name): string|int {
 
-            $traductions = array(
+            $traductions = [
                 'cremaillere' => 'crémaillère',
                 'Reparation' => 'Réparation',
                 'evaporateur' => 'd\'évaporateur',
@@ -80,9 +78,10 @@ class TypesReparation extends Enum
                 'filtreCarburant' => 'filtre à carburant',
                 'pompeEau' => 'pompe à eau',
                 'filtreAir' => 'pompe à air',
-            );
-            return strtr(str_replace("_", " ", str($name)), $traductions);
-            ;
+            ];
+
+            return strtr(str_replace('_', ' ', str($name)), $traductions);
+
         };
     }
 }

@@ -2,25 +2,20 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
-use Filament\Tables;
-use App\Models\Engine;
+use App\Filament\Resources\ChauffeurResource\Pages;
 use App\Models\Chauffeur;
 use App\Models\Departement;
-use Filament\Resources\Form;
-use Filament\Resources\Table;
-use Filament\Resources\Resource;
-use Filament\Forms\Components\Card;
-use App\Support\Database\StatesClass;
-use Filament\Forms\Components\Select;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use Illuminate\Database\Eloquent\Builder;
 use App\Support\Database\PermissionsClass;
+use App\Support\Database\StatesClass;
+use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Placeholder;
-use App\Filament\Resources\ChauffeurResource\Pages;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\ChauffeurResource\RelationManagers;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Resources\Form;
+use Filament\Resources\Resource;
+use Filament\Resources\Table;
+use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 
 class ChauffeurResource extends Resource
 {
@@ -39,35 +34,35 @@ class ChauffeurResource extends Resource
     {
 
         return $form;
-            // ->schema([
-            //     TextInput::make('name')
-            //         ->label('Nom')
-            //         ->required(),
+        // ->schema([
+        //     TextInput::make('name')
+        //         ->label('Nom')
+        //         ->required(),
 
-            //     Select::make('departement_id')
-            //         ->label('Département')
-            //         ->options(
-            //             Departement::where('state', StatesClass::Activated())
-            //                 // ->whereNull('chauffeur_id')
-            //                 ->pluck('nom_departement', 'id')
-            //         )
-            //         ->searchable()
-            //         ->required(),
+        //     Select::make('departement_id')
+        //         ->label('Département')
+        //         ->options(
+        //             Departement::where('state', StatesClass::Activated())
+        //                 // ->whereNull('chauffeur_id')
+        //                 ->pluck('nom_departement', 'id')
+        //         )
+        //         ->searchable()
+        //         ->required(),
 
-            //     Card::make()
-            //         ->schema([
-            //             Placeholder::make('created_at')
-            //                 ->label('Ajouté')
-            //                 ->content(fn(Chauffeur $record): ?string => $record->created_at),
+        //     Card::make()
+        //         ->schema([
+        //             Placeholder::make('created_at')
+        //                 ->label('Ajouté')
+        //                 ->content(fn(Chauffeur $record): ?string => $record->created_at),
 
-            //             Placeholder::make('updated_at')
-            //                 ->label('Mise à jour')
-            //                 ->content(fn(Chauffeur $record): ?string => $record->updated_at),
+        //             Placeholder::make('updated_at')
+        //                 ->label('Mise à jour')
+        //                 ->content(fn(Chauffeur $record): ?string => $record->updated_at),
 
-            //         ])
-            //         ->columnSpan(['lg' => 1])
-            //         ->hidden(fn(?Chauffeur $record) => $record === null),
-            // ]);
+        //         ])
+        //         ->columnSpan(['lg' => 1])
+        //         ->hidden(fn(?Chauffeur $record) => $record === null),
+        // ]);
     }
 
     public static function table(Table $table): Table

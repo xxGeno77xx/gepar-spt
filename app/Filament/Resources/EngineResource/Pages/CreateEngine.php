@@ -2,12 +2,11 @@
 
 namespace App\Filament\Resources\EngineResource\Pages;
 
-use App\Models\Engine;
-use App\Models\Chauffeur;
-use Filament\Pages\Actions\Action;
-use Filament\Notifications\Notification;
 use App\Filament\Resources\EngineResource;
+use App\Models\Chauffeur;
+use App\Models\Engine;
 use App\Support\Database\PermissionsClass;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateEngine extends CreateRecord
@@ -22,15 +21,13 @@ class CreateEngine extends CreateRecord
 
         $userPermission = $user->hasAnyPermission([PermissionsClass::engines_create()->value]);
 
-        abort_if(!$userPermission, 403, __("Vous n'avez pas access à cette page"));
+        abort_if(! $userPermission, 403, __("Vous n'avez pas access à cette page"));
     }
 
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');
     }
-
-   
 
     // public function afterCreate()
     // {
@@ -42,7 +39,6 @@ class CreateEngine extends CreateRecord
     //         ]);
     //     }
     // }
-
 
     // public function beforeCreate()
     // {

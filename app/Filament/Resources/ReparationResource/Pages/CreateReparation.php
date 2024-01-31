@@ -2,28 +2,28 @@
 
 namespace App\Filament\Resources\ReparationResource\Pages;
 
+use App\Filament\Resources\ReparationResource;
 use App\Models\Engine;
-
 use App\Models\Reparation;
-use Filament\Pages\Actions\Action;
+use App\Support\Database\PermissionsClass;
 use App\Support\Database\StatesClass;
 use Filament\Notifications\Notification;
-use App\Support\Database\PermissionsClass;
+use Filament\Pages\Actions\Action;
 use Filament\Resources\Pages\CreateRecord;
-use App\Filament\Resources\ReparationResource;
 
 class CreateReparation extends CreateRecord
 {
     protected static ?string $title = 'Ajouter une réparation';
 
     protected static string $resource = ReparationResource::class;
+
     protected function authorizeAccess(): void
     {
         $user = auth()->user();
 
         $userPermission = $user->hasAnyPermission([PermissionsClass::reparation_create()->value]);
 
-        abort_if(!$userPermission, 403, __("Vous n'avez pas access à cette page"));
+        abort_if(! $userPermission, 403, __("Vous n'avez pas access à cette page"));
     }
 
     protected function getRedirectUrl(): string
@@ -46,13 +46,12 @@ class CreateReparation extends CreateRecord
 
         $latestReparation = Reparation::select(['engine_id', 'created_at', 'date_fin'])
             ->orderbydesc('created_at')
-            ->where('engine_id', $newRaparation["engine_id"])
+            ->where('engine_id', $newRaparation['engine_id'])
             ->where('state', StatesClass::Activated())
             ->first();
 
-
         if ($latestReparation) {
-            if (!$latestReparation->date_fin) {
+            if (! $latestReparation->date_fin) {
                 Notification::make()
                     ->warning()
                     ->title('Attention!')
@@ -64,7 +63,7 @@ class CreateReparation extends CreateRecord
             }
         }
 
-        if (!is_null($newRaparation['date_fin'])) {
+        if (! is_null($newRaparation['date_fin'])) {
 
         }
     }
@@ -81,12 +80,12 @@ class CreateReparation extends CreateRecord
 
     public function afterCreate()
     {
-        
+
         $concernedEngine = Engine::where('id', $this->record->engine_id)->first();
 
         if (is_null($this->record['date_fin'])) {
             $concernedEngine->update([
-                'state' => StatesClass::Repairing()->value
+                'state' => StatesClass::Repairing()->value,
             ]);
         }
 

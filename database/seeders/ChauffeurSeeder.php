@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Chauffeur;
 use Illuminate\Database\Seeder;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class ChauffeurSeeder extends Seeder
 {
@@ -14,15 +13,15 @@ class ChauffeurSeeder extends Seeder
     public function run(): void
     {
         Chauffeur::create([
-            'name' => "Buckner",
+            'name' => 'Buckner',
             'prenom' => 'Antoine',
-            "departement_id" => 1
+            'departement_id' => 1,
         ]);
 
         Chauffeur::create([
-            'name' => "Nom_chauffeur2",
-            'prenom' => "Prenom_chauffeur2",
-            "departement_id" => 2
+            'name' => 'Nom_chauffeur2',
+            'prenom' => 'Prenom_chauffeur2',
+            'departement_id' => 2,
         ]);
     }
 }

@@ -2,17 +2,14 @@
 
 namespace App\Filament\Resources\EngineResource\RelationManagers;
 
+use App\Models\ConsommationCarburant;
 use Closure;
 use Filament\Forms;
-use Filament\Tables;
-use App\Models\Carburant;
-use Filament\Resources\Form;
-use Filament\Resources\Table;
 use Filament\Forms\Components\Grid;
-use App\Models\ConsommationCarburant;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Resources\Form;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Resources\Table;
+use Filament\Tables;
 
 class ConsommationCarburantsRelationManager extends RelationManager
 {
@@ -57,17 +54,17 @@ class ConsommationCarburantsRelationManager extends RelationManager
                             ->rules([
                                 function (RelationManager $livewire) {
 
-                                    return function (string $attribute, $value, Closure $fail  ) use ($livewire) {
+                                    return function (string $attribute, $value, Closure $fail) use ($livewire) {
 
                                         $latestConsommation = ConsommationCarburant::latest()
-                                        ->where('engine_id', $livewire->ownerRecord->id)
-                                        ->value('kilometres_a_remplissage');
+                                            ->where('engine_id', $livewire->ownerRecord->id)
+                                            ->value('kilometres_a_remplissage');
 
                                         if ($latestConsommation) {
 
                                             if ($value < $latestConsommation) {
                                                 // $fail('Le champ :attribute doit être supérieur à 0.');
-                                                $fail('Le dernier kilométrage était à ' . $latestConsommation . ' km');
+                                                $fail('Le dernier kilométrage était à '.$latestConsommation.' km');
                                             }
                                         }
 
@@ -75,19 +72,16 @@ class ConsommationCarburantsRelationManager extends RelationManager
                                 },
                             ]),
 
-
                         Forms\Components\DatePicker::make('date')
                             ->unique()
                             ->required(),
                     ]),
-
 
                 Forms\Components\Hidden::make('carburant_id')
                     ->default(function (RelationManager $livewire): int {
                         return $livewire->ownerRecord->carburant()
                             ->value('id');
                     }),
-
 
             ]);
     }
@@ -102,7 +96,7 @@ class ConsommationCarburantsRelationManager extends RelationManager
                     ->label('Kilométrage au moment du remplissage'),
                 Tables\Columns\TextColumn::make('date')
                     ->label('Date')
-                    ->date('d-m-Y')
+                    ->date('d-m-Y'),
             ])
             ->filters([
                 //

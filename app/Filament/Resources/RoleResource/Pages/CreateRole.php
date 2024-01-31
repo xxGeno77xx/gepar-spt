@@ -1,13 +1,12 @@
 <?php
 
-
 namespace App\Filament\Resources\RoleResource\Pages;
 
-use Filament\Pages\Actions\Action;
-use Spatie\Permission\Contracts\Role;
-use Illuminate\Support\Facades\Config;
 use App\Support\Database\PermissionsClass;
+use Filament\Pages\Actions\Action;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Support\Facades\Config;
+use Spatie\Permission\Contracts\Role;
 use Spatie\Permission\PermissionRegistrar;
 
 class CreateRole extends CreateRecord
@@ -39,9 +38,9 @@ class CreateRole extends CreateRecord
     protected function authorizeAccess(): void
     {
         $user = auth()->user();
-    
+
         $userPermission = $user->hasAnyPermission([PermissionsClass::Roles_create()->value]);
-    
+
         abort_if(! $userPermission, 403, __("Vous n'avez pas access à cette page"));
     }
 }

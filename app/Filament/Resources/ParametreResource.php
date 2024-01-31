@@ -2,44 +2,43 @@
 
 namespace App\Filament\Resources;
 
-use App\Models\Parametre;
-use Filament\Resources\Form;
-use Filament\Resources\Table;
-
-use Filament\Resources\Resource;
-use Filament\Tables\Actions\Action;
-use Filament\Forms\Components\Radio;
-use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Columns\TagsColumn;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Forms\Components\FileUpload;
-use App\Support\Database\PermissionsClass;
 use App\Filament\Resources\ParametreResource\Pages;
+use App\Models\Parametre;
+use App\Support\Database\PermissionsClass;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Radio;
+use Filament\Resources\Form;
+use Filament\Resources\Resource;
+use Filament\Resources\Table;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
 
 class ParametreResource extends Resource
-{ 
-  
+{
     protected static ?string $navigationGroup = 'REGLAGES';
+
     protected static ?string $model = Parametre::class;
-    protected static ?string $modelLabel = "Paramètres";
+
+    protected static ?string $modelLabel = 'Paramètres';
+
     protected static ?string $navigationIcon = 'heroicon-o-cog';
-   
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 radio::make('limite')
                     ->options([
-                        
+
                         Parametre::UN_MOIS => Parametre::UN_MOIS_VALUE,
 
-                        Parametre::DEUX_SEMAINES =>Parametre::DEUX_SEMAINES_VALUE,
-                        
-                        Parametre::UNE_SEMAINE  =>Parametre::UNE_SEMAINE_VALUE ,
+                        Parametre::DEUX_SEMAINES => Parametre::DEUX_SEMAINES_VALUE,
+
+                        Parametre::UNE_SEMAINE => Parametre::UNE_SEMAINE_VALUE,
                     ]),
 
-                // FileUpload::make('icon'), change images 
+                // FileUpload::make('icon'), change images
             ]);
     }
 
@@ -50,7 +49,7 @@ class ParametreResource extends Resource
 
                 TextColumn::make('options')
                     ->weight('bold'),
-                
+
                 TextColumn::make('nom')
                     ->weight('bold'),
 
@@ -62,7 +61,7 @@ class ParametreResource extends Resource
                 //
             ])
             ->actions([
-                EditAction::make()
+                EditAction::make(),
             ])
             ->bulkActions([
                 // ,
@@ -71,20 +70,19 @@ class ParametreResource extends Resource
                 'xl' => 2,
             ]);
     }
+
     public static function canCreate(): bool
     {
-       return false;
+        return false;
     }
 
-
-    
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -92,8 +90,7 @@ class ParametreResource extends Resource
             'create' => Pages\CreateParametre::route('/create'),
             'edit' => Pages\EditParametre::route('/{record}/edit'),
         ];
-    }    
-
+    }
 
     public static function canViewAny(): bool
     {
@@ -101,6 +98,4 @@ class ParametreResource extends Resource
             PermissionsClass::Parametre_update()->value,
         ]);
     }
-
-   
 }

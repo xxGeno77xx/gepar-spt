@@ -19,27 +19,26 @@ class CommonInfos
                     ->schema([
                         Placeholder::make('created_at')
                             ->label('Ajouté le:')
-                            ->content(fn($record): ?string => $record->created_at->format('d-m-Y H:i:s')),
+                            ->content(fn ($record): ?string => $record->created_at->format('d-m-Y H:i:s')),
 
                         Placeholder::make('updated_at')
                             ->label('Mise à jour:')
-                            ->content(fn($record): ?string => $record->updated_at->format('d-m-Y H:i:s')),
+                            ->content(fn ($record): ?string => $record->updated_at->format('d-m-Y H:i:s')),
 
                         placeholder::make('user_id')
                             ->label('Enregistré par:')
-                            ->content(fn($record): ?string => User::find($record->user_id)?->name),
+                            ->content(fn ($record): ?string => User::find($record->user_id)?->name),
 
                         placeholder::make('updated_at_user_id')
                             ->label('Modifi(é) en dernier par:')
-                            ->content(fn($record): ?string => User::find($record->updated_at_user_id)?->name),
+                            ->content(fn ($record): ?string => User::find($record->updated_at_user_id)?->name),
 
                     ])
                     ->columnSpan(['lg' => 1])
-                    ->hidden(fn($record) => $record === null);
-        } else
+                    ->hidden(fn ($record) => $record === null);
+        } else {
             return null;
+        }
 
     }
-
 }
-

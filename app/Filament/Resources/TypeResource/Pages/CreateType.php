@@ -2,34 +2,34 @@
 
 namespace App\Filament\Resources\TypeResource\Pages;
 
-use Filament\Pages\Actions;
-use Filament\Pages\Actions\Action;
 use App\Filament\Resources\TypeResource;
 use App\Support\Database\PermissionsClass;
-use Filament\Resources\Pages\CreateRecord;
 use Database\Seeders\RolesPermissionsSeeder;
+use Filament\Pages\Actions\Action;
+use Filament\Resources\Pages\CreateRecord;
 
 class CreateType extends CreateRecord
 {
     protected static ?string $title = 'Ajouter un type';
 
     protected static string $resource = TypeResource::class;
+
     protected function authorizeAccess(): void
     {
         $user = auth()->user();
-    
+
         // $userPermission = $user->hasAnyPermission([PermissionsClass::departements_create()->value]);
-        
+
         $userRole = $user->hasRole([RolesPermissionsSeeder::SuperAdmin]);
 
-    
-        abort_if(!$userRole, 403, __("Vous n'avez pas access à cette page"));
+        abort_if(! $userRole, 403, __("Vous n'avez pas access à cette page"));
     }
 
     protected function getRedirectUrl(): string
     {
-     return $this->getResource()::getUrl('index');
+        return $this->getResource()::getUrl('index');
     }
+
     protected function getCreateFormAction(): Action
     {
         return Action::make('create')

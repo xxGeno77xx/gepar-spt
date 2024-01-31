@@ -15,7 +15,7 @@ return new class extends Migration
         //     $table->id();
         //     $table->integer('quantite');
         //     $table->dateTime('date');
-           
+
         //     $table->unsignedBigInteger('engine_id');
         //     $table->foreign('engine_id')->references('id')->on('engines');
 

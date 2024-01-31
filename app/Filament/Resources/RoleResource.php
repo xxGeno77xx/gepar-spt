@@ -2,25 +2,27 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Resources\Form;
-use Filament\Resources\Table;
-use Filament\Resources\Resource;
-use Spatie\Permission\Models\Role;
+use App\Filament\Resources\RoleResource\Pages\CreateRole;
+use App\Filament\Resources\RoleResource\Pages\EditRole;
+use App\Filament\Resources\RoleResource\Pages\ListRoles;
+use App\Filament\Resources\RoleResource\Pages\ViewRole;
+use App\Filament\Resources\RoleResource\RelationManager\PermissionRelationManager;
+use App\Support\Database\PermissionsClass;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
-use App\Support\Database\PermissionsClass;
-use App\Filament\Resources\RoleResource\Pages\EditRole;
-use App\Filament\Resources\RoleResource\Pages\ViewRole;
-use App\Filament\Resources\RoleResource\Pages\ListRoles;
-use App\Filament\Resources\RoleResource\Pages\CreateRole;
-use App\Filament\Resources\RoleResource\RelationManager\PermissionRelationManager;
+use Filament\Resources\Form;
+use Filament\Resources\Resource;
+use Filament\Resources\Table;
+use Filament\Tables\Columns\TextColumn;
+use Spatie\Permission\Models\Role;
 
 class RoleResource extends Resource
 {
     protected static ?string $model = Role::class;
-protected static ?string $modelLabel = "Rôles";
+
+    protected static ?string $modelLabel = 'Rôles';
+
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
 
     public function __construct()
@@ -49,7 +51,7 @@ protected static ?string $modelLabel = "Rôles";
             ->schema([
                 Card::make()
                     ->schema([
-                        
+
                         Grid::make(2)
                             ->schema([
 
@@ -99,13 +101,13 @@ protected static ?string $modelLabel = "Rôles";
             'view' => ViewRole::route('/{record}'),
         ];
     }
+
     public static function canViewAny(): bool
     {
         return auth()->user()->hasAnyPermission([
             PermissionsClass::Roles_create()->value,
             PermissionsClass::Roles_read()->value,
 
-           
         ]);
     }
 }

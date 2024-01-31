@@ -1,13 +1,12 @@
 <?php
 
-
 namespace App\Filament\Resources\UserResource\Pages;
 
-use Filament\Pages\Actions\Action;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Config;
 use App\Support\Database\PermissionsClass;
+use Filament\Pages\Actions\Action;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Event;
 use Phpsa\FilamentAuthentication\Events\UserCreated;
 
 class CreateUser extends CreateRecord
@@ -35,9 +34,9 @@ class CreateUser extends CreateRecord
     protected function authorizeAccess(): void
     {
         $user = auth()->user();
-    
+
         $userPermission = $user->hasAnyPermission([PermissionsClass::Users_create()->value]);
-    
+
         abort_if(! $userPermission, 403, __("Vous n'avez pas access à cette page"));
     }
 }

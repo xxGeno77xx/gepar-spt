@@ -2,21 +2,20 @@
 
 namespace App\Filament\Resources\EngineResource\RelationManagers;
 
-use Filament\Forms;
-use App\Models\User;
-use Filament\Tables;
 use App\Models\Assurance;
-use Filament\Resources\Form;
-use Filament\Resources\Table;
-use Filament\Forms\Components\Card;
+use App\Models\User;
 use App\Support\Database\StatesClass;
-use Filament\Forms\Components\Hidden;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\BadgeColumn;
+use Filament\Forms\Components\Card;
 use Filament\Forms\Components\DatePicker;
-use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
+use Filament\Resources\Form;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Resources\Table;
+use Filament\Tables;
+use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Builder;
 
 class AssurancesRelationManager extends RelationManager
 {
@@ -29,24 +28,22 @@ class AssurancesRelationManager extends RelationManager
         return $form
             ->schema([
 
-                    DatePicker::make('date_debut')
+                DatePicker::make('date_debut')
                     ->before('date_fin')
-                    ->label("Date initiale")
+                    ->label('Date initiale')
                     ->required(),
-                    
+
                 DatePicker::make('date_fin')
                     ->label("Date d'expiration")
                     ->required(),
 
                 Hidden::make('user_id')
                     ->default(auth()->user()->name),
-                    
 
                 Hidden::make('updated_at_user_id')
                     ->default(auth()->user()->id),
-                    
 
-                    Card::make()
+                Card::make()
                     ->schema([
                         Placeholder::make('created_at')
                             ->label('Ajoutée le:')
@@ -63,9 +60,9 @@ class AssurancesRelationManager extends RelationManager
                         Placeholder::make('updated_at_user_id')
                             ->label('Modifiée en dernier par:')
                             ->content(fn (Assurance $record): ?string => User::find($record->updated_at_user_id)?->name),
-                ])
-                ->columnSpan(['lg' => 1])
-                ->hidden(fn (?Assurance $record) => $record === null),
+                    ])
+                    ->columnSpan(['lg' => 1])
+                    ->hidden(fn (?Assurance $record) => $record === null),
             ]);
     }
 
@@ -74,14 +71,14 @@ class AssurancesRelationManager extends RelationManager
         return $table
             ->columns([
                 // TextColumn::make('id'),
-                 BadgeColumn::make('date_debut')
-                    ->color("success")
+                BadgeColumn::make('date_debut')
+                    ->color('success')
                     ->label('Date initiale')
                     ->sortable()
                     ->dateTime('d-m-Y')
                     ->alignment('center'),
                 BadgeColumn::make('date_fin')
-                    ->color("success")
+                    ->color('success')
                     ->label("Date d'expiration")
                     ->sortable()
                     ->dateTime('d-m-Y')
@@ -99,17 +96,17 @@ class AssurancesRelationManager extends RelationManager
             ])
             ->bulkActions([
                 // Tables\Actions\DeleteBulkAction::make(),
-            ])->defaultSort('created_at','desc');
-    }    
+            ])->defaultSort('created_at', 'desc');
+    }
 
     protected function getTableQuery(): Builder
     {
         return parent::getTableQuery()
-        ->leftjoin('users','assurances.user_id','=','users.id')
-        ->join('engines','assurances.engine_id','=','engines.id')
-        ->select('engines.plate_number' ,'assurances.*','users.name')
-        ->whereNull('assurances.deleted_at')     
-        ->where('engines.state','=',StatesClass::Activated()->value)        
-        ->where('assurances.state','=',StatesClass::Activated()->value);   
+            ->leftjoin('users', 'assurances.user_id', '=', 'users.id')
+            ->join('engines', 'assurances.engine_id', '=', 'engines.id')
+            ->select('engines.plate_number', 'assurances.*', 'users.name')
+            ->whereNull('assurances.deleted_at')
+            ->where('engines.state', '=', StatesClass::Activated()->value)
+            ->where('assurances.state', '=', StatesClass::Activated()->value);
     }
 }

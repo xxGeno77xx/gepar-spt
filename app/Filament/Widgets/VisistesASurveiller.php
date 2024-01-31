@@ -2,26 +2,26 @@
 
 namespace App\Filament\Widgets;
 
-use App\Tables\Columns\DepartementColumn;
-use Closure;
-use Filament\Tables;
 use App\Models\Engine;
 use App\Models\Parametre;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use App\Support\Database\StatesClass;
-use Filament\Tables\Columns\TextColumn;
+use App\Tables\Columns\DepartementColumn;
+use Closure;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\ImageColumn;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Contracts\Support\Htmlable;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Widgets\TableWidget as BaseWidget;
-
+use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class VisistesASurveiller extends BaseWidget
 {
     protected static ?int $sort = 3;
+
     protected int|string|array $columnSpan = 'full';
+
     protected function getTableQuery(): Builder
     {
 
@@ -45,6 +45,7 @@ class VisistesASurveiller extends BaseWidget
             ->where('engines.state', '<>', StatesClass::Deactivated()->value)
             ->groupBy('engines.id', 'marques.nom_marque', 'visites.date_initiale', 'visites.date_expiration')
             ->distinct('engines.id');
+
         return $visitesASurveiller;
     }
 
@@ -66,7 +67,7 @@ class VisistesASurveiller extends BaseWidget
                 ->alignment('center'),
 
             TextColumn::make('date_initiale')
-                ->label("Date de début")
+                ->label('Date de début')
                 ->color('primary')
                 ->searchable()
                 ->dateTime('d-m-Y'),
@@ -95,15 +96,15 @@ class VisistesASurveiller extends BaseWidget
 
         ];
     }
+
     protected function getTableRecordsPerPageSelectOptions(): array
     {
         return [10, 25, 50, 100];
     }
 
-
     protected function getTableRecordUrlUsing(): ?Closure
     {
-        return fn(Engine $record): string => url('engines/' . $record->id . '/edit', );
+        return fn (Engine $record): string => url('engines/'.$record->id.'/edit');
     }
 
     protected function getTableHeading(): string|Htmlable|Closure|null

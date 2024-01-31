@@ -3,11 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\Type;
-use App\Models\Departement;
-use Illuminate\Database\Seeder;
-use App\Support\Database\TypesClass;
 use App\Support\Database\StatesClass;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Support\Database\TypesClass;
+use Illuminate\Database\Seeder;
 
 class TypesSeeder extends Seeder
 {
@@ -16,13 +14,12 @@ class TypesSeeder extends Seeder
      */
     public function run(): void
     {
-        $departements=TypesClass::toValues();
+        $departements = TypesClass::toValues();
 
-        foreach($departements as $key=>$departement)
-        {
+        foreach ($departements as $key => $departement) {
             Type::firstOrCreate([
-                'nom_type'=>$departement,
-                'state'=>StatesClass::Activated()
+                'nom_type' => $departement,
+                'state' => StatesClass::Activated(),
             ]);
         }
     }

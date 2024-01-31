@@ -2,32 +2,28 @@
 
 namespace App\Filament\Resources;
 
-use Carbon\Carbon;
-use App\Models\User;
-use Filament\Tables;
+use App\Filament\Resources\VisiteResource\Pages;
 use App\Models\Engine;
 use App\Models\Visite;
-use Filament\Resources\Form;
-use Filament\Resources\Table;
-use Filament\Resources\Resource;
-use Filament\Forms\Components\Card;
 use App\Support\Database\CommonInfos;
+use App\Support\Database\PermissionsClass;
 use App\Support\Database\StatesClass;
+use Filament\Forms\Components\Card;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use Filament\Resources\Form;
+use Filament\Resources\Resource;
+use Filament\Resources\Table;
+use Filament\Tables;
 use Filament\Tables\Actions\ViewAction;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\BadgeColumn;
-use Filament\Forms\Components\DatePicker;
-use App\Support\Database\PermissionsClass;
-use App\Filament\Resources\VisiteResource\Pages;
-
+use Filament\Tables\Columns\TextColumn;
 
 class VisiteResource extends Resource
 {
-
-
     protected static ?string $model = Visite::class;
+
     protected static ?string $navigationGroup = 'Administration';
 
     protected static ?string $label = 'Visites techniques';
@@ -41,19 +37,19 @@ class VisiteResource extends Resource
                 Card::make()
                     ->schema([
                         Select::make('engine_id')
-                            ->label("Numéro de plaque")
+                            ->label('Numéro de plaque')
                             ->options(
-                                Engine::select(['plate_number', "id"])
+                                Engine::select(['plate_number', 'id'])
                                     ->where('engines.state', StatesClass::Activated())
                                     ->get()
-                                    ->pluck('plate_number', "id")
+                                    ->pluck('plate_number', 'id')
                             )
                             ->searchable()
                             ->required(),
 
                         DatePicker::make('date_initiale')
                             ->before('date_expiration')
-                            ->label("Date initiale")
+                            ->label('Date initiale')
                             ->required(),
 
                         DatePicker::make('date_expiration')
@@ -68,9 +64,9 @@ class VisiteResource extends Resource
                             ->default(auth()->user()->id)
                             ->disabled(),
                     ])
-                    ->columnSpan(['lg' => fn(?Visite $record) => $record === null ? 3 : 2]),
+                    ->columnSpan(['lg' => fn (?Visite $record) => $record === null ? 3 : 2]),
 
-                    CommonInfos::PlaceholderCard(),
+                CommonInfos::PlaceholderCard(),
 
             ])->columns(3);
     }
@@ -97,7 +93,7 @@ class VisiteResource extends Resource
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                BadgeColumn::make('created_at')->label("Ajouté le")
+                BadgeColumn::make('created_at')->label('Ajouté le')
                     ->dateTime('d-m-Y')
                     ->wrap(),
 
@@ -111,6 +107,7 @@ class VisiteResource extends Resource
                 ViewAction::make()
                     ->mutateRecordDataUsing(function (array $data): array {
                         $data['user_id'] = auth()->user()->name;
+
                         return $data;
                     }),
             ])

@@ -1,9 +1,9 @@
 <?php
 
 use App\Support\Database\StatesClass;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -36,14 +36,14 @@ return new class extends Migration
             $table->unsignedBigInteger('updated_at_user_id');
 
             $table->json('infos')->nullable();
-            
+
             $table->integer('cout_reparation')->nullable();
 
             $table->enum('state', [StatesClass::Activated()->value,
                 StatesClass::Deactivated()->value,
                 StatesClass::Suspended()->value,
-                ]);
-            
+            ]);
+
             $table->timestamps();
 
             $table->softDeletes();

@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Models\User;
 use App\Mail\AssuranceMail;
+use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
 
@@ -28,26 +28,21 @@ class sendAssurancesMailsCommand extends Command
      */
     public function handle()
     {
-        $assuranceMail= new AssuranceMail;
+        $assuranceMail = new AssuranceMail;
 
-        
-        {
-             $notifiedUsers=User::where('notification', true)->pluck('email');
+        $notifiedUsers = User::where('notification', true)->pluck('email');
 
-             if(count($assuranceMail->mailableEngines)>=1 )
-             {
-                (Mail::to($notifiedUsers)->send(new AssuranceMail($assuranceMail->mailableEngines)));
+        if (count($assuranceMail->mailableEngines) >= 1) {
+            (Mail::to($notifiedUsers)->send(new AssuranceMail($assuranceMail->mailableEngines)));
 
-                foreach($assuranceMail->mailableEngines as $engine)
-                 {
-                    $engine->assurances_mail_sent=true;
-                    $engine->save();
-                 }
-                 $this->info('The command was successful, Assurance mails sent!!!');
-             }
-            else $this->info('The command successfull but no Assurance mails to be sent!!!');
+            foreach ($assuranceMail->mailableEngines as $engine) {
+                $engine->assurances_mail_sent = true;
+                $engine->save();
+            }
+            $this->info('The command was successful, Assurance mails sent!!!');
+        } else {
+            $this->info('The command successfull but no Assurance mails to be sent!!!');
+        }
 
-            
-        };
     }
 }

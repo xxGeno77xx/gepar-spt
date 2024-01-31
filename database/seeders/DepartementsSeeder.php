@@ -3,9 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\Departement;
-use Illuminate\Database\Seeder;
 use App\Support\Database\DepartementsClass;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
 
 class DepartementsSeeder extends Seeder
 {
@@ -14,12 +13,11 @@ class DepartementsSeeder extends Seeder
      */
     public function run(): void
     {
-        $departements=DepartementsClass::toValues();
+        $departements = DepartementsClass::toValues();
 
-        foreach($departements as $key=>$departement)
-        {
+        foreach ($departements as $key => $departement) {
             Departement::firstOrCreate([
-                'nom_departement'=>$departement,
+                'nom_departement' => $departement,
             ]);
         }
     }

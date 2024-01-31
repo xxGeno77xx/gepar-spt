@@ -2,14 +2,12 @@
 
 namespace App\Filament\Resources\PermissionResource\Pages;
 
-use Filament\Pages\Actions;
-use Filament\Forms\Components\Select;
-use Illuminate\Support\Facades\Config;
-use Filament\Tables\Actions\BulkAction;
-use Filament\Resources\Pages\ListRecords;
 use App\Support\Database\PermissionsClass;
+use Filament\Forms\Components\Select;
+use Filament\Resources\Pages\ListRecords;
+use Filament\Tables\Actions\BulkAction;
 use Illuminate\Database\Eloquent\Collection;
-
+use Illuminate\Support\Facades\Config;
 
 class ListPermissions extends ListRecords
 {
@@ -18,8 +16,6 @@ class ListPermissions extends ListRecords
         return Config::get('filament-authentication.resources.PermissionResource');
     }
 
-    
-   
     protected function getTableBulkActions(): array
     {
         $roleClass = config('filament-authentication.models.Role');
@@ -45,12 +41,9 @@ class ListPermissions extends ListRecords
     protected function authorizeAccess(): void
     {
         $user = auth()->user();
-    
+
         $userPermission = $user->hasAnyPermission([PermissionsClass::Permissions_read()->value]);
-    
+
         abort_if(! $userPermission, 403, __("Vous n'avez pas access à cette page"));
     }
-
-   
-    
 }

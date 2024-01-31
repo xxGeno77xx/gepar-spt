@@ -2,27 +2,28 @@
 
 namespace App\Filament\Resources;
 
-use App\Support\Database\StatesClass;
-use Filament\Forms;
-use Filament\Tables;
+use App\Filament\Resources\ModeleResource\Pages;
 use App\Models\Marque;
 use App\Models\Modele;
-use Filament\Resources\Form;
-use Filament\Resources\Table;
-use Filament\Resources\Resource;
-use Filament\Forms\Components\Select;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Columns\ImageColumn;
 use App\Support\Database\PermissionsClass;
-use App\Filament\Resources\ModeleResource\Pages;
-use Filament\Tables\Columns\Layout\Grid;
+use App\Support\Database\StatesClass;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Resources\Form;
+use Filament\Resources\Resource;
+use Filament\Resources\Table;
+use Filament\Tables;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
+
 class ModeleResource extends Resource
 {
     protected static ?string $model = Modele::class;
+
     protected static ?string $navigationGroup = 'Flotte automobile';
 
-    protected static ?string $modelLabel = "Modèles";
+    protected static ?string $modelLabel = 'Modèles';
+
     protected static ?string $navigationIcon = 'heroicon-o-color-swatch';
 
     public static function form(Form $form): Form
@@ -30,16 +31,16 @@ class ModeleResource extends Resource
         return $form
             ->schema([
                 TextInput::make('nom_modele')
-                ->required()
-                ->unique(ignoreRecord:true),
-                
+                    ->required()
+                    ->unique(ignoreRecord: true),
+
                 Select::make('marque_id')
                 // ->relationship('marque','nom_marque')
-                ->label("Marque")
-                ->options(Marque::select('nom_marque','id')->where('state',StatesClass::Activated())->pluck('nom_marque','id'))
-                ->searchable()
-                ->required(),
-                
+                    ->label('Marque')
+                    ->options(Marque::select('nom_marque', 'id')->where('state', StatesClass::Activated())->pluck('nom_marque', 'id'))
+                    ->searchable()
+                    ->required(),
+
             ]);
     }
 
@@ -58,11 +59,11 @@ class ModeleResource extends Resource
                     ->searchable(),
 
                 ImageColumn::make('logo')
-                ->label('Logo')
-                ->alignment('center')
-                ->defaultImageUrl(url('images/no_logo.png')),
-                
-            ])->defaultSort('created_at','desc')
+                    ->label('Logo')
+                    ->alignment('center')
+                    ->defaultImageUrl(url('images/no_logo.png')),
+
+            ])->defaultSort('created_at', 'desc')
 
             ->filters([
                 //
@@ -77,14 +78,14 @@ class ModeleResource extends Resource
                 // Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -92,7 +93,8 @@ class ModeleResource extends Resource
             'create' => Pages\CreateModele::route('/create'),
             'edit' => Pages\EditModele::route('/{record}/edit'),
         ];
-    }    
+    }
+
     public static function canViewAny(): bool
     {
         return auth()->user()->hasAnyPermission([
@@ -100,6 +102,4 @@ class ModeleResource extends Resource
             PermissionsClass::modeles_update()->value,
         ]);
     }
-
-     
 }

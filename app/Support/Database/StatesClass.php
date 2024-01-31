@@ -3,6 +3,7 @@
 namespace App\Support\Database;
 
 use Spatie\Enum\Enum;
+
 /**
  * @method static self Activated()
  * @method static self Deactivated()
@@ -14,15 +15,15 @@ class StatesClass extends Enum
 {
     protected static function values()
     {
-        return function(string $name): string|int {
+        return function (string $name): string|int {
 
-            $traductions = array(
-                "Activated" => "En état",
-                "Deactivated" => "Désactivé",
-                "Repairing" => "En réparation",
-            );
-            return strtr(str_replace("_", ": ", str($name)), $traductions);;
+            $traductions = [
+                'Activated' => 'En état',
+                'Deactivated' => 'Désactivé',
+                'Repairing' => 'En réparation',
+            ];
+
+            return strtr(str_replace('_', ': ', str($name)), $traductions);
         };
     }
-
 }

@@ -2,21 +2,12 @@
 
 namespace App\Models;
 
-use App\Models\Type;
-use App\Models\Marque;
-use App\Models\Modele;
-use App\Models\Assurance;
-use App\Models\Carburant;
-use App\Models\Reparation;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasOneThrough;
-use App\Filament\Resources\EngineResource\RelationManagers\AssurancesRelationManager;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Engine extends Model
 {
@@ -25,42 +16,40 @@ class Engine extends Model
 
     public function reparations()
     {
-        return $this->hasMany(Reparation::Class);
+        return $this->hasMany(Reparation::class);
     }
 
     public function modele()
     {
-        return $this->belongsTo(Modele::Class,'modele_id');
+        return $this->belongsTo(Modele::class, 'modele_id');
     }
 
-    
     public function type()
     {
-        return $this->belongsTo(Type::Class);
+        return $this->belongsTo(Type::class);
     }
-
 
     public function carburant()
     {
-        return $this->belongsTo(Carburant::Class);
+        return $this->belongsTo(Carburant::class);
     }
 
     public function assurances()
     {
-        return $this->hasMany(Assurance::Class);   
+        return $this->hasMany(Assurance::class);
     }   //return all insurances at once
 
- 
-        public function assurance(): HasOne
+    public function assurance(): HasOne
     {
         return $this->hasOne(Assurance::class)->latestOfMany();
-         // return latest entry in insurance table for a given engine....
-         //currently used in the engines table on filament admin pannel
-         //to retrieve latest insurance
+        // return latest entry in insurance table for a given engine....
+        //currently used in the engines table on filament admin pannel
+        //to retrieve latest insurance
     }
+
     public function departement()
     {
-        return $this->belongsTo(Departement::Class, 'chauffeur_id');
+        return $this->belongsTo(Departement::class, 'chauffeur_id');
     }
 
     // public function departement():BelongsTo
@@ -70,23 +59,21 @@ class Engine extends Model
 
     public function visites()
     {
-        return $this->hasMany(Visite::Class);
-    }
-    
-    public function visite()
-    {
-        return $this->hasOne(Visite::Class)->latestOfMany();
+        return $this->hasMany(Visite::class);
     }
 
-    public function consommationCarburants():HasMany
+    public function visite()
+    {
+        return $this->hasOne(Visite::class)->latestOfMany();
+    }
+
+    public function consommationCarburants(): HasMany
     {
         return $this->hasMany(ConsommationCarburant::class);
     }
 
-    public function chauffeur():HasOne
+    public function chauffeur(): HasOne
     {
         return $this->hasOne(Chauffeur::class);
     }
-
-
 }

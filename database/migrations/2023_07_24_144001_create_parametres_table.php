@@ -13,14 +13,14 @@ return new class extends Migration
     {
         Schema::create('parametres', function (Blueprint $table) {
             $table->id();
-            
+
             $table->integer('limite');
 
             $table->string('nom')->nullable();
 
             $table->string('options')->nullable();
 
-            // $table->string('icon')->nullable();  
+            // $table->string('icon')->nullable();
 
             $table->timestamps();
         });

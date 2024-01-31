@@ -1,9 +1,9 @@
 <?php
 
 use App\Support\Database\StatesClass;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -12,10 +12,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-       
+
         Schema::create('assurances', function (Blueprint $table) {
             $table->id();
-            
+
             $table->date('date_debut');
 
             $table->date('date_fin');
@@ -30,7 +30,7 @@ return new class extends Migration
 
             $table->unsignedBigInteger('updated_at_user_id');
 
-            $table->enum('state', [StatesClass::Activated()->value, StatesClass::Deactivated()->value, StatesClass::Suspended()->value,]);
+            $table->enum('state', [StatesClass::Activated()->value, StatesClass::Deactivated()->value, StatesClass::Suspended()->value]);
 
             $table->timestamps();
 

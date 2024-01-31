@@ -3,9 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\TypeReparation;
-use Illuminate\Database\Seeder;
 use App\Support\Database\TypesReparation;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
 
 class TypeReparationSeeder extends Seeder
 {
@@ -16,10 +15,9 @@ class TypeReparationSeeder extends Seeder
     {
         $typesReparations = TypesReparation::toValues();
 
-        foreach( $typesReparations as $key => $typeReparation)
-        {
+        foreach ($typesReparations as $key => $typeReparation) {
             TypeReparation::firstOrCreate([
-                'libelle' =>  $typeReparation,
+                'libelle' => $typeReparation,
             ]);
         }
     }

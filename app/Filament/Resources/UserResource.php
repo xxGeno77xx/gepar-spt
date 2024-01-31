@@ -2,29 +2,28 @@
 
 namespace App\Filament\Resources;
 
-
+use App\Filament\Resources\UserResource\Pages\CreateUser;
+use App\Filament\Resources\UserResource\Pages\EditUser;
+use App\Filament\Resources\UserResource\Pages\ListUsers;
+use App\Filament\Resources\UserResource\Pages\ViewUser;
+use App\Support\Database\PermissionsClass;
+use App\Support\Database\StatesClass;
 use Database\Seeders\RolesPermissionsSeeder;
-use Filament\Resources\Form;
-use Filament\Resources\Table;
-use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Radio;
-use Illuminate\Support\Facades\Hash;
-use App\Support\Database\StatesClass;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Resources\Form;
+use Filament\Resources\Resource;
+use Filament\Resources\Table;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TagsColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\ToggleColumn;
-use Illuminate\Database\Eloquent\Builder;
-use App\Support\Database\PermissionsClass;
 use Filament\Tables\Filters\TernaryFilter;
-use App\Filament\Resources\UserResource\Pages\EditUser;
-use App\Filament\Resources\UserResource\Pages\ViewUser;
-use App\Filament\Resources\UserResource\Pages\ListUsers;
-use App\Filament\Resources\UserResource\Pages\CreateUser;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Hash;
 use Phpsa\FilamentAuthentication\Actions\ImpersonateLink;
 
 class UserResource extends Resource
@@ -66,7 +65,7 @@ class UserResource extends Resource
                         TextInput::make('email')
                             ->required()
                             ->email()
-                            ->unique(table: static::$model, ignorable: fn($record) => $record)
+                            ->unique(table: static::$model, ignorable: fn ($record) => $record)
                             ->regex('/.*@laposte\.tg$/') // field must end with @laposte.tg
                             ->label(strval(__('filament-authentication::filament-authentication.field.user.email'))),
 
@@ -74,8 +73,8 @@ class UserResource extends Resource
                             ->same('passwordConfirmation')
                             ->password()
                             ->maxLength(255)
-                            ->required(fn($component, $get, $livewire, $model, $record, $set, $state) => $record === null)
-                            ->dehydrateStateUsing(fn($state) => !empty($state) ? Hash::make($state) : '')
+                            ->required(fn ($component, $get, $livewire, $model, $record, $set, $state) => $record === null)
+                            ->dehydrateStateUsing(fn ($state) => ! empty($state) ? Hash::make($state) : '')
                             ->label(strval(__('filament-authentication::filament-authentication.field.user.password'))),
 
                         TextInput::make('passwordConfirmation')
@@ -92,7 +91,6 @@ class UserResource extends Resource
                             // ->relationship('roles', 'name',fn (Builder $query) => $query->whereNot('name',RolesPermissionsSeeder::SuperAdmin))
                             ->preload(true)
                             ->label(strval(__('filament-authentication::filament-authentication.field.user.roles'))),
-
 
                         // Radio::make('state')
                         // ->label('Etat')
@@ -113,8 +111,6 @@ class UserResource extends Resource
                 // ->label('Etat')
                 // ->default(true),
 
-
-
             ]);
     }
 
@@ -131,6 +127,8 @@ class UserResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->label(strval(__('filament-authentication::filament-authentication.field.user.email'))),
+
+                ToggleColumn::make('state'),
 
                 IconColumn::make('notification')
                     ->trueIcon('heroicon-o-badge-check')
@@ -149,15 +147,15 @@ class UserResource extends Resource
                 TernaryFilter::make('email_verified_at')
                     ->label(strval(__('filament-authentication::filament-authentication.filter.verified')))
                     ->nullable(),
-                    
+
                 TernaryFilter::make('state')
                     ->label(strval(__('Etat')))
                     ->trueLabel('Activé')
                     ->falseLabel('Désactivé')
                     ->nullable()
                     ->queries(
-                        true: fn(Builder $query) => $query->where('state', StatesClass::Activated()),
-                        false: fn(Builder $query) => $query->where('state', StatesClass::Deactivated()),
+                        true: fn (Builder $query) => $query->where('state', StatesClass::Activated()),
+                        false: fn (Builder $query) => $query->where('state', StatesClass::Deactivated()),
                     ),
             ])
             ->prependActions([
@@ -166,7 +164,7 @@ class UserResource extends Resource
             ->bulkActions([
                 // Tables\Actions\DeleteBulkAction::make(),
             ]);
-        ;
+
     }
 
     public static function getRelations(): array
@@ -194,9 +192,6 @@ class UserResource extends Resource
             PermissionsClass::users_read()->value,
             PermissionsClass::users_update()->value,
 
-
         ]);
     }
-
-
 }

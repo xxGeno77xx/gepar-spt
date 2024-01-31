@@ -2,11 +2,11 @@
 
 namespace App\Filament\Resources\UserResource\Pages;
 
+use App\Support\Database\PermissionsClass;
 use Filament\Facades\Filament;
 use Filament\Pages\Actions\Action;
-use Illuminate\Support\Facades\Config;
 use Filament\Resources\Pages\ViewRecord;
-use App\Support\Database\PermissionsClass;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Validation\UnauthorizedException;
 use Phpsa\FilamentAuthentication\Actions\ImpersonateLink;
 
@@ -40,13 +40,13 @@ class ViewUser extends ViewRecord
     protected function authorizeAccess(): void
     {
         $user = auth()->user();
-    
+
         $userPermission = $user->hasAnyPermission([
             PermissionsClass::Users_read()->value,
             PermissionsClass::Users_create()->value,
 
-    ]);
-    
+        ]);
+
         abort_if(! $userPermission, 403, __("Vous n'avez pas access à cette page"));
     }
 }

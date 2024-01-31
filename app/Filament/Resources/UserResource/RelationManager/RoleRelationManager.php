@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Filament\Resources\UserResource\RelationManager;
 
 use Filament\Forms\Components\TextInput;
@@ -24,7 +23,7 @@ class RoleRelationManager extends BelongsToManyRelationManager
                     ->label(strval(__('filament-authentication::filament-authentication.field.name'))),
                 TextInput::make('guard_name')
                     ->label(strval(__('filament-authentication::filament-authentication.field.guard_name')))
-                     ->default(config('auth.defaults.guard')),
+                    ->default(config('auth.defaults.guard')),
 
             ]);
     }

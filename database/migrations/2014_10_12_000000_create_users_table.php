@@ -1,9 +1,9 @@
 <?php
 
 use App\Support\Database\StatesClass;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -23,12 +23,12 @@ return new class extends Migration
 
             $table->boolean('notification')->comment('Users that will get notified with mails: true(1) for yes, false(0) for no');
 
-            $table->enum('state', [StatesClass::Activated()->value,StatesClass::Deactivated()->value,StatesClass::Suspended()->value,]);
+            $table->enum('state', [StatesClass::Activated()->value, StatesClass::Deactivated()->value, StatesClass::Suspended()->value]);
 
             $table->string('password');
 
             $table->rememberToken();
-            
+
             $table->integer('login_attempts')->default(1)->comment('number of times a user can attempt login before account is blocked');
 
             $table->softDeletes();

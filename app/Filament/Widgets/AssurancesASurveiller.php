@@ -2,28 +2,25 @@
 
 namespace App\Filament\Widgets;
 
-use Closure;
-use Filament\Tables;
 use App\Models\Engine;
 use App\Models\Parametre;
-use Illuminate\Support\Str;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use App\Support\Database\StatesClass;
-use Filament\Tables\Columns\TextColumn;
+use App\Tables\Columns\DepartementColumn;
+use Closure;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\ImageColumn;
-use App\Tables\Columns\DepartementColumn;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Contracts\Support\Htmlable;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Widgets\TableWidget as BaseWidget;
+use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class AssurancesASurveiller extends BaseWidget
 {
-
     protected static ?int $sort = 2;
-    protected int|string|array $columnSpan = 'full';
 
+    protected int|string|array $columnSpan = 'full';
 
     public function getTableQuery(): Builder
     {
@@ -31,7 +28,6 @@ class AssurancesASurveiller extends BaseWidget
         $limite = parametre::orderBy('created_at', 'desc')->first()->value('limite');
 
         $limite = parametre::where('options', 'Assurances')->value('limite');
-
 
         $assurancesASurveiller = Engine::Join('assurances', function ($join) {
 
@@ -53,9 +49,6 @@ class AssurancesASurveiller extends BaseWidget
             ->groupBy('engines.id', 'marques.nom_marque', 'assurances.date_debut', 'assurances.date_fin')
             ->distinct('engines.id');
 
-
-
-
         return $assurancesASurveiller;
     }
 
@@ -67,7 +60,7 @@ class AssurancesASurveiller extends BaseWidget
                 ->label('Numéro de plaque')
                 ->searchable(),
 
-                DepartementColumn::make('departement_id')
+            DepartementColumn::make('departement_id')
                 ->searchable()
                 ->label('Département'),
 
@@ -78,7 +71,7 @@ class AssurancesASurveiller extends BaseWidget
                 ->alignment('center'),
 
             TextColumn::make('date_debut')
-                ->label("Date de début")
+                ->label('Date de début')
                 ->color('primary')
                 ->searchable()
                 ->dateTime('d-m-Y'),
@@ -109,6 +102,7 @@ class AssurancesASurveiller extends BaseWidget
                 }),
         ];
     }
+
     protected function getTableRecordsPerPageSelectOptions(): array
     {
         return [10, 25, 50, 100];
@@ -116,7 +110,7 @@ class AssurancesASurveiller extends BaseWidget
 
     protected function getTableRecordUrlUsing(): ?Closure
     {
-        return fn(Engine $record): string => url('engines/' . $record->id . '/edit', );
+        return fn (Engine $record): string => url('engines/'.$record->id.'/edit');
     }
 
     protected function getTableHeading(): string|Htmlable|Closure|null

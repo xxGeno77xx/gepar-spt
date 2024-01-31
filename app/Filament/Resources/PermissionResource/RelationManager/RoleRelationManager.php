@@ -2,13 +2,13 @@
 
 namespace App\Filament\Resources\PermissionResource\RelationManager;
 
-use Filament\Resources\Form;
-use Filament\Resources\Table;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
-use Filament\Tables\Actions\AttachAction;
-use Spatie\Permission\PermissionRegistrar;
+use Filament\Resources\Form;
 use Filament\Resources\RelationManagers\BelongsToManyRelationManager;
+use Filament\Resources\Table;
+use Filament\Tables\Actions\AttachAction;
+use Filament\Tables\Columns\TextColumn;
+use Spatie\Permission\PermissionRegistrar;
 
 class RoleRelationManager extends BelongsToManyRelationManager
 {
@@ -27,7 +27,7 @@ class RoleRelationManager extends BelongsToManyRelationManager
     //                  ->default(config('auth.defaults.guard')),
 
     //         ]);
-            
+
     // }
 
     public static function table(Table $table): Table
@@ -48,7 +48,7 @@ class RoleRelationManager extends BelongsToManyRelationManager
                 // AttachAction::make()->preloadRecordSelect()
             ])
             ->bulkActions([
-                 //Tables\Actions\DeleteBulkAction::make(),
+                //Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
 
@@ -65,8 +65,7 @@ class RoleRelationManager extends BelongsToManyRelationManager
     protected function getResourceTable(): Table
     {
         $table = Table::make();
-        
+
         return $this->table($table);
     }
 }
-

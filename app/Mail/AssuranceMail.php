@@ -8,9 +8,8 @@ use App\Support\Database\StatesClass;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 
 class AssuranceMail extends Mailable
@@ -40,9 +39,9 @@ class AssuranceMail extends Mailable
             ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
             // ->join('departements','engines.departement_id','departements.id')
             ->join('marques', 'modeles.marque_id', '=', 'marques.id')
-            ->select('engines.*', /*'departements.nom_departement',*/'marques.logo as logo', 'assurances.date_debut as date_debut',
-             DB::raw('DATE(assurances.date_fin) as date_fin'),
-              'marques.nom_marque', 'modeles.nom_modele')
+            ->select('engines.*', /*'departements.nom_departement',*/ 'marques.logo as logo', 'assurances.date_debut as date_debut',
+                DB::raw('DATE(assurances.date_fin) as date_fin'),
+                'marques.nom_marque', 'modeles.nom_modele')
             ->where('engines.state', StatesClass::Activated()->value)
             ->where('engines.assurances_mail_sent', '=', 0)
             ->groupBy('engines.id', 'marques.nom_marque', 'assurances.date_debut', 'assurances.date_fin')

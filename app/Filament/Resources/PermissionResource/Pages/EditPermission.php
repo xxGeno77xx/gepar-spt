@@ -2,11 +2,10 @@
 
 namespace App\Filament\Resources\PermissionResource\Pages;
 
-use Illuminate\Support\Facades\Config;
 use Filament\Resources\Pages\EditRecord;
-use App\Support\Database\PermissionsClass;
-use Spatie\Permission\PermissionRegistrar;
+use Illuminate\Support\Facades\Config;
 use Spatie\Permission\Contracts\Permission;
+use Spatie\Permission\PermissionRegistrar;
 
 class EditPermission extends EditRecord
 {
@@ -23,5 +22,4 @@ class EditPermission extends EditRecord
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();
     }
-
 }

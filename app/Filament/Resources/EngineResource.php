@@ -2,50 +2,47 @@
 
 namespace App\Filament\Resources;
 
-use Closure;
-use Filament\Forms;
-use App\Models\Type;
-use App\Models\User;
-use Filament\Tables;
-use App\Models\Engine;
-use App\Models\Modele;
-use App\Models\Carburant;
-use App\Models\Chauffeur;
-use App\Models\Departement;
-use Filament\Resources\Form;
-use Filament\Resources\Table;
-use App\Models\Engine as Engin;
-use Filament\Resources\Resource;
-use Filament\Forms\Components\Card;
-use Filament\Forms\Components\Grid;
-use Filament\Tables\Filters\Filter;
-use Filament\Forms\Components\Radio;
-use App\Support\Database\CommonInfos;
-use App\Support\Database\StatesClass;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Select;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Columns\BadgeColumn;
-use Filament\Tables\Columns\ImageColumn;
-use App\Tables\Columns\DepartementColumn;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
-use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Database\Eloquent\Builder;
-use App\Support\Database\PermissionsClass;
-use Filament\Forms\Components\ColorPicker;
-use Filament\Forms\Components\Placeholder;
 use App\Filament\Resources\EngineResource\Pages;
 use App\Filament\Resources\EngineResource\RelationManagers;
 use App\Filament\Resources\EngineResource\RelationManagers\ConsommationCarburantsRelationManager;
+use App\Models\Carburant;
+use App\Models\Chauffeur;
+use App\Models\Departement;
+use App\Models\Engine;
+use App\Models\Engine as Engin;
+use App\Models\Modele;
+use App\Models\Type;
+use App\Support\Database\CommonInfos;
+use App\Support\Database\PermissionsClass;
+use App\Support\Database\StatesClass;
+use App\Tables\Columns\DepartementColumn;
+use Closure;
+use Filament\Forms\Components\Card;
+use Filament\Forms\Components\ColorPicker;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Resources\Form;
+use Filament\Resources\Resource;
+use Filament\Resources\Table;
+use Filament\Tables;
+use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Illuminate\Database\Eloquent\Builder;
 
 class EngineResource extends Resource
 {
     protected static ?string $model = Engin::class;
-    protected static ?string $navigationGroup = 'Flotte automobile';
-    protected static ?string $modelLabel = 'Engins';
 
+    protected static ?string $navigationGroup = 'Flotte automobile';
+
+    protected static ?string $modelLabel = 'Engins';
 
     protected static ?string $navigationIcon = 'heroicon-o-truck';
 
@@ -63,7 +60,7 @@ class EngineResource extends Resource
                     ->schema([
 
                         TextInput::make('matricule_precedent')
-                            ->label("Matricule précédent")
+                            ->label('Matricule précédent')
                             ->regex('/^\d{4}-[A-Z]{2}$/')
                             ->placeholder('1234-AB')
                             ->maxLength(7)
@@ -87,13 +84,13 @@ class EngineResource extends Resource
                                             if ($existingEngine->id != $record->id) {
                                                 $fail('Un engin avec ce numéro de plaque existe déjà.');
                                             }
-                                        };
+                                        }
                                     };
                                 },
                             ]),
 
                         DatePicker::make('circularization_date')
-                            ->label("Mise en circulation"),
+                            ->label('Mise en circulation'),
 
                         DatePicker::make('date_aquisition')
                             ->label("Date d'acquisition"),
@@ -112,17 +109,17 @@ class EngineResource extends Resource
                         Grid::make(6)
                             ->schema([
                                 TextInput::make('power')
-                                    ->label("Puissance")
+                                    ->label('Puissance')
                                     ->numeric()
                                     ->required(),
 
                                 TextInput::make('pl_ass')
-                                    ->label("pl_ass")
+                                    ->label('pl_ass')
                                     ->numeric()
                                     ->required(),
 
                                 TextInput::make('numero_chassis')
-                                    ->label("Numéro de chassis")
+                                    ->label('Numéro de chassis')
                                     // ->unique(ignoreRecord: true)
                                     ->required()
                                     ->rules([
@@ -139,11 +136,11 @@ class EngineResource extends Resource
                                             };
                                         },
                                     ]),
-                                TextInput::make('moteur')->label("Moteur")->numeric()->required(),
+                                TextInput::make('moteur')->label('Moteur')->numeric()->required(),
 
-                                TextInput::make('carosserie')->label("Carosserie")->required(),
+                                TextInput::make('carosserie')->label('Carosserie')->required(),
 
-                                ColorPicker::make('couleur')->label("Couleur")->required(),
+                                ColorPicker::make('couleur')->label('Couleur')->required(),
 
                             ]),
 
@@ -151,38 +148,38 @@ class EngineResource extends Resource
                             ->schema([
 
                                 TextInput::make('poids_total_en_charge')
-                                    ->label("Poids total en charge")
+                                    ->label('Poids total en charge')
                                     ->numeric()
                                     ->required(),
 
                                 TextInput::make('poids_a_vide')
-                                    ->label("Poids à vide")
+                                    ->label('Poids à vide')
                                     ->numeric()
                                     ->required(),
 
                                 TextInput::make('poids_total_roulant')
-                                    ->label("Poids total roulant")
+                                    ->label('Poids total roulant')
                                     ->numeric(),
 
                                 TextInput::make('Charge_utile')
-                                    ->label("Charge à vide")
+                                    ->label('Charge à vide')
                                     ->numeric()
                                     ->required(),
 
                                 TextInput::make('largeur')
-                                    ->label("Largeur")
+                                    ->label('Largeur')
                                     ->numeric()
                                     ->required(),
 
                                 TextInput::make('surface')
-                                    ->label("Surface")
+                                    ->label('Surface')
                                     ->numeric()
                                     ->required(),
 
                             ]),
 
                         Select::make('modele_id')
-                            ->label("Modèle")
+                            ->label('Modèle')
                             ->options(Modele::where('state', StatesClass::Activated())->pluck('nom_modele', 'id'))
                             ->searchable()
                             ->required(),
@@ -194,10 +191,10 @@ class EngineResource extends Resource
                             ->required(),
 
                         Datepicker::make('date_cert_precedent')
-                            ->label("date_cert_precedent"),
+                            ->label('date_cert_precedent'),
 
                         TextInput::make('numero_carte_grise')
-                            ->label("Numéro de la carte grise")
+                            ->label('Numéro de la carte grise')
                             ->required()
                             ->rules([
                                 function ($record) {
@@ -213,7 +210,6 @@ class EngineResource extends Resource
                                     };
                                 },
                             ]),
-
 
                         Grid::make(1)
                             ->schema([
@@ -244,7 +240,6 @@ class EngineResource extends Resource
 
                                 //             })->hidden(fn(?Engin $record) => $record === null),
 
-
                                 //         Placeholder::make('Chauffeur')
                                 //             ->label('Chauffeur')
                                 //             // ->content(fn(?Engin $record):  ?string => Chauffeur::where('id', $record->chauffeur_id)->value('name')),
@@ -265,7 +260,6 @@ class EngineResource extends Resource
 
                             ]),
 
-
                         Select::make('carburant_id')
                             ->options(Carburant::all()
                                 ->pluck('type_carburant', 'id'))
@@ -280,8 +274,6 @@ class EngineResource extends Resource
 
                     ])
                     ->columns(2),
-
-
 
                 // Select::make('chauffeur_id')
                 //     ->label('Chauffeur')
@@ -343,18 +335,18 @@ class EngineResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('name')
-                    ->label("Enregistré par")
+                    ->label('Enregistré par')
                     ->alignment('center')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('date_expiration')
-                    ->label("Visite (expiration)")
+                    ->label('Visite (expiration)')
                     ->searchable()
                     ->dateTime('d-m-Y'),
 
                 TextColumn::make('date_fin')
-                    ->label("Assurance (expiration)")
+                    ->label('Assurance (expiration)')
                     ->searchable()
                     ->wrap()
                     ->dateTime('d-m-Y'),
@@ -379,7 +371,7 @@ class EngineResource extends Resource
                         Select::make('departement_id')
                             ->searchable()
                             ->label('Département')
-                            ->options(Departement::pluck('sigle_centre', 'code_centre'))
+                            ->options(Departement::pluck('sigle_centre', 'code_centre')),
 
                     ])->query(function (Builder $query, array $data): Builder {
                         return $query
@@ -401,15 +393,15 @@ class EngineResource extends Resource
                             ->options([
                                 'En état' => StatesClass::Activated()->value,
                                 'En Réparation' => StatesClass::Repairing()->value,
-                            ])
+                            ]),
 
                     ])->query(function (Builder $query, array $data): Builder {
                         return $query
                             ->when(
                                 $data['etat'],
-                                fn(Builder $query, $status): Builder => $query->where('engines.state', $status),
+                                fn (Builder $query, $status): Builder => $query->where('engines.state', $status),
                             );
-                    })
+                    }),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -431,7 +423,6 @@ class EngineResource extends Resource
         ];
     }
 
-
     public static function getPages(): array
     {
         return [
@@ -450,5 +441,4 @@ class EngineResource extends Resource
             PermissionsClass::engines_create()->value,
         ]);
     }
-
 }

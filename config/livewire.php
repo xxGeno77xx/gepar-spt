@@ -54,7 +54,7 @@ return [
     |
     */
 
-    'asset_url' => env('APP_FOLDER',null),
+    'asset_url' => env('APP_FOLDER', null),
 
     /*
     |--------------------------------------------------------------------------

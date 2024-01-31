@@ -2,34 +2,32 @@
 
 namespace App\Filament\Resources;
 
-use App\Models\User;
-use App\Models\Engine;
+use App\Filament\Resources\AssuranceResource\Pages;
 use App\Models\Assurance;
-use Filament\Resources\Form;
-use Filament\Resources\Table;
-use Filament\Resources\Resource;
-use Filament\Forms\Components\Card;
+use App\Models\Engine;
 use App\Support\Database\CommonInfos;
+use App\Support\Database\PermissionsClass;
 use App\Support\Database\StatesClass;
+use Filament\Forms\Components\Card;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use Filament\Resources\Form;
+use Filament\Resources\Resource;
+use Filament\Resources\Table;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\BadgeColumn;
-use Filament\Forms\Components\DatePicker;
-use App\Support\Database\PermissionsClass;
-use App\Filament\Resources\AssuranceResource\Pages;
-
-
+use Filament\Tables\Columns\TextColumn;
 
 class AssuranceResource extends Resource
 {
     protected static ?string $model = Assurance::class;
+
     protected static ?string $navigationGroup = 'Administration';
+
     protected static ?string $navigationIcon = 'heroicon-o-folder-open';
 
-   
     public static function form(Form $form): Form
     {
         return $form
@@ -37,19 +35,19 @@ class AssuranceResource extends Resource
                 Card::make()
                     ->schema([
                         Select::make('engine_id')
-                            ->label("Numéro de plaque")
-                            ->options(Engine::select(['plate_number',"id"])
-                                        ->where('engines.state',StatesClass::Activated())
-                                        ->get()->pluck('plate_number',"id")
-                                )
+                            ->label('Numéro de plaque')
+                            ->options(Engine::select(['plate_number', 'id'])
+                                ->where('engines.state', StatesClass::Activated())
+                                ->get()->pluck('plate_number', 'id')
+                            )
                             ->searchable()
                             ->required(),
 
                         DatePicker::make('date_debut')
                             ->before('date_fin')
-                            ->label("Date initiale")
+                            ->label('Date initiale')
                             ->required(),
-                            
+
                         DatePicker::make('date_fin')
                             ->label("Date d'expiration")
                             ->required(),
@@ -61,11 +59,11 @@ class AssuranceResource extends Resource
                         Hidden::make('updated_at_user_id')
                             ->default(auth()->user()->id)
                             ->disabled(),
-                            
+
                     ])
                     ->columnSpan(['lg' => fn (?Assurance $record) => $record === null ? 3 : 2]),
 
-                    CommonInfos::PlaceholderCard(),
+                CommonInfos::PlaceholderCard(),
             ])
             ->columns(3);
     }
@@ -92,11 +90,11 @@ class AssuranceResource extends Resource
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                BadgeColumn::make('created_at')->label("Ajouté le")
-                     ->dateTime('d-m-Y')
-                     ->wrap(),
+                BadgeColumn::make('created_at')->label('Ajouté le')
+                    ->dateTime('d-m-Y')
+                    ->wrap(),
             ])
-            ->defaultSort('created_at','desc')
+            ->defaultSort('created_at', 'desc')
 
             ->filters([
                 //
@@ -106,6 +104,7 @@ class AssuranceResource extends Resource
                 ViewAction::make()
                     ->mutateRecordDataUsing(function (array $data): array {
                         $data['user_id'] = auth()->user()->name;
+
                         return $data;
                     }),
                 EditAction::make(),
@@ -115,14 +114,14 @@ class AssuranceResource extends Resource
                 // Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -130,8 +129,8 @@ class AssuranceResource extends Resource
             'create' => Pages\CreateAssurance::route('/create'),
             'edit' => Pages\EditAssurance::route('/{record}/edit'),
         ];
-    }   
-    
+    }
+
     public static function canViewAny(): bool
     {
         return auth()->user()->hasAnyPermission([
@@ -139,8 +138,4 @@ class AssuranceResource extends Resource
             PermissionsClass::assurances_update()->value,
         ]);
     }
-
-   
 }
-
-

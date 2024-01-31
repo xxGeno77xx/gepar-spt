@@ -2,51 +2,43 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\ReparationResource\Pages;
+use App\Models\Engine;
+use App\Models\Prestataire;
+use App\Models\Reparation;
+use App\Support\Database\CommonInfos;
+use App\Support\Database\PermissionsClass;
+use App\Support\Database\StatesClass;
 use App\Tables\Columns\PrestataireColumn;
 use Carbon\Carbon;
-use App\Models\User;
-use Filament\Tables;
-use App\Models\Engine;
-use Filament\Forms\Get;
-use App\Models\Reparation;
-use App\Models\Prestataire;
-use Illuminate\Support\Str;
-use Filament\Resources\Form;
-use Filament\Resources\Table;
-use App\Models\TypeReparation;
-use Filament\Resources\Resource;
+use Filament\Forms\Components\Builder as FilamentBuilder;
 use Filament\Forms\Components\Card;
-use Filament\Forms\Components\Grid;
-use Filament\Tables\Filters\Filter;
-use App\Support\Database\CommonInfos;
-use App\Support\Database\StatesClass;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Textarea;
-use Filament\Tables\Columns\TagsColumn;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TagsInput;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Columns\BadgeColumn;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\MarkdownEditor;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Resources\Form;
+use Filament\Resources\Resource;
+use Filament\Resources\Table;
+use Filament\Tables;
+use Filament\Tables\Columns\TagsColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
-use App\Support\Database\PermissionsClass;
-use Filament\Forms\Components\MarkdownEditor;
-use App\Filament\Resources\ReparationResource\Pages;
-use Filament\Forms\Components\Builder as FilamentBuilder;
-
 
 class ReparationResource extends Resource
 {
     protected static ?string $model = Reparation::class;
+
     protected static ?string $navigationGroup = 'Flotte automobile';
 
     protected static ?string $modelLabel = 'Réparations';
+
     protected static ?string $navigationIcon = 'heroicon-o-adjustments';
 
     public static function form(Form $form): Form
@@ -60,7 +52,7 @@ class ReparationResource extends Resource
                         Card::make()
                             ->schema([
                                 Select::make('engine_id')
-                                    ->label("Numéro de plaque")
+                                    ->label('Numéro de plaque')
                                     ->options(
                                         Engine::where('engines.state', '<>', StatesClass::Deactivated())
                                             ->pluck('plate_number', 'id')
@@ -69,7 +61,7 @@ class ReparationResource extends Resource
                                     ->required(),
 
                                 Select::make('prestataire_id')
-                                    ->label("Prestataire")
+                                    ->label('Prestataire')
                                     ->options(Prestataire::pluck('raison_social_fr', 'code_fr'))
                                     ->searchable()
                                     ->preload(true)
@@ -80,7 +72,7 @@ class ReparationResource extends Resource
                                     ->required(),
 
                                 DatePicker::make('date_fin')
-                                    ->label("Date de retour du véhicule")
+                                    ->label('Date de retour du véhicule')
                                     ->afterOrEqual('date_lancement'),
 
                             ])->columns(2),
@@ -89,7 +81,7 @@ class ReparationResource extends Resource
                             ->schema([
 
                                 Select::make('révisions')
-                                    ->label("Type de la réparation")
+                                    ->label('Type de la réparation')
                                     ->relationship('typeReparations', 'libelle', fn (Builder $query) => $query->where('state', StatesClass::Activated()->value))
                                     ->multiple()
                                     ->searchable()
@@ -108,7 +100,9 @@ class ReparationResource extends Resource
 
                                                         TextInput::make('nombre')
                                                             ->numeric()
-                                                            ->minValue(1),
+                                                            ->minValue(1)
+                                                            ->reactive()
+                                                            ->afterStateUpdated(fn ($state, callable $set, $get) => $set('montant', $state * $get('Prix_unitaire'))),
 
                                                         TextInput::make('Prix_unitaire')
                                                             ->numeric()
@@ -116,7 +110,7 @@ class ReparationResource extends Resource
                                                             ->minValue(1)
                                                             ->reactive()
                                                             ->integer()
-                                                            ->afterStateUpdated(fn($state, callable $set, $get) => $set('montant', Str::slug($state) * $get('nombre'))),
+                                                            ->afterStateUpdated(fn ($state, callable $set, $get) => $set('montant', $state * $get('nombre'))),
 
                                                         TextInput::make('montant')
                                                             ->suffix('FCFA')
@@ -125,107 +119,10 @@ class ReparationResource extends Resource
                                                             ->disabled()
                                                             ->dehydrated(true),
                                                     ]),
-
                                             ]),
-
-                                        // FilamentBuilder\Block::make('Détails')
-                                        //     ->icon('heroicon-o-bookmark')
-                                        //     ->schema([
-                                        //         MarkdownEditor::make('details')
-                                        //             ->disableAllToolbarButtons()
-                                        //             ->enableToolbarButtons([
-                                        //                 'bold',
-                                        //                 'bulletList',
-                                        //                 'edit',
-                                        //                 'italic',
-                                        //                 'preview',
-                                        //                 'strike',
-                                        //             ])
-                                        //             ->placeholder('Détails de la révision (maximum 255 caractères)')
-                                        //             ->rules(['max:255']),
-                                        //     ]),
-
                                     ])
                                     ->minItems(1)
                                     ->collapsible(),
-
-                                // Repeater::make('infos')
-                                //     ->schema([
-
-                                //         Card::make()
-                                //             ->schema([
-                                //                 Select::make('révisions')
-                                //                     ->label("Nature de la réparation")
-                                //                     ->options(TypeReparation::pluck('libelle', 'id'))
-                                //                     ->searchable()
-                                //                     ->preload(true)
-                                //                     // ->reactive()
-                                //                     // ->dehydrated(false)
-                                //                     // ->afterStateUpdated(fn($state, callable $set, $get) => $set('Documentation.content' , Str::slug(TypeReparation::where('id',$state)->value('libelle'))))
-                                //                     ->required(),
-
-                                //                 // TagsInput::make('Travail_à_faire')
-                                //                 //     ->placeholder('Travail à faire')
-                                //                 //     ->visible(fn($get): bool => $get('Depenses_supplementaires') == false),
-
-                                //                 // TextInput::make('cout_revision')
-                                //                 //     ->label('Cout total de la révision')
-                                //                 //     ->numeric()
-                                //                 //     ->required()
-                                //                 //     ->visible(fn($get): bool => $get('Depenses_supplementaires') == false),
-
-                                //             ])
-                                //             ->columns(1),
-
-                                //         Toggle::make('Depenses_supplementaires')
-                                //             ->label('Achats à faire')
-                                //             ->onColor('success')
-                                //             ->offColor('danger')
-                                //             ->onIcon('heroicon-o-cash')
-                                //             ->reactive(),
-
-                                //         // Section::make('')
-                                //         //     ->schema([
-
-                                //                 Repeater::make('Détails des achats')
-                                //                     ->schema([
-
-                                //                         TextInput::make('Designation'),
-
-                                //                         TextInput::make('nombre')
-                                //                             ->numeric()
-                                //                             ->minValue(0),
-
-                                //                         TextInput::make('Prix_unitaire')
-                                //                             ->numeric()
-                                //                             ->suffix('FCFA')
-                                //                             ->minValue(0)
-                                //                             ->reactive()
-                                //                             ->integer()
-                                //                             ->afterStateUpdated(fn($state, callable $set, $get) => $set('montant', Str::slug($state) * $get('nombre'))),
-
-                                //                         TextInput::make('montant')
-                                //                             ->suffix('FCFA')
-                                //                             ->numeric()
-                                //                             ->integer()
-                                //                             ->disabled()
-                                //                             ->dehydrated(true),
-                                //                     ])
-                                //                     // ->itemLabel(fn (array $state): ?string => $state['name'] ?? null),
-                                //                     ->orderable(false)
-                                //                     ->createItemButtonLabel('Autre achat')
-                                //                     ->columns(4)
-                                //             // ])
-                                //             ->visible(fn($get): bool => $get('Depenses_supplementaires') == true),
-
-                                //     ])
-                                //     ->disableItemMovement()
-                                //     ->createItemButtonLabel('Ajouter une révision'),
-
-                                // TextInput::make('Main_d\'oeuvre')
-                                //     ->label('Main d\'oeuvre'),
-
-
                             ]),
 
                         TextInput::make('cout_reparation')
@@ -237,17 +134,17 @@ class ReparationResource extends Resource
                             ->enableDownload()
                             ->enableOpen(),
 
-                            MarkdownEditor::make('details')
-                                        ->disableAllToolbarButtons()
-                                        ->enableToolbarButtons([
-                                            // 'bold',
-                                            // 'bulletList',
-                                            // 'edit',
-                                            // 'italic',
-                                            // 'preview',
-                                            // 'strike',
-                                        ])
-                                        ->placeholder('Détails de la révision'),
+                        MarkdownEditor::make('details')
+                            ->disableAllToolbarButtons()
+                            ->enableToolbarButtons([
+                                // 'bold',
+                                // 'bulletList',
+                                // 'edit',
+                                // 'italic',
+                                // 'preview',
+                                // 'strike',
+                            ])
+                            ->placeholder('Détails de la révision'),
 
                         Hidden::make('user_id')->default(auth()->user()->id),
 
@@ -289,13 +186,13 @@ class ReparationResource extends Resource
                     ->label('Prestataire'),
 
                 TextColumn::make('name')
-                    ->label("Enregistré par")
+                    ->label('Enregistré par')
                     ->alignment('center')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('cout_reparation')
-                    ->placeholder("-")
+                    ->placeholder('-')
                     ->searchable()
                     ->label('Coût de la réparation'),
 
@@ -308,28 +205,29 @@ class ReparationResource extends Resource
                             ->schema([
 
                                 DatePicker::make('date_from')
-                                    ->label("Du"),
+                                    ->label('Du'),
 
                                 DatePicker::make('date_to')
-                                    ->label("Au"),
+                                    ->label('Au'),
 
-                            ])->columns(1)
+                            ])->columns(1),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
                             ->when(
                                 $data['date_from'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('date_lancement', '>=', $date),
+                                fn (Builder $query, $date): Builder => $query->whereDate('date_lancement', '>=', $date),
                             )
                             ->when(
                                 $data['date_to'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('date_lancement', '<=', $date),
+                                fn (Builder $query, $date): Builder => $query->whereDate('date_lancement', '<=', $date),
                             );
                     })
                     ->indicateUsing(function (array $data): ?string {
                         if (($data['date_from']) && ($data['date_from'])) {
-                            return 'Date d\'envoi en réparation:  ' . Carbon::parse($data['date_from'])->format('d-m-Y') . " au " . Carbon::parse($data['date_to'])->format('d-m-Y');
+                            return 'Date d\'envoi en réparation:  '.Carbon::parse($data['date_from'])->format('d-m-Y').' au '.Carbon::parse($data['date_to'])->format('d-m-Y');
                         }
+
                         return null;
                     }),
 
@@ -338,34 +236,33 @@ class ReparationResource extends Resource
                 //     ->relationship('prestataire', 'nom'),
 
                 Filter::make('Prestataire')
-                ->form([
-                    Select::make('prestataire_id')
-                        ->searchable()
-                        ->label('Prestataire')
-                        ->options(Prestataire::pluck('raison_social_fr','code_fr'))
+                    ->form([
+                        Select::make('prestataire_id')
+                            ->searchable()
+                            ->label('Prestataire')
+                            ->options(Prestataire::pluck('raison_social_fr', 'code_fr')),
 
-                ])->query(function (Builder $query, array $data): Builder {
-                    return $query
-                        ->when(
-                            $data['prestataire_id'],
-                            function(Builder $query, $status)
-                            {
-                                $search = Prestataire::where('code_fr', $status)->value('code_fr');
+                    ])->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['prestataire_id'],
+                                function (Builder $query, $status) {
+                                    $search = Prestataire::where('code_fr', $status)->value('code_fr');
 
-                                return $query->where('prestataire_id',$search);
-                            }
-                        );
-                })->indicateUsing(function (array $data): ?string {
-                    if (! $data['prestataire_id']) {
-                        return null;
-                    }
-             
-                    return 'Prestataire: ' . Prestataire::where('code_fr', $data['prestataire_id'])->value('raison_social_fr');
-                }),
+                                    return $query->where('prestataire_id', $search);
+                                }
+                            );
+                    })->indicateUsing(function (array $data): ?string {
+                        if (! $data['prestataire_id']) {
+                            return null;
+                        }
+
+                        return 'Prestataire: '.Prestataire::where('code_fr', $data['prestataire_id'])->value('raison_social_fr');
+                    }),
 
                 SelectFilter::make('Type de la réparation')
                     ->multiple()
-                    ->relationship('typeReparations', 'libelle')
+                    ->relationship('typeReparations', 'libelle'),
 
             ])
             ->actions([
@@ -393,7 +290,6 @@ class ReparationResource extends Resource
         ];
     }
 
-
     public static function canViewAny(): bool
     {
         return auth()->user()->hasAnyPermission([
@@ -401,9 +297,4 @@ class ReparationResource extends Resource
             PermissionsClass::reparation_update()->value,
         ]);
     }
-
-
-
 }
-
-

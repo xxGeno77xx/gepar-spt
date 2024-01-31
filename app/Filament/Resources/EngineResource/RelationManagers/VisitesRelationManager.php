@@ -2,26 +2,16 @@
 
 namespace App\Filament\Resources\EngineResource\RelationManagers;
 
-use Filament\Forms;
-use App\Models\User;
-use Filament\Tables;
-
-use App\Models\Assurance;
-use Filament\Resources\Form;
-use Filament\Resources\Table;
-use Filament\Forms\Components\Card;
-
 use App\Support\Database\StatesClass;
-use Filament\Forms\Components\Hidden;
-use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\BadgeColumn;
-
-use Filament\Forms\Components\DatePicker;
-use Illuminate\Database\Eloquent\Builder;
-use Filament\Forms\Components\Placeholder;
+use Filament\Forms;
+use Filament\Resources\Form;
 use Filament\Resources\RelationManagers\RelationManager;
-
+use Filament\Resources\Table;
+use Filament\Tables;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Builder;
 
 class VisitesRelationManager extends RelationManager
 {
@@ -36,7 +26,7 @@ class VisitesRelationManager extends RelationManager
                 Forms\Components\TextInput::make('visite_id')
                     ->required()
                     ->maxLength(255),
-                    
+
             ]);
     }
 
@@ -47,15 +37,14 @@ class VisitesRelationManager extends RelationManager
                 // TextColumn::make('id'),
                 BadgeColumn::make('date_initiale')
                     ->dateTime('d-m-Y')
-                    ->color("success")
+                    ->color('success')
                     ->alignment('center'),
                 BadgeColumn::make('date_expiration')
                     ->dateTime('d-m-Y')
-                    ->color("success")
+                    ->color('success')
                     ->alignment('center'),
-                 
 
-            ])->defaultSort('created_at','desc')
+            ])->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
@@ -69,20 +58,18 @@ class VisitesRelationManager extends RelationManager
             ->bulkActions([
                 // Tables\Actions\DeleteBulkAction::make(),
             ]);
-    }   
+    }
 
     protected function getTableQuery(): Builder
     {
         return parent::getTableQuery()
-        ->leftjoin('users','visites.user_id','=','users.id')
-        ->join('engines','visites.engine_id','engines.id')
-        ->select('engines.plate_number','visites.*','users.name')
-        ->whereNull('engines.deleted_at')
-        ->whereNull('visites.deleted_at')
-        ->where('engines.state',StatesClass::Activated()->value)
-        ->where('visites.state',StatesClass::Activated()->value);
-           
+            ->leftjoin('users', 'visites.user_id', '=', 'users.id')
+            ->join('engines', 'visites.engine_id', 'engines.id')
+            ->select('engines.plate_number', 'visites.*', 'users.name')
+            ->whereNull('engines.deleted_at')
+            ->whereNull('visites.deleted_at')
+            ->where('engines.state', StatesClass::Activated()->value)
+            ->where('visites.state', StatesClass::Activated()->value);
+
     }
-    
-    
 }

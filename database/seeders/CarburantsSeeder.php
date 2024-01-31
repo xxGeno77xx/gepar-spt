@@ -3,9 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\Carburant;
-use Illuminate\Database\Seeder;
 use App\Support\Database\CarburantsClass;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
 
 class CarburantsSeeder extends Seeder
 {
@@ -14,12 +13,11 @@ class CarburantsSeeder extends Seeder
      */
     public function run(): void
     {
-        $carburants=CarburantsClass::toValues();
+        $carburants = CarburantsClass::toValues();
 
-        foreach($carburants as $key=>$carburant)
-        {
+        foreach ($carburants as $key => $carburant) {
             Carburant::firstOrCreate([
-                'type_carburant'=>$carburant,
+                'type_carburant' => $carburant,
             ]);
         }
     }

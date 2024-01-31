@@ -2,16 +2,15 @@
 
 namespace App\Filament\Resources;
 
-
-use Filament\Resources\Table;
+use App\Filament\Resources\PermissionResource\Pages\ListPermissions;
+use App\Filament\Resources\PermissionResource\Pages\ViewPermission;
+use App\Filament\Resources\PermissionResource\RelationManager\RoleRelationManager;
+use App\Support\Database\PermissionsClass;
 use Filament\Resources\Resource;
+use Filament\Resources\Table;
+use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Spatie\Permission\Models\Permission;
-use App\Support\Database\PermissionsClass;
-use Filament\Tables\Actions\DeleteBulkAction;
-use App\Filament\Resources\PermissionResource\Pages\ViewPermission;
-use App\Filament\Resources\PermissionResource\Pages\ListPermissions;
-use App\Filament\Resources\PermissionResource\RelationManager\RoleRelationManager;
 
 class PermissionResource extends Resource
 {
@@ -57,12 +56,11 @@ class PermissionResource extends Resource
     //                         //     ->label(strval(__('filament-authentication::filament-authentication.field.roles')))
     //                         //     ->relationship('roles', 'name')
     //                         //     ->preload(config('filament-spatie-roles-permissions.preload_roles'))
-                            
+
     //                     ]),
     //                 ]),
     //         ]);
     // }
-    
 
     public static function table(Table $table): Table
     {
@@ -102,15 +100,12 @@ class PermissionResource extends Resource
             'view' => ViewPermission::route('/{record}'),
         ];
     }
+
     public static function canViewAny(): bool
     {
         return auth()->user()->hasAnyPermission([
             PermissionsClass::Permissions_read()->value,
-           
+
         ]);
     }
-
-    
-    
-
 }

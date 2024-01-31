@@ -2,21 +2,19 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
-use Filament\Tables;
+use App\Filament\Resources\CarburantResource\Pages;
 use App\Models\Carburant;
-use Filament\Resources\Form;
-use Filament\Resources\Table;
-use Filament\Resources\Resource;
-use Filament\Tables\Actions\Action;
+use App\Support\Database\PermissionsClass;
 use App\Support\Database\StatesClass;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Resources\Form;
+use Filament\Resources\Resource;
+use Filament\Resources\Table;
+use Filament\Tables;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\CarburantResource\Pages;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\CarburantResource\RelationManagers;
 
 class CarburantResource extends Resource
 {
@@ -31,7 +29,7 @@ class CarburantResource extends Resource
         return $form
             ->schema([
                 TextInput::make('type_carburant')
-                    ->unique(ignoreRecord:true),
+                    ->unique(ignoreRecord: true),
             ]);
     }
 
@@ -39,7 +37,7 @@ class CarburantResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('type_carburant')
+                TextColumn::make('type_carburant'),
             ])
             ->filters([
                 //
@@ -48,35 +46,43 @@ class CarburantResource extends Resource
                 Tables\Actions\EditAction::make(),
 
                 Action::make('Supprimer')
-                ->color('danger')
-                ->action(function (?Carburant $record) {
-                    $record->update(['state' => StatesClass::Deactivated()->value]);
-                    redirect('/carburants');
-                    Notification::make()
-                        ->title('Supprimé(e)')
-                        ->success()
-                        ->persistent()
-                        ->send();
-                })
-                ->requiresConfirmation(),
+                    ->color('danger')
+                    ->action(function (?Carburant $record) {
+                        $record->update(['state' => StatesClass::Deactivated()->value]);
+                        redirect('/carburants');
+                        Notification::make()
+                            ->title('Supprimé(e)')
+                            ->success()
+                            ->persistent()
+                            ->send();
+                    })
+                    ->requiresConfirmation(),
                 // Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 // Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
-    
+
     public static function getPages(): array
     {
         return [
             'index' => Pages\ManageCarburants::route('/'),
         ];
-    }    
-    
+    }
 
     protected function getTableQuery(): Builder
     {
         return static::getResource()::getEloquentQuery()
-        ->where('carburants.state',StatesClass::Activated());
+            ->where('carburants.state', StatesClass::Activated());
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->hasAnyPermission([
+            PermissionsClass::Carburant_create()->value,
+            PermissionsClass::Carburant_read()->value,
+            PermissionsClass::Carburant_update()->value,
+        ]);
     }
 }

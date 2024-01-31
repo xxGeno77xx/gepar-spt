@@ -5,7 +5,6 @@ namespace App\Filament\Resources\RoleResource\RelationManager;
 use Filament\Resources\RelationManagers\BelongsToManyRelationManager;
 use Filament\Resources\Table;
 use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Builder;
 
 class UserRelationManager extends BelongsToManyRelationManager
 {
@@ -39,6 +38,4 @@ class UserRelationManager extends BelongsToManyRelationManager
     public function afterDetach(): void
     {
     }
-
-
 }

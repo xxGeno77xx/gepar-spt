@@ -2,12 +2,12 @@
 
 namespace App\Filament\Resources\MarqueResource\Pages;
 
-use Filament\Pages\Actions;
-use App\Support\Database\StatesClass;
-use Filament\Resources\Pages\ListRecords;
-use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\MarqueResource;
 use App\Support\Database\PermissionsClass;
+use App\Support\Database\StatesClass;
+use Filament\Pages\Actions;
+use Filament\Resources\Pages\ListRecords;
+use Illuminate\Database\Eloquent\Builder;
 
 class ListMarques extends ListRecords
 {
@@ -19,24 +19,24 @@ class ListMarques extends ListRecords
             Actions\CreateAction::make()->label('Ajouter une marque'),
         ];
     }
-    protected function getTableRecordsPerPageSelectOptions(): array 
+
+    protected function getTableRecordsPerPageSelectOptions(): array
     {
         return [10, 25, 50, 100];
-    } 
+    }
 
     protected function authorizeAccess(): void
     {
         $user = auth()->user();
-    
+
         $userPermission = $user->hasAnyPermission([PermissionsClass::marques_read()->value]);
-    
+
         abort_if(! $userPermission, 403, __("Vous n'avez pas access à cette page"));
     }
 
     protected function getTableQuery(): Builder
     {
         return static::getResource()::getEloquentQuery()
-        ->where('marques.state',StatesClass::Activated());
+            ->where('marques.state', StatesClass::Activated());
     }
-    
 }

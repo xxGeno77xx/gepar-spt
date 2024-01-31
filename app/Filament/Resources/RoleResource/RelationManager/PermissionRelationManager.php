@@ -2,20 +2,19 @@
 
 namespace App\Filament\Resources\RoleResource\RelationManager;
 
-
-use Filament\Resources\Form;
-use Filament\Resources\Table;
-use Illuminate\Database\Connection;
-use Filament\Forms\Components\Select;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Forms\Components\TextInput;
-use Illuminate\Database\Eloquent\Builder;
 use App\Support\Database\PermissionsClass;
-use Spatie\Permission\PermissionRegistrar;
-use Filament\Resources\RelationManagers\RelationManager;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Resources\Form;
 use Filament\Resources\RelationManagers\BelongsToManyRelationManager;
+use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Resources\Table;
+use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Connection;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Spatie\Permission\PermissionRegistrar;
 
 class PermissionRelationManager extends BelongsToManyRelationManager
 {
@@ -43,16 +42,16 @@ class PermissionRelationManager extends BelongsToManyRelationManager
                 TextColumn::make('name')
                     ->label(strval(__('filament-authentication::filament-authentication.field.name')))
                     ->searchable(),
-                    // ->getStateUsing( function (Permission $record){
-                    //     $traductions = array(
-                    //         "engines" => "engins",
-                    //         "create" => "ajouter",
-                    //         "read" => "voir",
-                    //         "update" => "modifier",
-                    //         "delete" => "supprimer",
-                    //     );
-                    //     return strtr( str_replace("_", ": ", $record['name']) , $traductions);
-                    //  }),
+                // ->getStateUsing( function (Permission $record){
+                //     $traductions = array(
+                //         "engines" => "engins",
+                //         "create" => "ajouter",
+                //         "read" => "voir",
+                //         "update" => "modifier",
+                //         "delete" => "supprimer",
+                //     );
+                //     return strtr( str_replace("_", ": ", $record['name']) , $traductions);
+                //  }),
                 TextColumn::make('guard_name')
                     ->label(strval(__('filament-authentication::filament-authentication.field.guard_name'))),
 
@@ -76,8 +75,7 @@ class PermissionRelationManager extends BelongsToManyRelationManager
     {
         $table = Table::make();
 
-        if (auth()->user()->hasPermissionTo(PermissionsClass::Roles_update()->value))
-        {
+        if (auth()->user()->hasPermissionTo(PermissionsClass::Roles_update()->value)) {
             $table->actions([
                 $this->getViewAction(),
                 // $this->getEditAction(),
@@ -85,7 +83,6 @@ class PermissionRelationManager extends BelongsToManyRelationManager
                 // $this->getDeleteAction(),
             ]);
         }
-       
 
         // $table->bulkActions(array_merge(
         //     ($this->canDeleteAny() ? [$this->getDeleteBulkAction()] : []),
@@ -158,8 +155,8 @@ class PermissionRelationManager extends BelongsToManyRelationManager
                         ),
                     )
                     //customized query to exclude  user_update and user_delete   #here
-                    // ->whereNot('name', PermissionsClass::Users_update()->value) 
-                    // ->whereNot('name', PermissionsClass::Users_delete()->value) 
+                    // ->whereNot('name', PermissionsClass::Users_update()->value)
+                    // ->whereNot('name', PermissionsClass::Users_delete()->value)
                     ->get()
                     ->mapWithKeys(static fn (Model $record): array => [$record->{$relatedKeyName} => static::getRecordTitle($record)])
                     ->toArray();
@@ -180,7 +177,7 @@ class PermissionRelationManager extends BelongsToManyRelationManager
                 return $relationship
                     ->getRelated()
                     ->query()
-                    
+
                     ->orderBy($titleColumnName)
                     ->when(
                         ! $livewire->allowsDuplicates(),
@@ -195,9 +192,7 @@ class PermissionRelationManager extends BelongsToManyRelationManager
                     ->mapWithKeys(static fn (Model $record): array => [$record->{$relatedKeyName} => static::getRecordTitle($record)])
                     ->toArray();
             })
-            
+
             ->disableLabel();
     }
-
-    
 }

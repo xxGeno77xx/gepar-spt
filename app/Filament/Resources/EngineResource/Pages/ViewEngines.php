@@ -2,10 +2,9 @@
 
 namespace App\Filament\Resources\EngineResource\Pages;
 
-use Filament\Pages\Actions;
-use Filament\Resources\Pages\ViewRecord;
 use App\Filament\Resources\EngineResource;
 use App\Filament\Resources\EngineResource\Widgets\EngineFuelConsumption;
+use Filament\Resources\Pages\ViewRecord;
 
 class ViewEngines extends ViewRecord
 {
@@ -27,4 +26,3 @@ class ViewEngines extends ViewRecord
         ];
     }
 }
-

@@ -2,45 +2,42 @@
 
 namespace App\Filament\Resources\EngineResource\RelationManagers;
 
-use  closure;
-use Carbon\Carbon;
-use Filament\Forms;
-use App\Models\User;
-use Filament\Tables;
 use App\Models\Engine;
-use App\Models\Reparation;
 use App\Models\Prestataire;
-use Filament\Resources\Form;
-use Filament\Resources\Table;
-use Filament\Forms\Components\Card;
-use Filament\Forms\Components\Grid;
-use Filament\Tables\Filters\Filter;
+use App\Models\Reparation;
+use App\Models\User;
 use App\Support\Database\CommonInfos;
+use App\Support\Database\PermissionsClass;
 use App\Support\Database\StatesClass;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Textarea;
-use Filament\Tables\Columns\TagsColumn;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\Hidden;   
-use Filament\Forms\Components\TextInput;
+use Carbon\Carbon;
+use closure;
+use Filament\Forms\Components\Builder as FilamentBuilder;
+use Filament\Forms\Components\Card;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
-use Illuminate\Database\Eloquent\Builder;
-use App\Support\Database\PermissionsClass;
-use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\MarkdownEditor;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Resources\Form;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Forms\Components\Builder as FilamentBuilder;
-
-
+use Filament\Resources\Table;
+use Filament\Tables;
+use Filament\Tables\Columns\TagsColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Illuminate\Database\Eloquent\Builder;
 
 class ReparationsRelationManager extends RelationManager
 {
     protected static string $relationship = 'reparations';
 
     protected static ?string $title = 'Réparations';
+
     protected static ?string $recordTitleAttribute = 'réparation';
 
     public static function form(Form $form): Form
@@ -62,7 +59,7 @@ class ReparationsRelationManager extends RelationManager
 
             //                 TextInput::make('cout_reparation')
             //                     ->label("Coût de la réparation")
-            //                     ->numeric(),   
+            //                     ->numeric(),
 
             //                 DatePicker::make('date_lancement')
             //                     ->label("Date d'envoi en réparation")
@@ -70,9 +67,9 @@ class ReparationsRelationManager extends RelationManager
             //                 DatePicker::make('date_fin')
             //                     ->label("Date de retour du véhicule")
             //                     ->afterOrEqual('date_lancement'),
-        
+
             //             ])->columns(2),
-                        
+
             //         Textarea::make('details')
             //             ->placeholder('Détails de la révision')
             //             ->rules(['max:255']),
@@ -98,7 +95,7 @@ class ReparationsRelationManager extends RelationManager
             //             placeholder::make('updated_at_user_id')
             //                 ->label('Modifié en dernier par:')
             //                 ->content(fn(Reparation $record): ?string =>User::find($record->updated_at_user_id)?->name),
-                        
+
             //     ])
             //     ->columnSpan(['lg' => 1])
             //     ->hidden(fn (?Reparation $record) => $record === null),
@@ -111,7 +108,7 @@ class ReparationsRelationManager extends RelationManager
                         Card::make()
                             ->schema([
                                 Select::make('engine_id')
-                                    ->label("Numéro de plaque")
+                                    ->label('Numéro de plaque')
                                     ->options(
                                         Engine::where('engines.state', '<>', StatesClass::Deactivated())
                                             ->pluck('plate_number', 'id')
@@ -120,7 +117,7 @@ class ReparationsRelationManager extends RelationManager
                                     ->required(),
 
                                 Select::make('prestataire_id')
-                                    ->label("Prestataire")
+                                    ->label('Prestataire')
                                     ->options(Prestataire::pluck('nom', 'id'))
                                     ->searchable()
                                     ->preload(true)
@@ -131,7 +128,7 @@ class ReparationsRelationManager extends RelationManager
                                     ->required(),
 
                                 DatePicker::make('date_fin')
-                                    ->label("Date de retour du véhicule")
+                                    ->label('Date de retour du véhicule')
                                     ->afterOrEqual('date_lancement'),
 
                             ])->columns(2),
@@ -140,7 +137,7 @@ class ReparationsRelationManager extends RelationManager
                             ->schema([
 
                                 Select::make('révisions')
-                                    ->label("Type de la réparation")
+                                    ->label('Type de la réparation')
                                     ->relationship('typeReparations', 'libelle')
                                     ->multiple()
                                     ->searchable()
@@ -167,7 +164,7 @@ class ReparationsRelationManager extends RelationManager
                                                             ->minValue(1)
                                                             ->reactive()
                                                             ->integer()
-                                                            ->afterStateUpdated(fn($state, callable $set, $get) => $set('montant', Str::slug($state) * $get('nombre'))),
+                                                            ->afterStateUpdated(fn ($state, callable $set, $get) => $set('montant', Str::slug($state) * $get('nombre'))),
 
                                                         TextInput::make('montant')
                                                             ->suffix('FCFA')
@@ -275,7 +272,6 @@ class ReparationsRelationManager extends RelationManager
                                 // TextInput::make('Main_d\'oeuvre')
                                 //     ->label('Main d\'oeuvre'),
 
-
                             ]),
 
                         TextInput::make('cout_reparation')
@@ -297,7 +293,6 @@ class ReparationsRelationManager extends RelationManager
 
             ]);
 
-            
     }
 
     public static function table(Table $table): Table
@@ -305,99 +300,94 @@ class ReparationsRelationManager extends RelationManager
         return $table
             ->columns([
 
-            TextColumn::make('date_lancement')
-                ->label('Date d\'envoi en réparation')
-                ->dateTime('d-m-Y'),
+                TextColumn::make('date_lancement')
+                    ->label('Date d\'envoi en réparation')
+                    ->dateTime('d-m-Y'),
 
-            TextColumn::make('date_fin')
-                ->placeholder('-')
-                ->label('Date de retour du véhicule')
-                ->dateTime('d-m-Y'),
+                TextColumn::make('date_fin')
+                    ->placeholder('-')
+                    ->label('Date de retour du véhicule')
+                    ->dateTime('d-m-Y'),
 
-            // TextColumn::make('details')
-            //     ->limit(15)
-            //     ->searchable(),
+                // TextColumn::make('details')
+                //     ->limit(15)
+                //     ->searchable(),
 
-            TagsColumn::make('typeReparations.libelle')
-            ->label('Type de la réparation')
-            ->limit(3)
-            ->searchable(),
+                TagsColumn::make('typeReparations.libelle')
+                    ->label('Type de la réparation')
+                    ->limit(3)
+                    ->searchable(),
 
+                TextColumn::make('name')
+                    ->label('Enregistré par')
+                    ->alignment('center')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
-            TextColumn::make('name')
-                ->label("Enregistré par")
-                ->alignment('center')
-                ->toggleable(isToggledHiddenByDefault: true),
-            
-            TextColumn::make('cout_reparation')
-                ->placeholder("-")
-                ->label('Cout de la réparation'),
+                TextColumn::make('cout_reparation')
+                    ->placeholder('-')
+                    ->label('Cout de la réparation'),
             ])
-            ->filters([ 
+            ->filters([
                 Filter::make('date_lancement')
-                        ->label("Plage de recherche")
-                        ->form([
-                            Placeholder::make("Date d'envoi en réparation"),
-                            DatePicker::make('date_from')
-                            ->label("Du"),
-                            DatePicker::make('date_to')
-                            ->label("Au"),
-                        ])
-                        ->query(function (Builder $query, array $data): Builder {
-                            return $query
-                                ->when(
-                                    $data['date_from'],
-                                    fn (Builder $query, $date): Builder => $query->whereDate('date_lancement', '>=', $date),
-                                )
-                                ->when(
-                                    $data['date_to'],
-                                    fn (Builder $query, $date): Builder => $query->whereDate('date_lancement', '<=', $date),
-                                );
-                        })
-                        ->indicateUsing(function (array $data): ?string {
-                            if (( $data['date_from']) && ($data['date_from'])) {
-                                return 'Date d\'envoi en réparation:  ' . Carbon::parse($data['date_from'])->format('d-m-Y')." au ".Carbon::parse($data['date_to'])->format('d-m-Y');
-                            }
-                            return null;
-                        })
+                    ->label('Plage de recherche')
+                    ->form([
+                        Placeholder::make("Date d'envoi en réparation"),
+                        DatePicker::make('date_from')
+                            ->label('Du'),
+                        DatePicker::make('date_to')
+                            ->label('Au'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['date_from'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('date_lancement', '>=', $date),
+                            )
+                            ->when(
+                                $data['date_to'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('date_lancement', '<=', $date),
+                            );
+                    })
+                    ->indicateUsing(function (array $data): ?string {
+                        if (($data['date_from']) && ($data['date_from'])) {
+                            return 'Date d\'envoi en réparation:  '.Carbon::parse($data['date_from'])->format('d-m-Y').' au '.Carbon::parse($data['date_to'])->format('d-m-Y');
+                        }
+
+                        return null;
+                    }),
             ])
             ->headerActions([
                 // Tables\Actions\CreateAction::make(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
-                    ->hidden(!auth()->user()->hasPermissionTo(PermissionsClass::reparation_update()->value)),
+                    ->hidden(! auth()->user()->hasPermissionTo(PermissionsClass::reparation_update()->value)),
                 Tables\Actions\ViewAction::make()
-                    ->hidden(!auth()->user()->hasPermissionTo(PermissionsClass::reparation_read()->value)),
+                    ->hidden(! auth()->user()->hasPermissionTo(PermissionsClass::reparation_read()->value)),
                 // Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 // Tables\Actions\DeleteBulkAction::make(),
-            ])->defaultSort('created_at','desc')
-            
-            ;
-            
-    }    
+            ])->defaultSort('created_at', 'desc');
+
+    }
 
     protected function getTableRecordUrlUsing(): ?Closure
     {
         return fn (Reparation $record): string => url('reparations/'.$record->id.'/edit');
     }
 
-
     protected function getTableQuery(): Builder
     {
         return parent::getTableQuery()
-        ->join('users','reparations.user_id','users.id')
-        ->select('reparations.*','users.name')
-        ->where('reparations.state', StatesClass::Activated()->value);
-           
+            ->join('users', 'reparations.user_id', 'users.id')
+            ->select('reparations.*', 'users.name')
+            ->where('reparations.state', StatesClass::Activated()->value);
+
     }
 
     protected function getTableRecordActionUsing(): ?Closure
     {
         return null;
     }
-
-    
 }

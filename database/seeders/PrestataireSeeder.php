@@ -3,9 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\Prestataire;
-use Illuminate\Database\Seeder;
 use App\Support\Database\PrestatairesClass;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
 
 class PrestataireSeeder extends Seeder
 {
@@ -16,10 +15,9 @@ class PrestataireSeeder extends Seeder
     {
         $prestataires = PrestatairesClass::toValues();
 
-        foreach( $prestataires as $key => $prestataire)
-        {
+        foreach ($prestataires as $key => $prestataire) {
             Prestataire::firstOrCreate([
-                'nom' =>  $prestataire,
+                'nom' => $prestataire,
             ]);
         }
     }

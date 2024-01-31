@@ -2,25 +2,27 @@
 
 namespace App\Filament\Resources;
 
-use Database\Seeders\RolesPermissionsSeeder;
-use Filament\Tables;
-use App\Models\Departement;
-use Filament\Resources\Form;
-use Filament\Resources\Table;
-use Filament\Resources\Resource;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use App\Support\Database\PermissionsClass;
 use App\Filament\Resources\DepartementResource\Pages;
-
+use App\Models\Departement;
+use App\Support\Database\PermissionsClass;
+use Database\Seeders\RolesPermissionsSeeder;
+use Filament\Forms\Components\TextInput;
+use Filament\Resources\Form;
+use Filament\Resources\Resource;
+use Filament\Resources\Table;
+use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 
 class DepartementResource extends Resource
 {
     protected static ?string $model = Departement::class;
+
     protected static bool $shouldRegisterNavigation = false;
 
     protected static ?string $navigationIcon = 'heroicon-o-office-building';
-protected static ?string $modelLabel = "Départements";
+
+    protected static ?string $modelLabel = 'Départements';
+
     public static function form(Form $form): Form
     {
         return $form
@@ -29,7 +31,7 @@ protected static ?string $modelLabel = "Départements";
                 // ->label("Nom du département")
                 // ->required()
                 // ->unique(ignoreRecord:true,)
-                
+
                 // Hidden::make('user_id')->label('Ajoutée par')
                 // ->default(auth()->user()->name)
                 // ->disabled(),
@@ -43,7 +45,7 @@ protected static ?string $modelLabel = "Départements";
 
                 // TextColumn::make('nom_departement')->label('Nom'),
 
-            ])->defaultSort('created_at','desc')
+            ])->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
@@ -55,14 +57,14 @@ protected static ?string $modelLabel = "Départements";
                 // Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -70,7 +72,8 @@ protected static ?string $modelLabel = "Départements";
             // 'create' => Pages\CreateDepartement::route('/create'),
             // 'edit' => Pages\EditDepartement::route('/{record}/edit'),
         ];
-    }    
+    }
+
     public static function canViewAny(): bool
     {
         // return auth()->user()->hasAnyPermission([

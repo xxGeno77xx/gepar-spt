@@ -2,17 +2,17 @@
 
 namespace App\Filament\Resources\EngineResource\Widgets;
 
-use App\Models\Engine;
-use Flowframe\Trend\Trend;
-use Flowframe\Trend\TrendValue;
-use Illuminate\Support\Facades\DB;
 use App\Models\ConsommationCarburant;
+use App\Models\Engine;
 use Filament\Widgets\LineChartWidget;
+use Illuminate\Support\Facades\DB;
 
 class EngineFuelConsumption extends LineChartWidget
 {
     protected static ?string $heading = 'Chart';
+
     protected int|string|array $columnSpan = 'full';
+
     public ?Engine $record = null;
 
     protected function getHeading(): string
@@ -33,15 +33,15 @@ class EngineFuelConsumption extends LineChartWidget
                 [
                     'label' => 'Kilométrage',
                     'data' => $distances,
-                    "backgroundColor" => "blue",
-                    'borderColor' => "blue"
+                    'backgroundColor' => 'blue',
+                    'borderColor' => 'blue',
                 ],
 
                 [
                     'label' => 'Consommation en litres de carburant',
                     'data' => $consommation,
-                    "backgroundColor" => "primary",
-                    'borderColor' => "primary"
+                    'backgroundColor' => 'primary',
+                    'borderColor' => 'primary',
                 ],
             ],
             // 'labels' => ['Jan', 'Fev', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
@@ -50,7 +50,7 @@ class EngineFuelConsumption extends LineChartWidget
 
     private function getRelatedConsommationValues()
     {
-        $sommeParMois = array();
+        $sommeParMois = [];
         $consommationsCollection = ConsommationCarburant::where('engine_id', $this->record->id)
             ->orderBy('date', 'asc')
             ->get();
@@ -59,7 +59,7 @@ class EngineFuelConsumption extends LineChartWidget
 
         foreach ($consommationsCollection as $item) {
 
-            $month = date("M-y", strtotime($item->date));
+            $month = date('M-y', strtotime($item->date));
 
             $sommeMensuelle[$month] = ($sommeMensuelle[$month] ?? 0) + $item['quantite'];
         }
@@ -89,12 +89,11 @@ class EngineFuelConsumption extends LineChartWidget
 
         foreach ($consommationsCollection as $item) {
 
-            $month = date("M-y", strtotime($item->date));
+            $month = date('M-y', strtotime($item->date));
 
             $sommeMensuelle[$month] = $item->distance_par_mois;
         }
 
         return $sommeMensuelle;
     }
-
 }

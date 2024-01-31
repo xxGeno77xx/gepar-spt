@@ -2,10 +2,10 @@
 
 namespace App\Console;
 
-use Illuminate\Console\Scheduling\Schedule;
-use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use App\Console\Commands\sendAssurancesMailsCommand;
 use App\Console\Commands\sendVisitesMailsCommand;
+use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
 {
@@ -14,8 +14,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-         $schedule->command(sendVisitesMailsCommand::class)->daily();
-         $schedule->command(sendAssurancesMailsCommand::class)->daily();
+        $schedule->command(sendVisitesMailsCommand::class)->daily();
+        $schedule->command(sendAssurancesMailsCommand::class)->daily();
     }
 
     /**
