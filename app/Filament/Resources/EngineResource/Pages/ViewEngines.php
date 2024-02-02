@@ -2,9 +2,10 @@
 
 namespace App\Filament\Resources\EngineResource\Pages;
 
-use App\Filament\Resources\EngineResource;
-use App\Filament\Resources\EngineResource\Widgets\EngineFuelConsumption;
 use Filament\Resources\Pages\ViewRecord;
+use App\Filament\Resources\EngineResource;
+use App\Support\Database\PermissionsClass;
+use App\Filament\Resources\EngineResource\Widgets\EngineFuelConsumption;
 
 class ViewEngines extends ViewRecord
 {
@@ -22,7 +23,7 @@ class ViewEngines extends ViewRecord
     protected function getFooterWidgets(): array
     {
         return [
-            // EngineFuelConsumption::class
+            EngineFuelConsumption::class
         ];
     }
 }

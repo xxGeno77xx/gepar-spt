@@ -10,8 +10,8 @@ class Chauffeur extends Model
 {
     use HasFactory;
 
-    public function engine(): BelongsTo
-    {
-        return $this->belongsTo(Engine::class);
-    }
+    // public function engine(): BelongsTo
+    // {
+    //     return $this->belongsTo(Engine::class);
+    // }
 }

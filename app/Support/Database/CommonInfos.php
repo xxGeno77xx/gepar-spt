@@ -37,7 +37,9 @@ class CommonInfos
                     ->columnSpan(['lg' => 1])
                     ->hidden(fn ($record) => $record === null);
         } else {
-            return null;
+            return Placeholder::make('created_at')
+                ->label('Ajouté le:')
+                ->content(fn ($record): ?string => $record->created_at->format('d-m-Y H:i:s'));
         }
 
     }

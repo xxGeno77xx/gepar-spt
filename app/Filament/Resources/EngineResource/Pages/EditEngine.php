@@ -114,6 +114,13 @@ class EditEngine extends EditRecord
         return $this->getResource()::getUrl('index');
     }
 
+    protected function getFooterWidgets(): array
+{
+    return [
+        EngineFuelConsumption::class
+    ];
+}
+
     // public function afterSave()
     // {
     //     $engin = $this->record;
@@ -162,11 +169,6 @@ class EditEngine extends EditRecord
 
 // }
 
-// protected function getFooterWidgets(): array
-// {
-//     return [
-//         EngineFuelConsumption::class
-//     ];
-// }
+
 
 // }

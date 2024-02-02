@@ -3,18 +3,24 @@
 namespace App\Filament\Http\Livewire\Auth;
 
 use App\Models\User;
-use App\Support\Database\StatesClass;
-use DanHarrin\LivewireRateLimiting\WithRateLimiting;
+use Livewire\Component;
+use App\Models\OracleUser;
 use Filament\Facades\Filament;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use App\Support\Database\StatesClass;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\ComponentContainer;
+use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Contracts\HasForms;
-use Filament\Http\Responses\Auth\Contracts\LoginResponse;
-use Illuminate\Contracts\View\View;
 use Illuminate\Validation\ValidationException;
-use Livewire\Component;
+use Filament\Forms\Concerns\InteractsWithForms;
+use DanHarrin\LivewireRateLimiting\WithRateLimiting;
+use Filament\Http\Responses\Auth\Contracts\LoginResponse;
+use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 
 /**
  * @property ComponentContainer $form
@@ -22,8 +28,11 @@ use Livewire\Component;
 class Login extends Component implements HasForms
 {
     use InteractsWithForms;
+
     use WithRateLimiting;
 
+
+    public $username = '';
     public $email = '';
 
     public $password = '';
@@ -41,76 +50,88 @@ class Login extends Component implements HasForms
 
     public function authenticate(): ?LoginResponse
     {
-        $authenticationLimit = env('LOGIN_LIMIT', 4);
+        $authenticationLimit = config('app.LOGIN_LIMIT', 4);
 
         $data = $this->form->getState();
 
-        $user = User::where('email', $data['email'])->first();
+        try {
+            $this->rateLimit(5);
 
-        if (! $user) {
-            throw ValidationException::withMessages(['email' => "Ce compte n'existe pas"]);
+            try {
+                $conn = oci_connect(strtoupper($data['username']), $data['password'], config('app.serverIP'));
+
+            } catch (\Exception $e) {
+
+                throw ValidationException::withMessages(['username' => 'Nom d\'utilisateur ou mot de passe incorrect']);
+            }
+
+        } catch (TooManyRequestsException $exception) {
+            $this->addError('username', __('filament::login.messages.throttled', [
+                'seconds' => $exception->secondsUntilAvailable,
+                'minutes' => ceil($exception->secondsUntilAvailable / 60),
+            ]));
+
+            return null;
         }
 
-        if ($user && $user->state == StatesClass::Deactivated()) {
-            throw ValidationException::withMessages([
-                'email' => 'Ce compte a été désactivé. Contactez votre administrateur.',
-            ])->status(403);
+        $userToLogIn = User::where('username', $data['username'])->first();
+
+        if(!$userToLogIn)
+        {
+            throw ValidationException::withMessages(['username' => "Votre compte n'est pas autorisé sur cette application"]);
         }
+        
+        elseif (Auth::login($userToLogIn)) 
+        {
 
-        if (! Filament::auth()->attempt([
-            'email' => $data['email'],
-            'password' => $data['password'],
-        ], $data['remember'])) {
-
-            if ($user->login_attempts >= $authenticationLimit) {
-                $user->update([
-                    'state' => StatesClass::Deactivated(),
+            if ($userToLogIn->login_attempts >= $authenticationLimit) {
+                $userToLogIn->update([
+                    'state' => 0 ,
                     'login_attempts' => 0,
                 ]);
                 throw ValidationException::withMessages([
-                    'email' => 'Ce compte a été désactivé. Contactez votre administrateur.',
+                    'username' => 'Ce compte a été désactivé. Contactez votre administrateur.',
                 ])->status(403);
 
             }
 
-            if ($user && $user->state == StatesClass::Deactivated()) {
+            if ($userToLogIn && $userToLogIn->state == false) {
 
                 throw ValidationException::withMessages([
-                    'email' => 'Ce compte a été désactivé. Contactez votre administrateur.',
+                    'username' => 'Ce compte a été désactivé. Contactez votre administrateur.',
                 ])->status(403);
             }
 
-            $user->increment('login_attempts', 1);
+            $userToLogIn->increment('login_attempts', 1);
 
             throw ValidationException::withMessages([
-                'email' => __('filament::login.messages.failed'),
+                'username' => __('filament::login.messages.failed'),
             ]);
         } else {
-            $user->update([
-                'state' => StatesClass::activated(),
+            $userToLogIn->update([
+                'state' => 1,
                 'login_attempts' => 0,
             ]);
 
             session()->regenerate();
 
-        }
-
-        return app(LoginResponse::class);
     }
+    
+ return app(LoginResponse::class);
+}
 
     protected function getFormSchema(): array
     {
         return [
-            TextInput::make('email')
-                ->label(__('filament::login.fields.email.label'))
-                ->email()
+            TextInput::make('username')
+                ->label(__("Nom d'utilisateur"))
                 ->required()
                 ->autocomplete(),
             TextInput::make('password')
                 ->label(__('filament::login.fields.password.label'))
                 ->password()
                 ->required(),
-            Checkbox::make('remember')
+            Hidden::make('remember')
                 ->label(__('filament::login.fields.remember.label')),
         ];
     }

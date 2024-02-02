@@ -185,4 +185,7 @@ return [
         // 'Example' => App\Facades\Example::class,
     ])->toArray(),
 
+    'serverIP' => '192.168.60.9/devpost',
+
+    'LOGIN_LIMIT' => 4
 ];

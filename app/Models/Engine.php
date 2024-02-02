@@ -72,8 +72,8 @@ class Engine extends Model
         return $this->hasMany(ConsommationCarburant::class);
     }
 
-    public function chauffeur(): HasOne
-    {
-        return $this->hasOne(Chauffeur::class);
-    }
+    // public function chauffeur(): HasOne
+    // {
+    //     return $this->hasOne(Chauffeur::class);
+    // }
 }
