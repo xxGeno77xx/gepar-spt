@@ -3,6 +3,7 @@
 namespace App\Models\Oracle;
 
 use Illuminate\Support\Facades\Auth;
+use App\Filament\Http\Livewire\Auth\Login;
 
 class Config
 {
@@ -10,8 +11,8 @@ class Config
     {
 
         if (Auth::check()) {
-            $config['username'] = App\Filament\Http\Livewire\Auth::authenticate();
-            $config['password'] = App\Filament\Http\Livewire\Auth::authenticate();
+           $config['username'] = Login::getOraUser();
+            $config['password'] = Login::getOraPass();
         }
 
     }

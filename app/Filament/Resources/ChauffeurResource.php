@@ -23,7 +23,7 @@ class ChauffeurResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-user-circle';
 
-    protected static bool $shouldRegisterNavigation = false;
+    // protected static bool $shouldRegisterNavigation = false;
 
     protected static function getNavigationBadge(): ?string
     {
@@ -69,17 +69,17 @@ class ChauffeurResource extends Resource
     {
         return $table
             ->columns([
-                // TextColumn::make('name')
-                //     ->searchable()
-                //     ->placeholder('-'),
+                TextColumn::make('name')
+                    ->searchable()
+                    ->placeholder('-'),
 
-                // TextColumn::make('nom_departement')
-                //     ->label('Département')
-                //     ->placeholder('-'),
+                TextColumn::make('nom_departement')
+                    ->label('Département')
+                    ->placeholder('-'),
 
-                // TextColumn::make('plate_number')
-                //     ->label('Engin')
-                //     ->placeholder('-'),
+                TextColumn::make('plate_number')
+                    ->label('Engin')
+                    ->placeholder('-'),
             ])
             ->filters([
                 //

@@ -417,7 +417,7 @@ class EngineResource extends Resource
             RelationManagers\AssurancesRelationManager::class,
             RelationManagers\VisitesRelationManager::class,
             RelationManagers\ReparationsRelationManager::class,
-            // ConsommationCarburantsRelationManager::class,
+            ConsommationCarburantsRelationManager::class,
         ];
     }
 

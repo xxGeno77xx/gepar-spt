@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
         $this->call(EnginesSeeder::class);
         $this->call(TypeReparationSeeder::class);
         // $this->call(PrestataireSeeder::class);
-        // $this->call(ChauffeurSeeder::class);
+        $this->call(ChauffeurSeeder::class);
 
     }
 }

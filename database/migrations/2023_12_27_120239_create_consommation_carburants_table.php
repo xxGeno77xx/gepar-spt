@@ -11,21 +11,32 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Schema::create('consommation_carburants', function (Blueprint $table) {
-        //     $table->id();
-        //     $table->integer('quantite');
-        //     $table->dateTime('date');
+        Schema::create('consommation_carburants', function (Blueprint $table) {
+            $table->id();
 
-        //     $table->unsignedBigInteger('engine_id');
-        //     $table->foreign('engine_id')->references('id')->on('engines');
+            $table->integer('quantite');
 
-        //     $table->unsignedBigInteger('carburant_id');
-        //     $table->foreign('carburant_id')->references('id')->on('carburants');
+            $table->dateTime('date');
 
-        //     $table->integer('kilometres_a_remplissage');
+            $table->unsignedBigInteger('engine_id');
+            $table->foreign('engine_id')->references('id')->on('engines');
 
-        //     $table->timestamps();
-        // });
+            $table->unsignedBigInteger('carburant_id');
+            $table->foreign('carburant_id')->references('id')->on('carburants');
+
+            $table->unsignedBigInteger('chauffeur_id');
+            $table->foreign('chauffeur_id')->references('id')->on('chauffeurs');
+
+            $table->string('carte_recharge_id');
+
+            $table->string('ticket');
+
+            $table->string('observation');
+
+            $table->integer('kilometres_a_remplissage');
+
+            $table->timestamps();
+        });
     }
 
     /**

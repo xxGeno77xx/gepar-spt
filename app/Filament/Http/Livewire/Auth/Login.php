@@ -3,19 +3,20 @@
 namespace App\Filament\Http\Livewire\Auth;
 
 use App\Models\User;
-use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
-use DanHarrin\LivewireRateLimiting\WithRateLimiting;
+use Livewire\Component;
 use Filament\Facades\Filament;
-use Filament\Forms\ComponentContainer;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Contracts\HasForms;
-use Filament\Http\Responses\Auth\Contracts\LoginResponse;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
+use Filament\Forms\Components\Hidden;
+use App\Models\Oracle\OracleConnector;
+use Filament\Forms\ComponentContainer;
+use Filament\Forms\Contracts\HasForms;
+use Filament\Forms\Components\TextInput;
 use Illuminate\Validation\ValidationException;
-use Livewire\Component;
+use Filament\Forms\Concerns\InteractsWithForms;
+use DanHarrin\LivewireRateLimiting\WithRateLimiting;
+use Filament\Http\Responses\Auth\Contracts\LoginResponse;
+use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 
 /**
  * @property ComponentContainer $form
@@ -25,11 +26,11 @@ class Login extends Component implements HasForms
     use InteractsWithForms;
     use WithRateLimiting;
 
-    public $username = '';
+    public  $username = '';
 
     public $email = '';
 
-    public $password = '';
+    public  $password = '';
 
     public $remember = false;
 
@@ -42,8 +43,10 @@ class Login extends Component implements HasForms
         $this->form->fill();
     }
 
+
     public function authenticate(): ?LoginResponse
     {
+
         $authenticationLimit = config('app.LOGIN_LIMIT', 4);
 
         $data = $this->form->getState();
@@ -132,5 +135,16 @@ class Login extends Component implements HasForms
             ->layout('filament::components.layouts.card', [
                 'title' => __('filament::login.title'),
             ]);
+    }
+
+    public static function getOraUser()
+    {
+    
+        return 'GATEWAY';
+    }
+
+    public static function getOraPass()
+    {
+        return 'gateway_2021';
     }
 }

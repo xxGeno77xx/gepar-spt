@@ -12,26 +12,34 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Schema::create('chauffeurs', function (Blueprint $table) {
-        //     $table->id();
-        //     $table->string('name');
-        //     $table->string('prenom');
-        // $table->string('age');
+        Schema::create('chauffeurs', function (Blueprint $table) {
+            $table->id();
 
-        // $table->string('carte_identite');
+            $table->string('name');
 
-        // $table->string('num_permis');
+            $table->string('prenom');
 
-        // $table->string('permmis')
-        //     ->comment('scan driver\'s license');
+            $table->string('age');
 
-        //     $table->enum('state', [StatesClass::Activated()->value,StatesClass::Deactivated()->value,StatesClass::Suspended()->value,]);
+            $table->string('carte_identite');
 
-        //     $table->unsignedBigInteger('departement_id');
-        //     $table->foreign('departement_id')->references('id')->on('departements');
+            $table->string('num_permis');
 
-        //     $table->timestamps();
-        // });
+            $table->string('permmis')
+            ->comment('scan driver\'s license')->nullable();
+
+            $table->enum('state', [
+                StatesClass::Activated()->value,
+                StatesClass::Deactivated()->value,
+                StatesClass::Suspended()->value,
+            ])->default( StatesClass::Activated()->value);
+
+            // $table->unsignedBigInteger('departement_id');
+
+            // $table->foreign('departement_id')->references('id')->on('departements');
+
+            $table->timestamps();
+        });
     }
 
     /**
