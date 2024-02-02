@@ -187,5 +187,5 @@ return [
 
     'serverIP' => '192.168.60.9/devpost',
 
-    'LOGIN_LIMIT' => 4
+    'LOGIN_LIMIT' => 4,
 ];

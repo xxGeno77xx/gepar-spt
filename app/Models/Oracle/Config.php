@@ -1,4 +1,5 @@
-<?
+<?php
+
 namespace App\Models\Oracle;
 
 use Illuminate\Support\Facades\Auth;

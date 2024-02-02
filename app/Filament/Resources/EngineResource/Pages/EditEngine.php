@@ -115,11 +115,11 @@ class EditEngine extends EditRecord
     }
 
     protected function getFooterWidgets(): array
-{
-    return [
-        EngineFuelConsumption::class
-    ];
-}
+    {
+        return [
+            EngineFuelConsumption::class,
+        ];
+    }
 
     // public function afterSave()
     // {
@@ -168,7 +168,5 @@ class EditEngine extends EditRecord
 //     }
 
 // }
-
-
 
 // }

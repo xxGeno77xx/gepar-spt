@@ -3,24 +3,19 @@
 namespace App\Filament\Http\Livewire\Auth;
 
 use App\Models\User;
-use Livewire\Component;
-use App\Models\OracleUser;
+use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
+use DanHarrin\LivewireRateLimiting\WithRateLimiting;
 use Filament\Facades\Filament;
-use Illuminate\Support\Facades\DB;
+use Filament\Forms\ComponentContainer;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
+use Filament\Http\Responses\Auth\Contracts\LoginResponse;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use App\Support\Database\StatesClass;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\ComponentContainer;
-use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Components\Checkbox;
-use Filament\Forms\Components\TextInput;
 use Illuminate\Validation\ValidationException;
-use Filament\Forms\Concerns\InteractsWithForms;
-use DanHarrin\LivewireRateLimiting\WithRateLimiting;
-use Filament\Http\Responses\Auth\Contracts\LoginResponse;
-use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
+use Livewire\Component;
 
 /**
  * @property ComponentContainer $form
@@ -28,11 +23,10 @@ use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 class Login extends Component implements HasForms
 {
     use InteractsWithForms;
-
     use WithRateLimiting;
 
-
     public $username = '';
+
     public $email = '';
 
     public $password = '';
@@ -76,17 +70,13 @@ class Login extends Component implements HasForms
 
         $userToLogIn = User::where('username', $data['username'])->first();
 
-        if(!$userToLogIn)
-        {
+        if (! $userToLogIn) {
             throw ValidationException::withMessages(['username' => "Votre compte n'est pas autorisé sur cette application"]);
-        }
-        
-        elseif (Auth::login($userToLogIn)) 
-        {
+        } elseif (Auth::login($userToLogIn)) {
 
             if ($userToLogIn->login_attempts >= $authenticationLimit) {
                 $userToLogIn->update([
-                    'state' => 0 ,
+                    'state' => 0,
                     'login_attempts' => 0,
                 ]);
                 throw ValidationException::withMessages([
@@ -115,10 +105,10 @@ class Login extends Component implements HasForms
 
             session()->regenerate();
 
+        }
+
+        return app(LoginResponse::class);
     }
-    
- return app(LoginResponse::class);
-}
 
     protected function getFormSchema(): array
     {

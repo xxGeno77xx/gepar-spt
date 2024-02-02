@@ -10,7 +10,7 @@ class ConsommationCarburant extends Model
 {
     use HasFactory;
 
-    public function engine():BelongsTo
+    public function engine(): BelongsTo
     {
         return $this->belongsTo(Engine::class);
     }
