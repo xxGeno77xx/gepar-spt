@@ -37,7 +37,7 @@ class AssuranceResource extends Resource
                         Select::make('engine_id')
                             ->label('Numéro de plaque')
                             ->options(Engine::select(['plate_number', 'id'])
-                                ->where('engines.state', StatesClass::Activated())
+                                ->where('engines.state', StatesClass::Activated()->value)
                                 ->get()->pluck('plate_number', 'id')
                             )
                             ->searchable()
@@ -62,6 +62,8 @@ class AssuranceResource extends Resource
 
                     ])
                     ->columnSpan(['lg' => fn (?Assurance $record) => $record === null ? 3 : 2]),
+
+                    Hidden::make('state')->default(StatesClass::Activated()->value),
 
                 CommonInfos::PlaceholderCard(),
             ])
@@ -94,7 +96,7 @@ class AssuranceResource extends Resource
                     ->dateTime('d-m-Y')
                     ->wrap(),
             ])
-            ->defaultSort('created_at', 'desc')
+            ->defaultSort('assurances.created_at', 'desc')
 
             ->filters([
                 //

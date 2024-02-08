@@ -96,7 +96,7 @@ class AssurancesRelationManager extends RelationManager
             ])
             ->bulkActions([
                 // Tables\Actions\DeleteBulkAction::make(),
-            ])->defaultSort('created_at', 'desc');
+            ])->defaultSort('assurances.created_at', 'desc');
     }
 
     protected function getTableQuery(): Builder

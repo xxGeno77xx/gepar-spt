@@ -10,6 +10,8 @@ class Chauffeur extends Model
 {
     use HasFactory;
 
+    protected $connection = 'oracle';
+
     // public function engine(): BelongsTo
     // {
     //     return $this->belongsTo(Engine::class);

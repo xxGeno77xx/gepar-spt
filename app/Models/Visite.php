@@ -11,6 +11,7 @@ class Visite extends Model
     use HasFactory;
     use SoftDeletes;
 
+    protected $connection = 'oracle';
     public function engine()
     {
         return $this->belongsTo(Engine::class);

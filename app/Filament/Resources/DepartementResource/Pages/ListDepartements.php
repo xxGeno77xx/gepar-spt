@@ -40,6 +40,6 @@ class ListDepartements extends ListRecords
     protected function getTableQuery(): Builder
     {
         return static::getResource()::getEloquentQuery()
-            ->where('departements.state', StatesClass::Activated());
+            ->where('departements.state', StatesClass::Activated()->value);
     }
 }

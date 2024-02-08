@@ -37,7 +37,7 @@ class ModeleResource extends Resource
                 Select::make('marque_id')
                 // ->relationship('marque','nom_marque')
                     ->label('Marque')
-                    ->options(Marque::select('nom_marque', 'id')->where('state', StatesClass::Activated())->pluck('nom_marque', 'id'))
+                    ->options(Marque::select('nom_marque', 'id')->where('state', StatesClass::Activated()->value)->pluck('nom_marque', 'id'))
                     ->searchable()
                     ->required(),
 

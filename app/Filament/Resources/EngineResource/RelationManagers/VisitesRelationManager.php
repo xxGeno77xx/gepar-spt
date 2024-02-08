@@ -44,7 +44,7 @@ class VisitesRelationManager extends RelationManager
                     ->color('success')
                     ->alignment('center'),
 
-            ])->defaultSort('created_at', 'desc')
+            ])->defaultSort('visites.created_at', 'desc')
             ->filters([
                 //
             ])

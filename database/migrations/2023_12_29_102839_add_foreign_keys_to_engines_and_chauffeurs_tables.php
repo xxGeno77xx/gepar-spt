@@ -9,6 +9,9 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
+
+     protected $connection = 'oracle';
+     
     public function up(): void
     {
         // Schema::table('engines', function (Blueprint $table) {

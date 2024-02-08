@@ -178,13 +178,13 @@ class EngineResource extends Resource
 
                         Select::make('modele_id')
                             ->label('Modèle')
-                            ->options(Modele::where('state', StatesClass::Activated())->pluck('nom_modele', 'id'))
+                            ->options(Modele::where('state', StatesClass::Activated()->value)->pluck('nom_modele', 'id'))
                             ->searchable()
                             ->required(),
 
                         Select::make('type_id')
                             ->label("Type d'engin")
-                            ->options(Type::where('state', StatesClass::Activated())->pluck('nom_type', 'id'))
+                            ->options(Type::where('state', StatesClass::Activated()->value)->pluck('nom_type', 'id'))
                             ->searchable()
                             ->required(),
 
@@ -298,6 +298,8 @@ class EngineResource extends Resource
                 Hidden::make('visites_mail_sent')
                     ->default(0),
 
+                Hidden::make('state')->default(StatesClass::Activated()->value),
+
                 CommonInfos::PlaceholderCard(),
 
             ]);
@@ -318,9 +320,9 @@ class EngineResource extends Resource
                 //     ->searchable()
                 //     ->placeholder('-'),
 
-                DepartementColumn::make('departement_id')
-                    ->searchable()
-                    ->label('Département'),
+                // DepartementColumn::make('departement_id')
+                //     ->searchable()
+                //     ->label('Département'),
 
                 ImageColumn::make('logo')
                     ->label('Marque')
@@ -359,6 +361,8 @@ class EngineResource extends Resource
                             return 'success';
                         }
                     }),
+
+                   
             ])
             ->defaultSort('engines.created_at', 'desc')
 
@@ -400,6 +404,8 @@ class EngineResource extends Resource
                                 fn (Builder $query, $status): Builder => $query->where('engines.state', $status),
                             );
                     }),
+
+                    
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

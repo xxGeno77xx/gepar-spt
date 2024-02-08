@@ -40,7 +40,7 @@ class VisiteResource extends Resource
                             ->label('Numéro de plaque')
                             ->options(
                                 Engine::select(['plate_number', 'id'])
-                                    ->where('engines.state', StatesClass::Activated())
+                                    ->where('engines.state', StatesClass::Activated()->value)
                                     ->get()
                                     ->pluck('plate_number', 'id')
                             )
@@ -65,6 +65,8 @@ class VisiteResource extends Resource
                             ->disabled(),
                     ])
                     ->columnSpan(['lg' => fn (?Visite $record) => $record === null ? 3 : 2]),
+
+                    Hidden::make('state')->default(StatesClass::Activated()->value),
 
                 CommonInfos::PlaceholderCard(),
 
@@ -97,7 +99,7 @@ class VisiteResource extends Resource
                     ->dateTime('d-m-Y')
                     ->wrap(),
 
-            ])->defaultSort('created_at', 'desc')
+            ])->defaultSort('visites.created_at', 'desc')
             ->filters([
                 //
             ])

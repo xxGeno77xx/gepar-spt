@@ -22,8 +22,9 @@ class EditReparation extends EditRecord
                 // Actions\DeleteAction::make(),
                 Actions\Action::make('Supprimer')
                     ->color('danger')
+                    ->icon("heroicon-o-eye-off")
                     ->action(function (?Reparation $record) {
-                        $this->record->update(['state' => StatesClass::Deactivated()]);
+                        $this->record->update(['state' => StatesClass::Deactivated()->value]);
                         redirect('/reparations');
                         Notification::make()
                             ->title('Supprimé(e)')

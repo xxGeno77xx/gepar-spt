@@ -21,6 +21,7 @@ class EditMarque extends EditRecord
                 // Actions\DeleteAction::make(),
                 Actions\Action::make('Supprimer')
                     ->color('danger')
+                    ->icon("heroicon-o-eye-off")
                     ->action(function (?Marque $record) {
                         $this->record->update(['state' => StatesClass::Deactivated()->value]);
                         redirect('/marques');

@@ -4,8 +4,9 @@ namespace Database\Seeders;
 
 use App\Models\Marque;
 use App\Models\Modele;
-use App\Support\Database\ModelesClass;
 use Illuminate\Database\Seeder;
+use App\Support\Database\StatesClass;
+use App\Support\Database\ModelesClass;
 
 class ModelesSeeder extends Seeder
 {
@@ -25,6 +26,7 @@ class ModelesSeeder extends Seeder
 
             Modele::firstOrCreate([
                 'nom_modele' => $modelName,
+                'state' => StatesClass::Activated()->value,
                 'marque_id' => Marque::where('nom_marque', '=', $brandName)->value('id'),
                 'created_at' => now(),
                 'updated_at' => now(),

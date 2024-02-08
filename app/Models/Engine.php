@@ -14,6 +14,8 @@ class Engine extends Model
     use HasFactory;
     use SoftDeletes;
 
+    protected $connection = 'oracle';
+
     public function reparations()
     {
         return $this->hasMany(Reparation::class);

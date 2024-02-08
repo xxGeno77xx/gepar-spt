@@ -3,15 +3,21 @@
 namespace App\Filament\Resources\EngineResource\RelationManagers;
 
 use Closure;
+use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Tables;
 use App\Models\Chauffeur;
 use Filament\Resources\Form;
 use Filament\Resources\Table;
 use Filament\Forms\Components\Grid;
+use Filament\Tables\Filters\Filter;
 use App\Models\ConsommationCarburant;
+use App\Support\Database\StatesClass;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\DatePicker;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Resources\RelationManagers\RelationManager;
+use AlperenErsoy\FilamentExport\Actions\FilamentExportHeaderAction;
 
 class ConsommationCarburantsRelationManager extends RelationManager
 {
@@ -23,25 +29,25 @@ class ConsommationCarburantsRelationManager extends RelationManager
 
     public static function form(Form $form): Form
     {
-        // dd(function (RelationManager $livewire): array {
-        //     return $livewire->ownerRecord->stores()
-        //         ->value('id');
-        // });
 
         return $form
             ->schema([
 
                 Grid::make(3)
                     ->schema([
-                        Forms\Components\DatePicker::make('date') // to do: make it unique for every engine
+                        Forms\Components\DatePicker::make('date')
+                            ->beforeOrEqual(date_format(now(),"d-m-Y")) // to do: make it unique for every engine
                             ->required(),
 
+                            Forms\Components\Hidden::make('state')
+                            ->default(StatesClass::Activated()->value),
+
                         Forms\Components\TextInput::make('ticket')
-                            ->unique(ignoreRecord:true)
+                            ->unique(ignoreRecord: true)
                             ->required(),
 
                         Forms\Components\TextInput::make('quantite')
-                        ->label('quantité')
+                            ->label('quantité')
                             ->suffix('Litres')
                             ->numeric()
                             ->minValue(0)
@@ -56,7 +62,6 @@ class ConsommationCarburantsRelationManager extends RelationManager
                                 },
                             ]),
 
-
                         Forms\Components\TextInput::make('kilometres_a_remplissage')
                             ->label('Kilometrage au remplissage')
                             ->numeric()
@@ -70,14 +75,14 @@ class ConsommationCarburantsRelationManager extends RelationManager
 
                                         $latestConsommation = ConsommationCarburant::latest()
                                             ->where('engine_id', $livewire->ownerRecord->id)
-                                            ->value('kilometres_a_remplissage');
+                                            ->first();
 
-                                            // dd( $latestConsommation);
+
                                         if ($latestConsommation) {
 
-                                            if ($value < $latestConsommation) {
+                                            if ($value <= $latestConsommation->kilometres_a_remplissage) {
                                                 // $fail('Le champ :attribute doit être supérieur à 0.');
-                                                $fail('Le dernier kilométrage était à ' . $latestConsommation . ' km');
+                                                $fail('Le dernier kilométrage était à ' . $latestConsommation->kilometres_a_remplissage . ' km');
                                             }
                                         }
 
@@ -93,16 +98,12 @@ class ConsommationCarburantsRelationManager extends RelationManager
                             ->required()
                             ->searchable(),
 
-
-
                         Forms\Components\TextInput::make('carte_recharge_id')
                             ->label('Carte de recharge')
                             ->required(),
 
-
                     ]),
                 Forms\Components\TextInput::make('observation')
-                    ->required()
                     ->columnSpanFull(),
 
                 Forms\Components\Hidden::make('carburant_id')
@@ -119,44 +120,144 @@ class ConsommationCarburantsRelationManager extends RelationManager
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('date')
+                ->sortable()
                     ->label('Date')
                     ->date('d-m-Y'),
 
                 Tables\Columns\TextColumn::make('ticket')
-                    ->label('Numéro du ticket'),
-
-                Tables\Columns\TextColumn::make('quantite')
-                    ->label('Quantité en litres'),
+                    ->label('Ticket N°'),
 
                 Tables\Columns\TextColumn::make('kilometres_a_remplissage')
-                    ->label('Kilometrage au remplissage'),
+                    ->label('Indice compteur'),
 
                 Tables\Columns\TextColumn::make('name')
                     ->label('Chauffeur'),
 
+                Tables\Columns\TextColumn::make('observation')
+                    ->limit(8)
+                    ->label('Observation')
+                    ->placeholder('-'),
+
+                Tables\Columns\TextColumn::make('quantite')
+                    ->label('Quantité (L)'),
             ])
             ->filters([
-                //
+                Filter::make('date_lancement')
+                    ->label('Date')
+                    ->form([
+                        Grid::make(2)
+                            ->schema([
+
+                                DatePicker::make('date_from')
+                                    ->label('Du'),
+
+                                DatePicker::make('date_to')
+                                    ->label('Au'),
+
+                            ])->columns(1),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['date_from'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('date', '>=', $date),
+                            )
+                            ->when(
+                                $data['date_to'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('date', '<=', $date),
+                            );
+                    })
+                    ->indicateUsing(function (array $data): ?string {
+                        if (($data['date_from']) && ($data['date_from'])) {
+                            return 'Date: du  ' . Carbon::parse($data['date_from'])->format('d-m-Y') . ' au ' . Carbon::parse($data['date_to'])->format('d-m-Y');
+                        }
+
+                        return null;
+                    }),
+
+                Filter::make('Chauffeur')
+                    ->form([
+                        Select::make('chauffeur_id')
+                            ->searchable()
+                            ->label('Chauffeur')
+                            ->options(Chauffeur::pluck('name', 'id')),
+
+                    ])->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['chauffeur_id'],
+                                function (Builder $query, $status) {
+
+                                    $search = Chauffeur::where('id', $status)->value('id');
+
+                                    return $query->where('chauffeur_id', $search);
+                                }
+                            );
+                    })->indicateUsing(function (array $data): ?string {
+                        if (!$data['chauffeur_id']) {
+                            return null;
+                        }
+
+                        return 'Chauffeur: ' . Chauffeur::where('chauffeurs.id', $data['chauffeur_id'])->value('name');
+                    }),
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()->label('Ajouter'),
                 Tables\Actions\Action::make('export')
-                    ->label('Récapitulatif')
+                    ->label('Récapitulatif'),
+
+                FilamentExportHeaderAction::make('export')
+                    ->label('Exporter')
+                    ->disablePdf()
+                    ->extraViewData(function (RelationManager $livewire, $action) {
+
+                        $OwnerEngine = $livewire->ownerRecord->join('modeles', 'modeles.id', 'engines.modele_id')
+                            ->leftJoin('marques', 'marques.id', 'modeles.marque_id')
+                            ->leftJoin('types', 'engines.type_id', 'types.id')
+                            ->leftJoin('carburants', 'carburants.id', 'engines.carburant_id')
+                            ->select([
+                                'engines.*',
+                                'modeles.nom_modele as modele',
+                                'marques.nom_marque as marque',
+                                'types.nom_type as type',
+                                'carburants.type_carburant as carburant'
+                            ])
+                            ->where('engines.id', $livewire->ownerRecord->id)
+                            ->first();
+
+                        $total = $action->getRecords()->sum('quantite');
+
+                        return [
+
+                            'plate_number' => $livewire->ownerRecord->plate_number,
+                            'modele' => $OwnerEngine->modele,
+                            'marque' => $OwnerEngine->marque,
+                            'type' => $OwnerEngine->type,
+                            'carburant' => $OwnerEngine->carburant,
+                            'total' => $total,
+                        ];
+                    }),
 
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                // Tables\Actions\EditAction::make(),
+                // Tables\Actions\DeleteAction::make(),
+
+                Tables\Actions\Action::make('Supprimer')
+                    ->action(fn()=>$record->update(["state"=>StatesClass::Deactivated()->value]))
             ])
             ->bulkActions([
-                // Tables\Actions\DeleteBulkAction::make(),
+
             ])
-            ->defaultSort('consommation_carburants.date', 'asc');
+            ->defaultSort('date', 'asc');
     }
 
-    public function getTableQuery():Builder
+    public function getTableQuery(): Builder
     {
-        return ConsommationCarburant::leftJoin('chauffeurs', 'consommation_carburants.chauffeur_id','chauffeurs.id')
-        ->select(['consommation_carburants.*', 'chauffeurs.name']);
+        return ConsommationCarburant::leftJoin('chauffeurs', 'consommation_carburants.chauffeur_id', 'chauffeurs.id')
+            ->leftJoin('engines', 'consommation_carburants.engine_id', 'engines.id')
+            ->select(['consommation_carburants.*', 'chauffeurs.name'])
+            ->where('consommation_carburants.state',StatesClass::Activated()->value)
+            ->where('engines.id', $this->ownerRecord->id);
     }
 }

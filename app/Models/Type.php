@@ -10,6 +10,10 @@ class Type extends Model
 {
     use HasFactory;
 
+    protected $connection = 'oracle';
+
+    protected $table = 'types_engins';
+
     public function engines()
     {
         return $this->hasMany(Engine::class);

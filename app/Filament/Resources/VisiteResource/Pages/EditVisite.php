@@ -23,6 +23,7 @@ class EditVisite extends EditRecord
                 // Actions\DeleteAction::make(),
                 Actions\Action::make('Supprimer')
                     ->color('danger')
+                    ->icon("heroicon-o-eye-off")
                     ->action(function (?Visite $record) {
                         $this->record->update(['state' => StatesClass::Deactivated()->value]);
                         redirect('/visites');
@@ -78,7 +79,7 @@ class EditVisite extends EditRecord
 
         //visites that matching dates with the dates within form data
         $matchingVisites = Visite::select(['visites.date_initiale', 'visites.date_expiration'])
-            ->where('visites.state', StatesClass::Activated())
+            ->where('visites.state', StatesClass::Activated()->value)
             ->where('engine_id', $Visite['engine_id'])
             ->Where(function (Builder $query) {
 

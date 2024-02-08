@@ -10,8 +10,14 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
+
+    protected $connection = 'oracle';
+
     public function up(): void
     {
+
+        Schema::dropIfExists('carburants');
+        
         Schema::create('carburants', function (Blueprint $table) {
             $table->id();
 
@@ -24,6 +30,9 @@ return new class extends Migration
             ]);
 
             $table->timestamps();
+
+            $sequence = DB::getSequence();
+            $sequence->drop('carburants_id_seq');
         });
     }
 
@@ -32,6 +41,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('carburants');
+        Schema::dropIfExists('types_carburants');
     }
 };

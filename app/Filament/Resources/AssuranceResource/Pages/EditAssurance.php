@@ -23,6 +23,7 @@ class EditAssurance extends EditRecord
                 // Actions\DeleteAction::make(),
                 Actions\Action::make('Supprimer')
                     ->color('danger')
+                    ->icon("heroicon-o-eye-off")
                     ->action(function (?Assurance $record) {
                         $this->record->update(['state' => StatesClass::Deactivated()->value]);
                         redirect('/assurances');
@@ -79,7 +80,7 @@ class EditAssurance extends EditRecord
 
         //Retrieving all records that match dates within form
         $matchingAssurances = Assurance::select(['date_debut', 'date_fin'])
-            ->where('assurances.state', StatesClass::Activated())
+            ->where('assurances.state', StatesClass::Activated()->value)
             ->where('engine_id', $assurance['engine_id'])
             ->Where(function (Builder $query) {
 

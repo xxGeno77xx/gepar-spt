@@ -10,9 +10,14 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
+
+     protected $connection = 'oracle';
+     
     public function up(): void
     {
 
+        Schema::dropIfExists('engines');
+        
         Schema::create('engines', function (Blueprint $table) {
             $table->id();
 
@@ -33,16 +38,16 @@ return new class extends Migration
             $table->string('plate_number')->unique();
 
             $table->unsignedBigInteger('type_id');
-            $table->foreign('type_id')->references('id')->on('types');
+            $table->foreign('type_id')->references('id')->on('types_engins');
 
             $table->string('car_document')->nullable();
 
             $table->unsignedBigInteger('carburant_id');
             $table->foreign('carburant_id')->references('id')->on('carburants');
 
-            $table->boolean('assurances_mail_sent')->comment('bool to check if assurance mail was sent for a given engine');
+            $table->boolean('assurances_mail_sent');
 
-            $table->boolean('visites_mail_sent')->comment('bool to check if visite mail was sent for a given engine 1=true= mail was sent; 0=false= mail not sent');
+            $table->boolean('visites_mail_sent');
 
             $table->enum('state', [StatesClass::Activated()->value,
                 StatesClass::Deactivated()->value,
@@ -71,9 +76,9 @@ return new class extends Migration
 
             $table->integer('Charge_utile');
 
-            $table->double('largeur');
+            $table->double('largeur' , 10, 2);
 
-            $table->double('surface');
+            $table->double('surface' , 10, 2);
 
             $table->string('couleur');
 
@@ -86,13 +91,15 @@ return new class extends Migration
                 ->nullable();
 
             $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users');
 
             $table->unsignedBigInteger('updated_at_user_id');
 
             $table->softDeletes();
 
             $table->timestamps();
+
+            $sequence = DB::getSequence();
+            $sequence->drop('engines_id_seq');
 
         });
     }

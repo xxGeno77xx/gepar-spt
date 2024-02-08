@@ -31,7 +31,7 @@ class ListVisites extends ListRecords
             ->leftjoin('users', 'visites.user_id', '=', 'users.id')
             ->join('engines', 'visites.engine_id', 'engines.id')
             ->select('engines.plate_number', 'visites.*', 'users.name')
-            ->where('visites.state', StatesClass::Activated());
+            ->where('visites.state', StatesClass::Activated()->value);
     }
 
     protected function authorizeAccess(): void

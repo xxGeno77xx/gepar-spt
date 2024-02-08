@@ -17,25 +17,25 @@ class EditDepartement extends EditRecord
 
     protected function getActions(): array
     {
-        if (auth()->user()->hasAnyPermission([PermissionsClass::departements_delete()->value])) {
-            return [
-                // Actions\DeleteAction::make(),
-                Actions\Action::make('Supprimer')
-                    ->color('danger')
-                    ->action(function (?Departement $record) {
-                        $this->record->update(['state' => StatesClass::Deactivated()->value]);
-                        redirect('/departements');
-                        Notification::make()
-                            ->title('Supprimé(e)')
-                            ->success()
-                            ->persistent()
-                            ->send();
-                    })
-                    ->requiresConfirmation(),
+        // if (auth()->user()->hasAnyPermission([PermissionsClass::departements_delete()->value])) {
+        //     return [
+        //         // Actions\DeleteAction::make(),
+        //         Actions\Action::make('Supprimer')
+        //             ->color('danger')
+        //             ->action(function (?Departement $record) {
+        //                 $this->record->update(['state' => StatesClass::Deactivated()->value]);
+        //                 redirect('/departements');
+        //                 Notification::make()
+        //                     ->title('Supprimé(e)')
+        //                     ->success()
+        //                     ->persistent()
+        //                     ->send();
+        //             })
+        //             ->requiresConfirmation(),
 
-            ];
+        //     ];
 
-        }
+        // }
 
         return [];
     }

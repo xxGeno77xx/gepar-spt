@@ -46,8 +46,8 @@ class RolesPermissionsSeeder extends Seeder
             'username' => 'gateway',
             'notification' => true,
             'login_attempts' => 0,
-             'created_at' => now(),
-              'updated_at' => now()
+            'created_at' => now(),
+            'updated_at' => now(),
 
         ]);
 
@@ -95,10 +95,10 @@ class RolesPermissionsSeeder extends Seeder
         $userRole->syncPermissions($usersPermissions);
 
         $sptUsers = collect([
-            ['name' => 'DJAGBANI Paguedame',  'username' => 'DJAGBANI' ,'email' => 'Paguedame.Djagbani@laposte.tg', 'notification' => 1, 'password' => Hash::make('L@poste+2024'), 'login_attempts' => 0, 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'TCHOYO Yaou', 'username' => 'TCHOYO' , 'email' => 'Yaou.Tchoyo@laposte.tg', 'notification' => 1, 'password' => Hash::make('L@poste+2024'), 'login_attempts' => 0, 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'KOMBATE Arzouma  ', 'username' => 'KOMBATE' , 'email' => 'Arzouma.Kombate@laposte.tg', 'notification' => 1, 'password' => Hash::make('L@poste+2024'), 'login_attempts' => 0, 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'TCHESSOTAGBA Pidénam', 'username' => 'TCHESSOTAGBA' , 'email' => 'Pidename.Tchessotagba@laposte.tg', 'notification' => 1, 'password' => Hash::make('L@poste+2024'), 'login_attempts' => 0, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'DJAGBANI Paguedame',  'username' => 'DJAGBANI', 'email' => 'Paguedame.Djagbani@laposte.tg', 'notification' => 1, 'password' => Hash::make('L@poste+2024'), 'login_attempts' => 0, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'TCHOYO Yaou', 'username' => 'TCHOYO', 'email' => 'Yaou.Tchoyo@laposte.tg', 'notification' => 1, 'password' => Hash::make('L@poste+2024'), 'login_attempts' => 0, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'KOMBATE Arzouma  ', 'username' => 'KOMBATE', 'email' => 'Arzouma.Kombate@laposte.tg', 'notification' => 1, 'password' => Hash::make('L@poste+2024'), 'login_attempts' => 0, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'TCHESSOTAGBA Pidénam', 'username' => 'TCHESSOTAGBA', 'email' => 'Pidename.Tchessotagba@laposte.tg', 'notification' => 1, 'password' => Hash::make('L@poste+2024'), 'login_attempts' => 0, 'created_at' => now(), 'updated_at' => now()],
             // ['name' => 'testUser', 'username' => 'gateway', 'email' => 'gateway.gateway@laposte.tg', 'notification' => 1, 'password' => Hash::make('L@poste+2024'), 'login_attempts' => 0, 'created_at' => now(), 'updated_at' => now()],
         ]);
 

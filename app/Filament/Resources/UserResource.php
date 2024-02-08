@@ -154,8 +154,8 @@ class UserResource extends Resource
                     ->falseLabel('Désactivé')
                     ->nullable()
                     ->queries(
-                        true: fn (Builder $query) => $query->where('state', StatesClass::Activated()),
-                        false: fn (Builder $query) => $query->where('state', StatesClass::Deactivated()),
+                        true: fn (Builder $query) => $query->where('state', StatesClass::Activated()->value),
+                        false: fn (Builder $query) => $query->where('state', StatesClass::Deactivated()->value),
                     ),
             ])
             ->prependActions([

@@ -110,7 +110,7 @@ class ReparationsRelationManager extends RelationManager
                                 Select::make('engine_id')
                                     ->label('Numéro de plaque')
                                     ->options(
-                                        Engine::where('engines.state', '<>', StatesClass::Deactivated())
+                                        Engine::where('engines.state', '<>', StatesClass::Deactivated()->value)
                                             ->pluck('plate_number', 'id')
                                     )
                                     ->searchable()
@@ -118,7 +118,7 @@ class ReparationsRelationManager extends RelationManager
 
                                 Select::make('prestataire_id')
                                     ->label('Prestataire')
-                                    ->options(Prestataire::pluck('nom', 'id'))
+                                    ->options(Prestataire::pluck('raison_social_fr', 'code_fr'))
                                     ->searchable()
                                     ->preload(true)
                                     ->required(),
@@ -368,7 +368,7 @@ class ReparationsRelationManager extends RelationManager
             ])
             ->bulkActions([
                 // Tables\Actions\DeleteBulkAction::make(),
-            ])->defaultSort('created_at', 'desc');
+            ])->defaultSort('reparations.created_at', 'desc');
 
     }
 

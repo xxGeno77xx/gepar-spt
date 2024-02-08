@@ -40,7 +40,7 @@ class CreateVisite extends CreateRecord
 
         //getting latest visite for given engine, serves as check  to see if there's a visit or not
         $latestVisiteForThisEngine = Visite::where('engine_id', $Visite['engine_id'])
-            ->where('visites.state', StatesClass::Activated())
+            ->where('visites.state', StatesClass::Activated()->value)
             ->whereNull('deleted_at')
             ->orderBy('created_at', 'desc')
             ->first();
@@ -74,7 +74,7 @@ class CreateVisite extends CreateRecord
             }
 
             //get all visites for the given engine
-            $allVisitesForThisEngine = Visite::select('date_initiale', 'date_expiration')->where('visites.state', StatesClass::Activated())->where('engine_id', $Visite['engine_id'])->get();
+            $allVisitesForThisEngine = Visite::select('date_initiale', 'date_expiration')->where('visites.state', StatesClass::Activated()->value)->where('engine_id', $Visite['engine_id'])->get();
 
             //parse dates to carbon instance
             $carbonVisiteDateExpiration = Carbon::parse($Visite['date_expiration'])->format('y-m-d');

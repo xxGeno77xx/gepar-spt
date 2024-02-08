@@ -10,8 +10,13 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
+
+     protected $connection = 'oracle';
+
     public function up(): void
     {
+        Schema::dropIfExists('type_reparations');
+
         Schema::create('type_reparations', function (Blueprint $table) {
             $table->id();
             $table->string('libelle');
@@ -23,6 +28,9 @@ return new class extends Migration
                 StatesClass::Repairing()->value,
             ]);
             $table->timestamps();
+
+            $sequence = DB::getSequence();
+            $sequence->drop('type_reparations_id_seq');
         });
     }
 

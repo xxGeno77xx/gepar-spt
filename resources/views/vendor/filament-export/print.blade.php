@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="{{ App::getLocale() }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>&nbsp;</title>
+    {{-- <style>
+        table {
+            background: white;
+            color: black;
+            width: 100%;
+            border-collapse: collapse;
+            border-spacing: 0;
+            font-family: sans-serif;
+        }
+
+        td,
+        th {
+            border-color: #ededed;
+            border-style: solid;
+            border-width: 1px;
+            font-size: 13px;
+            line-height: 2;
+            overflow: hidden;
+            padding-left: 6px;
+            word-break: normal;
+        }
+
+        th {
+            font-weight: normal;
+        }
+
+        table {
+            page-break-after: auto
+        }
+
+        tr {
+            page-break-inside: avoid;
+            page-break-after: auto
+        }
+
+        td {
+            page-break-inside: avoid;
+            page-break-after: auto
+        }
+    </style> --}}
+
+    <style>
+        /*
+    Import the desired font from Google fonts.
+    */
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+
+        /*
+    Define all colors used in this template
+    */
+        :root {
+            --font-color: black;
+            --highlight-color: #60D0E4;
+            --header-bg-color: #B8E6F1;
+            --footer-bg-color: #BFC0C3;
+            --table-row-separator-color: #BFC0C3;
+        }
+
+        @page {
+            /*
+      This CSS highlights how page sizes, margins, and margin boxes are set.
+      https://docraptor.com/documentation/article/1067959-size-dimensions-orientation
+    
+      Within the page margin boxes content from running elements is used instead of a
+      standard content string. The name which is passed in the element() function can
+      be found in the CSS code below in a position property and is defined there by
+      the running() function.
+      */
+            size: A4;
+            margin: 1cm 0 0cm 0;
+
+            @top-left {
+                content: element(header);
+            }
+
+            @bottom-left {
+                content: element(footer);
+            }
+        }
+
+        /*
+    The body itself has no margin but a padding top & bottom 1cm and left & right 2cm.
+    Additionally the default font family, size and color for the document is defined
+    here.
+    */
+        body {
+            margin: 0;
+            padding: 0.5cm 1cm;
+            color: var(--font-color);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 10pt;
+        }
+
+        /*
+    The links in the document should not be highlighted by an different color and underline
+    instead we use the color value inherit to get the current texts color.
+    */
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /*
+    For the dividers in the document we use an HR element with a margin top and bottom
+    of 1cm, no height and only a border top of one millimeter.
+    */
+        hr {
+            margin: 1cm 0;
+            height: 0;
+            border: 0;
+            border-top: 1mm solid var(--highlight-color);
+        }
+
+        /*
+    The page header in our document uses the HTML HEADER element, we define a height
+    of 8cm matching the margin top of the page (see @page rule) and a padding left
+    and right of 2cm. We did not give the page itself a margin of 2cm to ensure that
+    the background color goes to the edges of the document.
+    
+    As mentioned above in the comment for the @page the position property with the
+    value running(header) makes this HTML element float into the top left page margin
+    box. This page margin box repeats on every page in case we would have a multi-page
+    invoice.
+    */
+        header {
+            /* height: 8cm;
+        padding: 0 2cm; */
+            position: running(header);
+            background-color: #60D0E4;
+        }
+
+        /*
+    For the different sections in the header we use some flexbox and keep space between
+    with the justify-content property.
+    */
+        header .headerSection {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /*
+    To move the first sections a little down and have more space between the top of
+    the document and the logo/company name we give the section a padding top of 5mm.
+    */
+        /* header .headerSection:first-child {
+        padding-top: .5cm;
+    } */
+
+        /*
+    Similar we keep some space at the bottom of the header with the padding-bottom
+    property.
+    */
+        /* header .headerSection:last-child {
+        padding-bottom: .5cm;
+    } */
+
+        /*
+    Within the header sections we have defined two DIV elements, and the last one in
+    each headerSection element should only take 35% of the headers width.
+    */
+        header .headerSection div:last-child {
+            width: 35%;
+        }
+
+        /*
+    For the logo, where we use an SVG image and the company text we also use flexbox
+    to align them correctly.
+    */
+        header .logoAndName {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /*
+    The SVG gets set to a fixed size and get 5mm margin right to keep some distance
+    to the company name.
+    */
+        header .logoAndName svg {
+            width: 1.5cm;
+            height: 1.5cm;
+            margin-right: .5cm;
+        }
+
+        /*
+    To ensure the top right section "Invoice #100" starts on the same level as the Logo &
+    Name we set a padding top of 1cm for this element.
+    */
+        header .headerSection .invoiceDetails {
+            padding-top: .5cm;
+        }
+
+        /*
+    The H3 element "ISSUED TO" gets another 25mm margin to the right to keep some
+    space between this header and the client's address.
+    Additionally this header text gets the hightlight color as font color.
+    */
+        header .headerSection h3 {
+            margin: 0 .75cm 0 0;
+            color: var(--highlight-color);
+        }
+
+        /*
+    Put some margin between the "DUE DATE" and "AMOUNT" headings.
+    */
+        header .headerSection div:last-of-type h3:last-of-type {
+            margin-top: .5cm;
+        }
+
+        /*
+    The paragraphs within the header sections DIV elements get a small 2px margin top
+    to ensure its in line with the "ISSUED TO" header text.
+    */
+        /* header .headerSection div p {
+        margin-top: 2px;
+    } */
+
+        /*
+    All header elements and paragraphs within the HTML HEADER tag get a margin of 0.
+    */
+        header h1,
+        header h2,
+        header h3,
+        header p {
+            margin: 0;
+        }
+
+        /*
+    The invoice details should not be uppercase and also be aligned to the right.
+    */
+        header .invoiceDetails,
+        header .invoiceDetails h2 {
+            text-align: right;
+            font-size: 1em;
+            text-transform: none;
+        }
+
+        /*
+    Heading of level 2 and 3 ("DUE DATE", "AMOUNT" and "INVOICE TO") need to be written in
+    uppercase, so we use the text-transform property for that.
+    */
+        header h2,
+        header h3 {
+            text-transform: uppercase;
+        }
+
+        /*
+    The divider in the HEADER element gets a slightly different margin than the
+    standard dividers.
+    */
+        header hr {
+            margin: 1cm 0 .5cm 0;
+        }
+
+        /*
+    Our main content is all within the HTML MAIN element. In this template this are
+    two tables. The one which lists all items and the table which shows us the
+    subtotal, tax and total amount.
+    
+    Both tables get the full width and collapse the border.
+    */
+        main table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        /*
+    We put the first tables headers in a THEAD element, this way they repeat on the
+    next page if our table overflows to multiple pages.
+    
+    The text color gets set to the highlight color.
+    */
+        main table thead th {
+            height: 1cm;
+            color: var(--highlight-color);
+            padding: 0.5mm 0.5mm 0.5mm 0.5mm;
+            border: 1px groove rgb(117, 117, 117);
+
+        }
+
+        /*
+    For the last three columns we set a fixed width of 2.5cm, so if we would change
+    the documents size only the first column with the item name and description grows.
+    */
+        main table thead th:nth-of-type(2),
+        main table thead th:nth-of-type(3),
+        main table thead th:last-of-type {
+            width: 2.5cm;
+        }
+
+        /*
+    The items itself are all with the TBODY element, each cell gets a padding top
+    and bottom of 2mm.
+    */
+        main table tbody td {
+            padding: 0.5mm 0.5mm 0.5mm 0.5mm;
+            border: 1px groove rgb(117, 117, 117);
+        }
+
+        /*
+    The cells in the last column (in this template the column containing the total)
+    get a text align right so the text is at the end of the table.
+    */
+        main table thead th:last-of-type,
+        main table tbody td:last-of-type {
+            text-align: right;
+        }
+
+        /*
+    By default text within TH elements is aligned in the center, we do not want that
+    so we overwrite it with an left alignment.
+    */
+        main table th {
+            text-align: left;
+        }
+
+        /*
+    The summary table, so the table containing the subtotal, tax and total amount
+    gets a width of 40% + 2cm. The plus 2cm is added because our body has a 2cm padding
+    but we want our highlight color for the total row to go to the edge of the document.
+    
+    To move the table to the right side we simply set a margin-left of 60%.
+    */
+        main table.summary {
+            width: calc(40% + 2cm);
+            margin-left: 60%;
+            margin-top: .5cm;
+        }
+
+        /*
+    The row containing the total amount gets its background color set to the highlight
+    color and the font weight to bold.
+    */
+        main table.summary tr.total {
+            font-weight: bold;
+            background-color: var(--highlight-color);
+        }
+
+        /*
+    The TH elements of the summary table are not on top but the cells on the left side
+    these get a padding left of 1cm to give the highlight color some space.
+    */
+        main table.summary th {
+            padding: 4mm 0 4mm 1cm;
+        }
+
+        /*
+    As only the highlight background color should go to the edge of the document
+    but the text should still have the 2cm distance, we set the padding right to
+    2cm.
+    */
+        main table.summary td {
+            padding: 4mm 2cm 4mm 0;
+            border-bottom: 0;
+        }
+
+        /*
+    The content below the tables is placed in a ASIDE element next to the MAIN element.
+    To ensure this element is always at the bottom of the page, just above the page
+    footer, we use the Prince custom property "-prince-float" with the value bottom.
+    
+    See Page Floats on https://www.princexml.com/howcome/2021/guides/float/.
+    */
+        aside {
+            -prince-float: bottom;
+            padding: 0 2cm .5cm 2cm;
+        }
+
+        /*
+    The content itself is shown in 2 columns we use flexbox for this.
+    */
+        aside>div {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /*
+    Each "column" has a width of 45% of the document.
+    */
+        aside>div>div {
+            width: 50%;
+        }
+
+        /*
+    The list with the payment options has no bullet points and no margin.
+    */
+        aside>div>div ul {
+            list-style-type: none;
+            margin: 0;
+        }
+
+        /*
+    The page footer in our document uses the HTML FOOTER element, we define a height
+    of 3cm matching the margin bottom of the page (see @page rule) and a padding left
+    and right of 2cm. We did not give the page itself a margin of 2cm to ensure that
+    the background color goes to the edges of the document.
+    
+    As mentioned above in the comment for the @page the position property with the
+    value running(footer) makes this HTML element float into the bottom left page margin
+    box. This page margin box repeats on every page in case we would have a multi-page
+    invoice.
+    
+    The content inside the footer is aligned with the help of line-height 3cm and a
+    flexbox for the child elements.
+    */
+        footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 60px;
+            background-color: rgb(0, 0, 0);
+
+        }
+
+        /*
+    The first link in the footer, which points to the company website is highlighted
+    in bold.
+    */
+        footer a:first-child {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<header style="background-color: #60D0E4">
+    <div class="headerSection">
+        <!-- As a logo we take an SVG element and add the name in an standard H1 element behind it. -->
+        <div class="logoAndName">
+            <img src="{{ asset('assets/logo_poste.png') }}" alt="">
+            <h1>Société des postes du Togo</h1>
+        </div>
+        <!-- Details about the invoice are on the right top side of each page. -->
+        <div class="invoiceDetails">
+            <h2></h2>
+            <p>
+                {{ now()->translatedFormat('l, d-m-Y H:i:s') }}
+            </p>
+        </div>
+    </div>
+    <h3 style="text-align: center">Relevé des prises de carburant</h3>
+    <!-- The two header rows are divided by an blue line, we use the HR element for this. -->
+    <hr />
+    <div class="headerSection">
+        <!-- The clients details come on the left side below the logo and company name. -->
+        <div>
+            <h3> Matricule : <span style="font-weight: bold; color:black">{{ $plate_number }}</span></h3>
+            <p>
+                <b>Marque : <span style="font-weight: bold; color:black">{{ $marque }}</span></b>
+
+                <br />
+
+                <b>Modèle : <span style="font-weight: bold; color:black">{{ $modele }}</span></b>
+
+                <br />
+
+                <b>Carburant : <span style="font-weight: bold; color:black">{{ $carburant }}</span></b>
+
+                <br />
+
+                <b>Type : <span style="font-weight: bold; color:black">{{ $type }}</span></b>
+
+                <br />
+
+            </p>
+        </div>
+        <!-- Additional details can be placed below the invoice details. -->
+        <div>
+            <h3>Période</h3>
+            <p>
+                <b>Du 07 April 2021 au 25 April 2021</b>
+            </p>
+            <h3>Département</h3>
+            <p>
+                <b>XXXXX</b>
+            </p>
+        </div>
+    </div>
+</header>
+<br>
+<br>
+
+<body>
+    <main>
+        <table>
+            <!-- A THEAD element is used to ensure the header of the table is repeated if it consumes more than one page. -->
+            <thead>
+                <tr>
+                    @foreach ($columns as $column)
+                        <th>
+                            {{ $column->getLabel() }}
+                        </th>
+                    @endforeach
+                </tr>
+            </thead>
+            <!-- The single invoice items are all within the TBODY of the table. -->
+            <tbody>
+                <tr>
+                    {{-- <td>
+                        <b>Item Name</b>
+                        <br />
+                        Descrip
+                    </td>
+                    <td>
+                        $100
+                    </td>
+                    <td>
+                        4
+                    </td>
+                    <td>
+                        $40000
+                    </td>
+                </tr> --}}
+
+                    @foreach ($rows as $row)
+                <tr>
+                    @foreach ($columns as $column)
+                        <td>
+                            {{ $row[$column->getName()] }}
+                        </td>
+                    @endforeach
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+        <!-- The summary table contains the subtotal, tax and total amount. -->
+        <table class="summary">
+            {{-- <tr>
+                <th>
+                    Subtotal
+                </th>
+                <td>
+                    $1200.00
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    Tax 4.7%
+                </th>
+                <td>
+                    $000.00
+                </td>
+            </tr> --}}
+            <tr class="total">
+                <th>
+                    Total
+                </th>
+                <td style="border: none">
+                    {{ $total }} Litres
+                </td>
+            </tr>
+        </table>
+    </main>
+    <hr />
+    <div>
+        <div>
+            <h2><b>Vu par la hiérarchie</b></h2>
+            <p><b>Nom et prénom:</b></p>
+            <p><b>Signature </b></p>
+        </div>
+    </div>
+</body>
+<footer>
+    <p><b>NB: Le présent état doit être transmis à la division des Affaires Générales à la fin de chaque mois</b></p>
+</footer>
+
+</html>

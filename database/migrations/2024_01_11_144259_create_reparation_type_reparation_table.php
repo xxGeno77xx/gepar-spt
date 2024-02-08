@@ -10,8 +10,13 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
+
+    protected $connection = 'oracle';
+
     public function up(): void
     {
+        Schema::dropIfExists('reparation_type_reparation');
+
         Schema::create('reparation_type_reparation', function (Blueprint $table) {
             $table->id();
 
@@ -21,13 +26,10 @@ return new class extends Migration
             $table->unsignedBigInteger('type_reparation_id')->nullable();
             $table->foreign('type_reparation_id')->references('id')->on('type_reparations');
 
-            $table->enum('state', [
-                StatesClass::Activated()->value,
-                StatesClass::Deactivated()->value,
-                StatesClass::Suspended()->value,
-            ]);
-
             $table->timestamps();
+
+            $sequence = DB::getSequence();
+            $sequence->drop('reparation_type_reparation_id_');
         });
     }
 

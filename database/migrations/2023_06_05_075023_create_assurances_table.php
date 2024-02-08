@@ -10,8 +10,12 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
+
+     protected $connection = 'oracle';
+
     public function up(): void
     {
+        Schema::dropIfExists('assurances');
 
         Schema::create('assurances', function (Blueprint $table) {
             $table->id();
@@ -33,6 +37,9 @@ return new class extends Migration
             $table->enum('state', [StatesClass::Activated()->value, StatesClass::Deactivated()->value, StatesClass::Suspended()->value]);
 
             $table->timestamps();
+
+            $sequence = DB::getSequence();
+            $sequence->drop('assurances_id_seq');
 
         });
     }

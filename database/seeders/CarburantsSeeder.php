@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Carburant;
 use App\Support\Database\CarburantsClass;
+use App\Support\Database\StatesClass;
 use Illuminate\Database\Seeder;
 
 class CarburantsSeeder extends Seeder
@@ -18,6 +19,7 @@ class CarburantsSeeder extends Seeder
         foreach ($carburants as $key => $carburant) {
             Carburant::firstOrCreate([
                 'type_carburant' => $carburant,
+                'state' => StatesClass::Activated()->value,
             ]);
         }
     }

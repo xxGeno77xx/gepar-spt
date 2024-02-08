@@ -10,8 +10,13 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
+
+     protected $connection = 'oracle';
+
     public function up(): void
     {
+        Schema::dropIfExists('reparations');
+        
         Schema::create('reparations', function (Blueprint $table) {
 
             $table->id();
@@ -47,6 +52,9 @@ return new class extends Migration
             $table->timestamps();
 
             $table->softDeletes();
+
+            $sequence = DB::getSequence();
+            $sequence->drop('reparations_id_seq');
         });
     }
 

@@ -40,6 +40,6 @@ class ListTypes extends ListRecords
     protected function getTableQuery(): Builder
     {
         return static::getResource()::getEloquentQuery()
-            ->where('types.state', StatesClass::Activated());
+            ->where('types_engins.state', StatesClass::Activated()->value);
     }
 }

@@ -17,7 +17,7 @@ return [
         'server_version' => env('DB_SERVER_VERSION_oracle', '11g'),
         'load_balance' => env('DB_LOAD_BALANCE_oracle', 'yes'),
         // 'dynamic' => [App\Models\Oracle\Config::class, 'dynamicConfig'],
-        'dynamic' => [App\Models\Oracle\Config::class, 'dynamicConfig'],     
+        'dynamic' => [],
     ],
     'sessionVars' => [
         'NLS_TIME_FORMAT' => 'HH24:MI:SS',

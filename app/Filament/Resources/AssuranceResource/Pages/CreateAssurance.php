@@ -39,7 +39,7 @@ class CreateAssurance extends CreateRecord
         $assurance = $this->data;
 
         $latestAssuranceForThisEngine = Assurance::where('engine_id', $assurance['engine_id'])
-            ->where('assurances.state', StatesClass::Activated())
+            ->where('assurances.state', StatesClass::Activated()->value)
             ->orderBy('id', 'desc')
             ->first();
 
@@ -72,7 +72,7 @@ class CreateAssurance extends CreateRecord
                 //get all Assurances for the given engine
                 $allAssurancesForThisEngine = Assurance::select('date_debut', 'date_fin')
                     ->where('engine_id', $assurance['engine_id'])
-                    ->where('assurances.state', StatesClass::Activated())->get();
+                    ->where('assurances.state', StatesClass::Activated()->value)->get();
 
                 //parse dates to carbon instance
                 $carbonAssuranceDateExpiration = Carbon::parse($assurance['date_fin'])->format('y-m-d');

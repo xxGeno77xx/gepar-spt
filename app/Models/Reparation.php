@@ -13,6 +13,7 @@ class Reparation extends Model
     use HasFactory;
     use SoftDeletes;
 
+    protected $connection = 'oracle';
     protected $casts = [
         'infos' => 'array',
     ];

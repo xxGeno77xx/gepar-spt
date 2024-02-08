@@ -37,6 +37,6 @@ class ListMarques extends ListRecords
     protected function getTableQuery(): Builder
     {
         return static::getResource()::getEloquentQuery()
-            ->where('marques.state', StatesClass::Activated());
+            ->where('marques.state', StatesClass::Activated()->value);
     }
 }

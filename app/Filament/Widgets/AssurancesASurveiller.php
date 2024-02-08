@@ -60,9 +60,9 @@ class AssurancesASurveiller extends BaseWidget
                 ->label('Numéro de plaque')
                 ->searchable(),
 
-            DepartementColumn::make('departement_id')
-                ->searchable()
-                ->label('Département'),
+            // DepartementColumn::make('departement_id')
+            //     ->searchable()
+            //     ->label('Département'),
 
             ImageColumn::make('logo')
                 ->searchable()

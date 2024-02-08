@@ -12,15 +12,17 @@ class TypesSeeder extends Seeder
     /**
      * Run the database seeds.
      */
+    
     public function run(): void
     {
-        $departements = TypesClass::toValues();
+        $types = TypesClass::toValues();
 
-        foreach ($departements as $key => $departement) {
+        foreach ($types as $key => $type) {
             Type::firstOrCreate([
-                'nom_type' => $departement,
-                'state' => StatesClass::Activated(),
+                'nom_type' => $type,
+                'state' => StatesClass::Activated()->value,
             ]);
         }
+                
     }
 }

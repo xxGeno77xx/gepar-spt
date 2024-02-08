@@ -1,16 +1,22 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
+use App\Support\Database\StatesClass;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 return new class extends Migration
 {
     /**
      * Run the migrations.
      */
+
+     protected $connection = 'oracle';
+
     public function up(): void
     {
+        Schema::dropIfExists('consommation_carburants');
+
         Schema::create('consommation_carburants', function (Blueprint $table) {
             $table->id();
 
@@ -29,13 +35,19 @@ return new class extends Migration
 
             $table->string('carte_recharge_id');
 
+            $table->enum('state', [StatesClass::Activated()->value, StatesClass::Deactivated()->value, StatesClass::Suspended()->value]);
+
+
             $table->string('ticket');
 
-            $table->string('observation');
+            $table->string('observation')->nullable();
 
             $table->integer('kilometres_a_remplissage');
 
             $table->timestamps();
+
+            $sequence = DB::getSequence();
+            $sequence->drop('consommation_carburants_id_seq');
         });
     }
 

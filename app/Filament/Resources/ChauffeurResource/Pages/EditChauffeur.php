@@ -27,9 +27,10 @@ class EditChauffeur extends EditRecord
     {
         if (auth()->user()->hasAnyPermission([PermissionsClass::marques_delete()->value])) {
             return [
-                // Actions\DeleteAction::make(),
+               
                 // Actions\Action::make('Supprimer')
                 //     ->color('danger')
+                //     ->icon("heroicon-o-eye-off")
                 //     ->action(function (?Chauffeur $record) {
                 //         $this->record->update(['state' => StatesClass::Deactivated()->value]);
                 //         redirect('/chauffeurs');

@@ -54,7 +54,7 @@ class ReparationResource extends Resource
                                 Select::make('engine_id')
                                     ->label('Numéro de plaque')
                                     ->options(
-                                        Engine::where('engines.state', '<>', StatesClass::Deactivated())
+                                        Engine::where('engines.state', '<>', StatesClass::Deactivated()->value)
                                             ->pluck('plate_number', 'id')
                                     )
                                     ->searchable()
@@ -74,6 +74,8 @@ class ReparationResource extends Resource
                                 DatePicker::make('date_fin')
                                     ->label('Date de retour du véhicule')
                                     ->afterOrEqual('date_lancement'),
+
+                                    Hidden::make('state')->default(StatesClass::Activated()->value),
 
                             ])->columns(2),
 
@@ -121,7 +123,6 @@ class ReparationResource extends Resource
                                                     ]),
                                             ]),
                                     ])
-                                    ->minItems(1)
                                     ->collapsible(),
                             ]),
 
@@ -196,7 +197,7 @@ class ReparationResource extends Resource
                     ->searchable()
                     ->label('Coût de la réparation'),
 
-            ])->defaultSort('created_at', 'desc')
+            ])->defaultSort('reparations.created_at', 'desc')
             ->filters([
                 Filter::make('date_lancement')
                     ->label('Date d\'envoi en réparation')

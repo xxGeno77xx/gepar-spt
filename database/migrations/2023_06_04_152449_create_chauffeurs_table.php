@@ -10,8 +10,14 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
+
+     protected $connection = 'oracle';
+
     public function up(): void
     {
+
+        Schema::dropIfExists('chauffeurs');
+        
         Schema::create('chauffeurs', function (Blueprint $table) {
             $table->id();
 
@@ -25,20 +31,22 @@ return new class extends Migration
 
             $table->string('num_permis');
 
-            $table->string('permmis')
-            ->comment('scan driver\'s license')->nullable();
+            $table->string('permmis');
 
             $table->enum('state', [
                 StatesClass::Activated()->value,
                 StatesClass::Deactivated()->value,
                 StatesClass::Suspended()->value,
-            ])->default( StatesClass::Activated()->value);
+            ])->default(StatesClass::Activated()->value);
 
             // $table->unsignedBigInteger('departement_id');
 
             // $table->foreign('departement_id')->references('id')->on('departements');
 
             $table->timestamps();
+
+            $sequence = DB::getSequence();
+            $sequence->drop('chauffeurs_id_seq');
         });
     }
 

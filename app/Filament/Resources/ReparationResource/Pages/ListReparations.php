@@ -31,9 +31,9 @@ class ListReparations extends ListRecords
         return static::getResource()::getEloquentQuery()
             ->join('engines', 'reparations.engine_id', 'engines.id')
             ->leftJoin('users', 'reparations.user_id', 'users.id')
-            // ->join('prestataires', 'prestataires.id','reparations.prestataire_id')
+            ->join('fournisseur', 'fournisseur.code_fr','reparations.prestataire_id')
             ->select('engines.plate_number', 'reparations.*', 'users.name'/*'prestataires.nom as prestataire'*/)
-            ->where('reparations.state', StatesClass::Activated());
+            ->where('reparations.state', StatesClass::Activated()->value);
     }
 
     protected function authorizeAccess(): void

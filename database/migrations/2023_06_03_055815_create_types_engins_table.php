@@ -10,9 +10,15 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
+
+    protected $connection = 'oracle';
+
     public function up(): void
     {
-        Schema::create('types', function (Blueprint $table) {
+        
+        Schema::dropIfExists('types_engins');
+        
+        Schema::create('types_engins', function (Blueprint $table) {
             $table->id();
 
             $table->string('nom_type');
@@ -22,6 +28,9 @@ return new class extends Migration
             $table->softDeletes();
 
             $table->timestamps();
+
+            $sequence = DB::getSequence();
+            $sequence->drop('types_engins_id_seq');
         });
     }
 
@@ -30,6 +39,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('types');
+        Schema::dropIfExists('types_engins');
     }
 };

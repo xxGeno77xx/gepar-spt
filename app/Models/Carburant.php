@@ -9,6 +9,7 @@ class Carburant extends Model
 {
     use HasFactory;
 
+    protected $connection = 'oracle';
     public function modele()
     {
         return $this->hasMany(Engine::class);

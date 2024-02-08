@@ -24,7 +24,7 @@ return [
     'array' => 'The :attribute field must be an array.',
     'ascii' => 'The :attribute field must only contain single-byte alphanumeric characters and symbols.',
     'before' => 'La :attribute doit être antérieure à la :date.',
-    'before_or_equal' => 'The :attribute field must be a date before or equal to :date.',
+    'before_or_equal' => 'La :attribute  doit être antérieure ou égale au :date.',
     'between' => [
         'array' => 'The :attribute field must have between :min and :max items.',
         'file' => 'The :attribute field must be between :min and :max kilobytes.',

@@ -74,7 +74,7 @@ class CarburantResource extends Resource
     protected function getTableQuery(): Builder
     {
         return static::getResource()::getEloquentQuery()
-            ->where('carburants.state', StatesClass::Activated());
+            ->where('carburants.state', StatesClass::Activated()->value);
     }
 
     public static function canViewAny(): bool

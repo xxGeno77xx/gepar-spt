@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Marque;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\File;
+use App\Support\Database\StatesClass;
 use Illuminate\Support\Facades\Storage;
 
 class BrandSeeder extends Seeder
@@ -30,6 +31,7 @@ class BrandSeeder extends Seeder
 
             Marque::create([
                 'nom_marque' => basename($filename, '.'.$extension),
+                'state' => StatesClass::Activated()->value,
                 'logo' => $filename,
                 'created_at' => now(),
                 'updated_at' => now(),

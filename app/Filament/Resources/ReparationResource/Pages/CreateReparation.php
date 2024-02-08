@@ -47,7 +47,7 @@ class CreateReparation extends CreateRecord
         $latestReparation = Reparation::select(['engine_id', 'created_at', 'date_fin'])
             ->orderbydesc('created_at')
             ->where('engine_id', $newRaparation['engine_id'])
-            ->where('state', StatesClass::Activated())
+            ->where('state', StatesClass::Activated()->value)
             ->first();
 
         if ($latestReparation) {
