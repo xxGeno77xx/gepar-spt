@@ -35,7 +35,7 @@ class EnginesSeeder extends Seeder
                 'plate_number' => $plate,
                 'type_id' => mt_rand(1, 5),
                 'carburant_id' => mt_rand(1, 2),
-                'state' => StatesClass::Activated(),
+                'state' => StatesClass::Activated()->value,
                 'user_id' => 1,
                 'updated_at_user_id' => 1,
                 'assurances_mail_sent' => 0,
@@ -65,6 +65,7 @@ class EnginesSeeder extends Seeder
                 'updated_at_user_id' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
+                'state' => StatesClass::Activated()->value,
             ]);
 
             Assurance::create([
@@ -75,6 +76,7 @@ class EnginesSeeder extends Seeder
                 'updated_at_user_id' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
+                'state' => StatesClass::Activated()->value,
             ]);
         }
 
@@ -86,6 +88,7 @@ class EnginesSeeder extends Seeder
             'updated_at_user_id' => 1,
             'created_at' => now(),
             'updated_at' => now(),
+            'state' => StatesClass::Activated()->value,
         ]);
 
         Assurance::create([
@@ -96,6 +99,7 @@ class EnginesSeeder extends Seeder
             'updated_at_user_id' => 1,
             'created_at' => now(),
             'updated_at' => now(),
+            'state' => StatesClass::Activated()->value,
         ]);
     }
 }

@@ -10,8 +10,7 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-
-     protected $connection = 'oracle';
+    protected $connection = 'oracle';
 
     public function up(): void
     {
@@ -30,7 +29,6 @@ return new class extends Migration
             $table->softDeletes();
 
             $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users');
 
             $table->unsignedBigInteger('updated_at_user_id');
 

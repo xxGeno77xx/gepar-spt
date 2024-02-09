@@ -68,7 +68,6 @@ class VisitesRelationManager extends RelationManager
             ->select('engines.plate_number', 'visites.*', 'users.name')
             ->whereNull('engines.deleted_at')
             ->whereNull('visites.deleted_at')
-            ->where('engines.state', StatesClass::Activated()->value)
             ->where('visites.state', StatesClass::Activated()->value);
 
     }

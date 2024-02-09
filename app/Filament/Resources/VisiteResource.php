@@ -66,7 +66,7 @@ class VisiteResource extends Resource
                     ])
                     ->columnSpan(['lg' => fn (?Visite $record) => $record === null ? 3 : 2]),
 
-                    Hidden::make('state')->default(StatesClass::Activated()->value),
+                Hidden::make('state')->default(StatesClass::Activated()->value),
 
                 CommonInfos::PlaceholderCard(),
 

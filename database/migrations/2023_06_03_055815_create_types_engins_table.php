@@ -10,14 +10,13 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-
     protected $connection = 'oracle';
 
     public function up(): void
     {
-        
+
         Schema::dropIfExists('types_engins');
-        
+
         Schema::create('types_engins', function (Blueprint $table) {
             $table->id();
 

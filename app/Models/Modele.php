@@ -11,6 +11,7 @@ class Modele extends Model
     use HasFactory;
 
     protected $connection = 'oracle';
+
     public function marque()
     {
         return $this->belongsTo(Marque::class, 'marque_id');

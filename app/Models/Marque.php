@@ -10,6 +10,7 @@ class Marque extends Model
     use HasFactory;
 
     protected $connection = 'oracle';
+
     public function modeles()
     {
         return $this->hasMany(Modele::class);

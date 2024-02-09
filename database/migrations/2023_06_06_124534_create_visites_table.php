@@ -16,7 +16,7 @@ return new class extends Migration
     {
 
         Schema::dropIfExists('visites');
-        
+
         Schema::create('visites', function (Blueprint $table) {
             $table->id();
 
@@ -30,7 +30,6 @@ return new class extends Migration
             $table->enum('state', [StatesClass::Activated()->value, StatesClass::Deactivated()->value, StatesClass::Suspended()->value]);
 
             $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users');
 
             $table->unsignedBigInteger('updated_at_user_id');
 

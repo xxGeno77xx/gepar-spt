@@ -63,7 +63,7 @@ class AssuranceResource extends Resource
                     ])
                     ->columnSpan(['lg' => fn (?Assurance $record) => $record === null ? 3 : 2]),
 
-                    Hidden::make('state')->default(StatesClass::Activated()->value),
+                Hidden::make('state')->default(StatesClass::Activated()->value),
 
                 CommonInfos::PlaceholderCard(),
             ])

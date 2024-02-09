@@ -320,9 +320,9 @@ class EngineResource extends Resource
                 //     ->searchable()
                 //     ->placeholder('-'),
 
-                // DepartementColumn::make('departement_id')
-                //     ->searchable()
-                //     ->label('Département'),
+                DepartementColumn::make('departement_id')
+                    ->searchable()
+                    ->label('Département'),
 
                 ImageColumn::make('logo')
                     ->label('Marque')
@@ -362,7 +362,6 @@ class EngineResource extends Resource
                         }
                     }),
 
-                   
             ])
             ->defaultSort('engines.created_at', 'desc')
 
@@ -405,7 +404,6 @@ class EngineResource extends Resource
                             );
                     }),
 
-                    
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

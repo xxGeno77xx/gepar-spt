@@ -8,7 +8,6 @@ use App\Support\Database\StatesClass;
 use Filament\Pages\Actions;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
 
 class ListEngines extends ListRecords
 {
@@ -34,13 +33,13 @@ class ListEngines extends ListRecords
         return static::getResource()::getEloquentQuery()
             ->leftJoin('assurances', function ($join) {
                 $join->on('engines.id', '=', 'assurances.engine_id')
-                    ->where('assurances.state', 1)
-                    ->whereRaw('assurances.created_at = (SELECT MAX(created_at) FROM assurances WHERE engine_id = engines.id AND assurances.state = 1)');
+                    ->where('assurances.state', StatesClass::Activated()->value)
+                    ->whereRaw('assurances.created_at = (SELECT MAX(created_at) FROM assurances WHERE engine_id = engines.id AND assurances.state = ?)', [StatesClass::Activated()->value]);
             })
             ->leftJoin('visites', function ($join) {
                 $join->on('engines.id', '=', 'visites.engine_id')
-                    ->whereRaw('visites.created_at = (SELECT MAX(created_at) FROM visites WHERE engine_id = engines.id AND visites.state = 1) ')
-                    ->where('visites.state', 1);
+                    ->whereRaw('visites.created_at = (SELECT MAX(created_at) FROM visites WHERE engine_id = engines.id AND visites.state = ?)', StatesClass::Activated()->value)
+                    ->where('visites.state', StatesClass::Activated()->value);
             })
             ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
             ->join('marques', 'modeles.marque_id', '=', 'marques.id')
@@ -52,15 +51,17 @@ class ListEngines extends ListRecords
             ->select(
                 'engines.*',
                 'centre.sigle_centre',
-                'modeles.nom_modele',
+                //
                 'marques.nom_marque',
                 'marques.logo',
-                DB::raw('MAX(assurances.date_fin) as date_fin'),
-                DB::raw('MAX(visites.date_expiration) as date_expiration'),
-                'users.name', /*'chauffeurs.name as chauffeur'*/
+                'assurances.date_fin as date_fin',
+                'visites.date_expiration as date_expiration',
+                /*'users.name', /*'chauffeurs.name as chauffeur'*/
             )
             ->groupBy(
                 'engines.id',
+                'date_expiration',
+                'date_fin',
                 'engines.modele_id',
                 'engines.power',
                 'engines.departement_id',
@@ -68,6 +69,7 @@ class ListEngines extends ListRecords
                 'engines.circularization_date',
                 'engines.date_aquisition',
                 'engines.plate_number',
+                'modeles.nom_modele',
                 'engines.type_id',
                 'engines.car_document',
                 'engines.carburant_id',

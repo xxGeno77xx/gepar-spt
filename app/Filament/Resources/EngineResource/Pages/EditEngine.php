@@ -29,7 +29,7 @@ class EditEngine extends EditRecord
                 // Actions\DeleteAction::make(),
                 Actions\Action::make('Supprimer')
                     ->color('danger')
-                    ->icon("heroicon-o-eye-off")
+                    ->icon('heroicon-o-eye-off')
                     ->action(function (?Engin $record) {
                         $this->record->update(['state' => StatesClass::Deactivated()->value]);
                         redirect('/engines');

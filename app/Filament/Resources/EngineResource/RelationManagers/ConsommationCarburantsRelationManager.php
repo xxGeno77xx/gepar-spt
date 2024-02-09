@@ -2,22 +2,22 @@
 
 namespace App\Filament\Resources\EngineResource\RelationManagers;
 
-use Closure;
-use Carbon\Carbon;
-use Filament\Forms;
-use Filament\Tables;
+use AlperenErsoy\FilamentExport\Actions\FilamentExportHeaderAction;
 use App\Models\Chauffeur;
-use Filament\Resources\Form;
-use Filament\Resources\Table;
-use Filament\Forms\Components\Grid;
-use Filament\Tables\Filters\Filter;
 use App\Models\ConsommationCarburant;
 use App\Support\Database\StatesClass;
-use Filament\Forms\Components\Select;
+use Carbon\Carbon;
+use Closure;
+use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
-use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Select;
+use Filament\Resources\Form;
 use Filament\Resources\RelationManagers\RelationManager;
-use AlperenErsoy\FilamentExport\Actions\FilamentExportHeaderAction;
+use Filament\Resources\Table;
+use Filament\Tables;
+use Filament\Tables\Filters\Filter;
+use Illuminate\Database\Eloquent\Builder;
 
 class ConsommationCarburantsRelationManager extends RelationManager
 {
@@ -36,10 +36,10 @@ class ConsommationCarburantsRelationManager extends RelationManager
                 Grid::make(3)
                     ->schema([
                         Forms\Components\DatePicker::make('date')
-                            ->beforeOrEqual(date_format(now(),"d-m-Y")) // to do: make it unique for every engine
+                            ->beforeOrEqual(date_format(now(), 'd-m-Y')) // to do: make it unique for every engine
                             ->required(),
 
-                            Forms\Components\Hidden::make('state')
+                        Forms\Components\Hidden::make('state')
                             ->default(StatesClass::Activated()->value),
 
                         Forms\Components\TextInput::make('ticket')
@@ -77,12 +77,11 @@ class ConsommationCarburantsRelationManager extends RelationManager
                                             ->where('engine_id', $livewire->ownerRecord->id)
                                             ->first();
 
-
                                         if ($latestConsommation) {
 
                                             if ($value <= $latestConsommation->kilometres_a_remplissage) {
                                                 // $fail('Le champ :attribute doit être supérieur à 0.');
-                                                $fail('Le dernier kilométrage était à ' . $latestConsommation->kilometres_a_remplissage . ' km');
+                                                $fail('Le dernier kilométrage était à '.$latestConsommation->kilometres_a_remplissage.' km');
                                             }
                                         }
 
@@ -120,7 +119,7 @@ class ConsommationCarburantsRelationManager extends RelationManager
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('date')
-                ->sortable()
+                    ->sortable()
                     ->label('Date')
                     ->date('d-m-Y'),
 
@@ -160,16 +159,16 @@ class ConsommationCarburantsRelationManager extends RelationManager
                         return $query
                             ->when(
                                 $data['date_from'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('date', '>=', $date),
+                                fn (Builder $query, $date): Builder => $query->whereDate('date', '>=', $date),
                             )
                             ->when(
                                 $data['date_to'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('date', '<=', $date),
+                                fn (Builder $query, $date): Builder => $query->whereDate('date', '<=', $date),
                             );
                     })
                     ->indicateUsing(function (array $data): ?string {
                         if (($data['date_from']) && ($data['date_from'])) {
-                            return 'Date: du  ' . Carbon::parse($data['date_from'])->format('d-m-Y') . ' au ' . Carbon::parse($data['date_to'])->format('d-m-Y');
+                            return 'Date: du  '.Carbon::parse($data['date_from'])->format('d-m-Y').' au '.Carbon::parse($data['date_to'])->format('d-m-Y');
                         }
 
                         return null;
@@ -194,11 +193,11 @@ class ConsommationCarburantsRelationManager extends RelationManager
                                 }
                             );
                     })->indicateUsing(function (array $data): ?string {
-                        if (!$data['chauffeur_id']) {
+                        if (! $data['chauffeur_id']) {
                             return null;
                         }
 
-                        return 'Chauffeur: ' . Chauffeur::where('chauffeurs.id', $data['chauffeur_id'])->value('name');
+                        return 'Chauffeur: '.Chauffeur::where('chauffeurs.id', $data['chauffeur_id'])->value('name');
                     }),
             ])
             ->headerActions([
@@ -213,14 +212,16 @@ class ConsommationCarburantsRelationManager extends RelationManager
 
                         $OwnerEngine = $livewire->ownerRecord->join('modeles', 'modeles.id', 'engines.modele_id')
                             ->leftJoin('marques', 'marques.id', 'modeles.marque_id')
-                            ->leftJoin('types', 'engines.type_id', 'types.id')
+                            ->leftJoin('centre', 'centre.code_centre', 'engines.departement_id')
+                            ->leftJoin('types_engins', 'engines.type_id', 'types_engins.id')
                             ->leftJoin('carburants', 'carburants.id', 'engines.carburant_id')
                             ->select([
                                 'engines.*',
                                 'modeles.nom_modele as modele',
                                 'marques.nom_marque as marque',
-                                'types.nom_type as type',
-                                'carburants.type_carburant as carburant'
+                                'types_engins.nom_type as type',
+                                'carburants.type_carburant as carburant',
+                                'centre.sigle_centre  as departement',
                             ])
                             ->where('engines.id', $livewire->ownerRecord->id)
                             ->first();
@@ -234,6 +235,7 @@ class ConsommationCarburantsRelationManager extends RelationManager
                             'marque' => $OwnerEngine->marque,
                             'type' => $OwnerEngine->type,
                             'carburant' => $OwnerEngine->carburant,
+                            'departement' => $OwnerEngine->departement,
                             'total' => $total,
                         ];
                     }),
@@ -244,7 +246,7 @@ class ConsommationCarburantsRelationManager extends RelationManager
                 // Tables\Actions\DeleteAction::make(),
 
                 Tables\Actions\Action::make('Supprimer')
-                    ->action(fn()=>$record->update(["state"=>StatesClass::Deactivated()->value]))
+                    ->action(fn () => $record->update(['state' => StatesClass::Deactivated()->value])),
             ])
             ->bulkActions([
 
@@ -257,7 +259,7 @@ class ConsommationCarburantsRelationManager extends RelationManager
         return ConsommationCarburant::leftJoin('chauffeurs', 'consommation_carburants.chauffeur_id', 'chauffeurs.id')
             ->leftJoin('engines', 'consommation_carburants.engine_id', 'engines.id')
             ->select(['consommation_carburants.*', 'chauffeurs.name'])
-            ->where('consommation_carburants.state',StatesClass::Activated()->value)
+            ->where('consommation_carburants.state', StatesClass::Activated()->value)
             ->where('engines.id', $this->ownerRecord->id);
     }
 }

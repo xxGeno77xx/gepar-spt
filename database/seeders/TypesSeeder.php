@@ -12,7 +12,6 @@ class TypesSeeder extends Seeder
     /**
      * Run the database seeds.
      */
-    
     public function run(): void
     {
         $types = TypesClass::toValues();
@@ -23,6 +22,6 @@ class TypesSeeder extends Seeder
                 'state' => StatesClass::Activated()->value,
             ]);
         }
-                
+
     }
 }

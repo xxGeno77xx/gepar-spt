@@ -14,6 +14,7 @@ class Reparation extends Model
     use SoftDeletes;
 
     protected $connection = 'oracle';
+
     protected $casts = [
         'infos' => 'array',
     ];

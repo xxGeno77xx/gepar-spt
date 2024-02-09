@@ -25,29 +25,86 @@ class AssurancesASurveiller extends BaseWidget
     public function getTableQuery(): Builder
     {
 
-        $limite = parametre::orderBy('created_at', 'desc')->first()->value('limite');
+        // $assurancesASurveiller = Engine::Join('assurances', function ($join) {
+
+        //     $limite = parametre::where('options', 'Assurances')->value('limite');
+
+        //     $join->on('engines.id', '=', 'assurances.engine_id')
+        //         ->whereRaw('assurances.created_at = (SELECT MAX(created_at) FROM assurances WHERE engine_id = engines.id AND assurances.state = ?)', [StatesClass::Activated()->value])
+        //         ->whereRaw("DATE(assurances.date_fin)<= DATE_ADD(CURDATE(), INTERVAL  $limite DAY) ")
+        //         ->where('assurances.state', StatesClass::Activated()->value)
+        //         ->whereNull('assurances.deleted_at');
+        // })
+        //     ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
+        //     ->join('centre', 'engines.departement_id', 'centre.code_centre')
+        //     // ->leftJoin('chauffeurs', 'engines.chauffeur_id', 'chauffeurs.id')
+        //     // ->leftjoin('departements', 'chauffeurs.departement_id', 'departements.id')
+        //     ->join('marques', 'modeles.marque_id', '=', 'marques.id')
+        //     ->select('engines.*', /*'centre.sigle_centre',*/ 'marques.logo as logo', 'assurances.date_debut as date_debut', DB::raw('DATE(assurances.date_fin) as date_fin'))
+        //     ->where('engines.state', '<>', StatesClass::Deactivated()->value)
+        //     ->groupBy('engines.id', 'marques.nom_marque', 'assurances.date_debut', 'assurances.date_fin')
+        //     ->distinct('engines.id');
 
         $limite = parametre::where('options', 'Assurances')->value('limite');
 
-        $assurancesASurveiller = Engine::Join('assurances', function ($join) {
+        $activated = StatesClass::Activated()->value;
 
-            $limite = parametre::where('options', 'Assurances')->value('limite');
-
-            $join->on('engines.id', '=', 'assurances.engine_id')
-                ->whereRaw('assurances.created_at = (SELECT MAX(created_at) FROM assurances WHERE engine_id = engines.id AND assurances.state = ?)', [StatesClass::Activated()->value])
-                ->whereRaw("DATE(assurances.date_fin)<= DATE_ADD(CURDATE(), INTERVAL  $limite DAY) ")
-                ->where('assurances.state', StatesClass::Activated()->value)
-                ->whereNull('assurances.deleted_at');
-        })
+        $assurancesASurveiller = Engine::Join('assurances', 'engines.id', '=', 'assurances.engine_id')
+            ->whereRaw('assurances.created_at = (SELECT MAX(created_at) FROM assurances WHERE engine_id = engines.id AND assurances.state = ?)', [$activated])
+            ->whereRaw('TRUNC(assurances.date_fin) <= TRUNC(SYSDATE + TRUNC(?))', [$limite])
+            ->where('assurances.state', $activated)
+            ->whereNull('assurances.deleted_at')
+            ->whereNull('engines.deleted_at')
             ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
-            // ->join('departements', 'engines.departement_id', 'departements.id')
-            // ->leftJoin('chauffeurs', 'engines.chauffeur_id', 'chauffeurs.id')
-            // ->leftjoin('departements', 'chauffeurs.departement_id', 'departements.id')
+            ->join('centre', 'engines.departement_id', 'centre.code_centre')
             ->join('marques', 'modeles.marque_id', '=', 'marques.id')
-            ->select('engines.*', /*'departements.nom_departement',*/ 'marques.logo as logo', 'assurances.date_debut as date_debut', DB::raw('DATE(assurances.date_fin) as date_fin'))
+            ->select('engines.*', 'marques.logo as logo', 'assurances.date_debut as date_debut', 'assurances.date_fin as date_fin')
             ->where('engines.state', '<>', StatesClass::Deactivated()->value)
-            ->groupBy('engines.id', 'marques.nom_marque', 'assurances.date_debut', 'assurances.date_fin')
-            ->distinct('engines.id');
+            ->distinct('engines.id')
+            ->groupBy(
+                'assurances.date_fin',
+                'assurances.date_debut',
+                'engines.id',
+                'engines.modele_id',
+                'engines.power',
+                'engines.departement_id',
+                'engines.price',
+                'engines.circularization_date',
+                'engines.date_aquisition',
+                'engines.plate_number',
+                'engines.type_id',
+                'engines.car_document',
+                'engines.carburant_id',
+                'engines.assurances_mail_sent',
+                'engines.visites_mail_sent',
+                'engines.state',
+                'engines.numero_chassis',
+                'engines.moteur',
+                'engines.carosserie',
+                'engines.pl_ass',
+                'engines.matricule_precedent',
+                'engines.poids_total_en_charge',
+                'engines.poids_a_vide',
+                'engines.poids_total_roulant',
+                'engines.Charge_utile',
+                'engines.largeur',
+                'engines.surface',
+                'engines.couleur',
+                'engines.date_cert_precedent',
+                'engines.kilometrage_achat',
+                'engines.numero_carte_grise',
+                'engines.user_id',
+                'engines.updated_at_user_id',
+                'engines.deleted_at',
+                'engines.created_at',
+                'engines.updated_at',
+                'sigle_centre',
+                'nom_modele',
+                'nom_marque',
+                'logo',
+
+            )
+            ->distinct();
 
         return $assurancesASurveiller;
     }
@@ -60,9 +117,9 @@ class AssurancesASurveiller extends BaseWidget
                 ->label('Numéro de plaque')
                 ->searchable(),
 
-            // DepartementColumn::make('departement_id')
-            //     ->searchable()
-            //     ->label('Département'),
+            DepartementColumn::make('departement_id')
+                ->searchable()
+                ->label('Département'),
 
             ImageColumn::make('logo')
                 ->searchable()
@@ -76,7 +133,6 @@ class AssurancesASurveiller extends BaseWidget
                 ->searchable()
                 ->dateTime('d-m-Y'),
 
-            // TextColumn::make('date_fin')->label("Assurance (expiration)")->color('primary')->searchable(),
             BadgeColumn::make('date_fin')
                 ->label('Date d\'expiration')
                 ->color(static function ($record): string {

@@ -10,14 +10,13 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
+    protected $connection = 'oracle';
 
-     protected $connection = 'oracle';
-     
     public function up(): void
     {
 
         Schema::dropIfExists('engines');
-        
+
         Schema::create('engines', function (Blueprint $table) {
             $table->id();
 
@@ -76,9 +75,9 @@ return new class extends Migration
 
             $table->integer('Charge_utile');
 
-            $table->double('largeur' , 10, 2);
+            $table->double('largeur', 10, 2);
 
-            $table->double('surface' , 10, 2);
+            $table->double('surface', 10, 2);
 
             $table->string('couleur');
 

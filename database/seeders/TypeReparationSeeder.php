@@ -3,9 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\TypeReparation;
-use Illuminate\Database\Seeder;
 use App\Support\Database\StatesClass;
 use App\Support\Database\TypesReparation;
+use Illuminate\Database\Seeder;
 
 class TypeReparationSeeder extends Seeder
 {

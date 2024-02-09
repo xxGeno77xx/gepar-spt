@@ -478,7 +478,7 @@
             </p>
             <h3>Département</h3>
             <p>
-                <b>XXXXX</b>
+                <b>{{$departement}}</b>
             </p>
         </div>
     </div>

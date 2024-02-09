@@ -101,12 +101,12 @@ class AssurancesRelationManager extends RelationManager
 
     protected function getTableQuery(): Builder
     {
+
         return parent::getTableQuery()
             ->leftjoin('users', 'assurances.user_id', '=', 'users.id')
             ->join('engines', 'assurances.engine_id', '=', 'engines.id')
             ->select('engines.plate_number', 'assurances.*', 'users.name')
             ->whereNull('assurances.deleted_at')
-            ->where('engines.state', '=', StatesClass::Activated()->value)
             ->where('assurances.state', '=', StatesClass::Activated()->value);
     }
 }

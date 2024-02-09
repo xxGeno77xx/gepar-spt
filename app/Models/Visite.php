@@ -12,6 +12,7 @@ class Visite extends Model
     use SoftDeletes;
 
     protected $connection = 'oracle';
+
     public function engine()
     {
         return $this->belongsTo(Engine::class);

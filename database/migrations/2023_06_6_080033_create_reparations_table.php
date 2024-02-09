@@ -10,13 +10,12 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-
-     protected $connection = 'oracle';
+    protected $connection = 'oracle';
 
     public function up(): void
     {
         Schema::dropIfExists('reparations');
-        
+
         Schema::create('reparations', function (Blueprint $table) {
 
             $table->id();

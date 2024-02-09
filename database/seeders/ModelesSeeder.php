@@ -4,9 +4,9 @@ namespace Database\Seeders;
 
 use App\Models\Marque;
 use App\Models\Modele;
-use Illuminate\Database\Seeder;
-use App\Support\Database\StatesClass;
 use App\Support\Database\ModelesClass;
+use App\Support\Database\StatesClass;
+use Illuminate\Database\Seeder;
 
 class ModelesSeeder extends Seeder
 {

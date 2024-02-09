@@ -14,7 +14,6 @@ use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 
 class VisistesASurveiller extends BaseWidget
 {
@@ -25,26 +24,66 @@ class VisistesASurveiller extends BaseWidget
     protected function getTableQuery(): Builder
     {
 
-        $visitesASurveiller = Engine::Join('visites', function ($join) {
+        $limite = parametre::where('options', 'Visites techniques')->value('limite');
 
-            $limite = parametre::where('options', 'Visites techniques')->value('limite');
+        $activated = StatesClass::Activated()->value;
 
-            $join->on('engines.id', '=', 'visites.engine_id')
-                ->whereRaw('visites.created_at = (SELECT MAX(created_at) FROM visites WHERE engine_id = engines.id AND visites.state = ?) ', [StatesClass::Activated()->value])
-                ->whereRaw("DATE(visites.date_expiration)<= DATE_ADD(CURDATE(), INTERVAL  $limite DAY) ")
-                ->where('visites.state', StatesClass::Activated()->value)
-                ->whereNull('visites.deleted_at');
-        })
+        $visitesASurveiller = Engine::Join('visites', 'engines.id', '=', 'visites.engine_id')
+            ->whereRaw('visites.created_at = (SELECT MAX(created_at) FROM visites WHERE engine_id = engines.id AND visites.state = ?)', [$activated])
+            ->whereRaw('TRUNC(visites.date_expiration) <= TRUNC(SYSDATE + TRUNC(?))', [$limite])
+            ->where('visites.state', $activated)
+            ->whereNull('visites.deleted_at')
+            ->whereNull('engines.deleted_at')
             ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
-            // ->join('departements', 'engines.departement_id', 'departements.id')
-
-            // ->leftJoin('chauffeurs', 'engines.chauffeur_id', 'chauffeurs.id')
-            // ->leftjoin('departements', 'chauffeurs.departement_id', 'departements.id')
+            ->join('centre', 'engines.departement_id', 'centre.code_centre')
             ->join('marques', 'modeles.marque_id', '=', 'marques.id')
-            ->select('engines.*', /*'departements.nom_departement',*/ 'marques.logo as logo', 'visites.date_initiale as date_initiale', DB::raw('DATE(visites.date_expiration) as date_expiration'))
+            ->select('engines.*', /*'centre.sigle',*/ 'marques.logo as logo', 'visites.date_initiale as date_initiale', 'visites.date_expiration as date_expiration')
             ->where('engines.state', '<>', StatesClass::Deactivated()->value)
-            ->groupBy('engines.id', 'marques.nom_marque', 'visites.date_initiale', 'visites.date_expiration')
-            ->distinct('engines.id');
+            ->distinct('engines.id')
+            ->groupBy(
+                'visites.date_expiration',
+                'visites.date_initiale',
+                'engines.id',
+                'engines.modele_id',
+                'engines.power',
+                'engines.departement_id',
+                'engines.price',
+                'engines.circularization_date',
+                'engines.date_aquisition',
+                'engines.plate_number',
+                'engines.type_id',
+                'engines.car_document',
+                'engines.carburant_id',
+                'engines.assurances_mail_sent',
+                'engines.visites_mail_sent',
+                'engines.state',
+                'engines.numero_chassis',
+                'engines.moteur',
+                'engines.carosserie',
+                'engines.pl_ass',
+                'engines.matricule_precedent',
+                'engines.poids_total_en_charge',
+                'engines.poids_a_vide',
+                'engines.poids_total_roulant',
+                'engines.Charge_utile',
+                'engines.largeur',
+                'engines.surface',
+                'engines.couleur',
+                'engines.date_cert_precedent',
+                'engines.kilometrage_achat',
+                'engines.numero_carte_grise',
+                'engines.user_id',
+                'engines.updated_at_user_id',
+                'engines.deleted_at',
+                'engines.created_at',
+                'engines.updated_at',
+                'sigle_centre',
+                'nom_modele',
+                'nom_marque',
+                'logo',
+
+            )
+            ->distinct();
 
         return $visitesASurveiller;
     }

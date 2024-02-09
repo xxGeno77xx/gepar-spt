@@ -3,9 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\Marque;
+use App\Support\Database\StatesClass;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\File;
-use App\Support\Database\StatesClass;
 use Illuminate\Support\Facades\Storage;
 
 class BrandSeeder extends Seeder

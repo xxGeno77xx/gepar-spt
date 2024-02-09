@@ -75,7 +75,7 @@ class ReparationResource extends Resource
                                     ->label('Date de retour du véhicule')
                                     ->afterOrEqual('date_lancement'),
 
-                                    Hidden::make('state')->default(StatesClass::Activated()->value),
+                                Hidden::make('state')->default(StatesClass::Activated()->value),
 
                             ])->columns(2),
 

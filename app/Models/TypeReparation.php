@@ -11,6 +11,7 @@ class TypeReparation extends Model
     use HasFactory;
 
     protected $connection = 'oracle';
+
     public function reparations(): BelongsToMany
     {
         return $this->belongstoMany(Reparation::class);

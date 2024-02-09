@@ -40,10 +40,10 @@ class RolesPermissionsSeeder extends Seeder
         $role->syncPermissions($permissions);
 
         $superAdmin = User::firstOrCreate([
-            'email' => 'gateway@laposte.tg', //  myself
+            'email' => 'gepar.@laposte.tg', //  myself
             'password' => Hash::make('L@poste+2024'),
-            'name' => 'gatewayUser',
-            'username' => 'gateway',
+            'name' => 'gepar',
+            'username' => 'gepar',
             'notification' => true,
             'login_attempts' => 0,
             'created_at' => now(),
@@ -99,10 +99,11 @@ class RolesPermissionsSeeder extends Seeder
             ['name' => 'TCHOYO Yaou', 'username' => 'TCHOYO', 'email' => 'Yaou.Tchoyo@laposte.tg', 'notification' => 1, 'password' => Hash::make('L@poste+2024'), 'login_attempts' => 0, 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'KOMBATE Arzouma  ', 'username' => 'KOMBATE', 'email' => 'Arzouma.Kombate@laposte.tg', 'notification' => 1, 'password' => Hash::make('L@poste+2024'), 'login_attempts' => 0, 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'TCHESSOTAGBA Pidénam', 'username' => 'TCHESSOTAGBA', 'email' => 'Pidename.Tchessotagba@laposte.tg', 'notification' => 1, 'password' => Hash::make('L@poste+2024'), 'login_attempts' => 0, 'created_at' => now(), 'updated_at' => now()],
-            // ['name' => 'testUser', 'username' => 'gateway', 'email' => 'gateway.gateway@laposte.tg', 'notification' => 1, 'password' => Hash::make('L@poste+2024'), 'login_attempts' => 0, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'wiyao', 'username' => 'wiyao.aboua', 'email' => 'wiyao.aboua@laposte.tg', 'notification' => 1, 'password' => Hash::make('L@poste+2024'), 'login_attempts' => 0, 'created_at' => now(), 'updated_at' => now()],
         ]);
 
         foreach ($sptUsers as $user) {
+
             $createdUser = User::firstOrCreate($user);
             $createdUser->syncRoles(self::User);
         }
