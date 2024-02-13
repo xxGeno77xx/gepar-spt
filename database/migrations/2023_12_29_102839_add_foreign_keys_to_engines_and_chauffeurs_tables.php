@@ -25,12 +25,12 @@ return new class extends Migration
 
         // });
 
-        Schema::table('reparations', function (Blueprint $table) {
+        // Schema::table('reparations', function (Blueprint $table) {
 
-            $table->unsignedBigInteger('prestataire_id')->nullable();
-            // $table->foreign('prestataire_id')->references('id')->on('prestataires');
+        //     $table->unsignedBigInteger('prestataire_id')->nullable();
+        //     $table->foreign('prestataire_id')->references('id')->on('prestataires');
 
-        });
+        // });
 
         //     Schema::table('reparations', function (Blueprint $table) {
 

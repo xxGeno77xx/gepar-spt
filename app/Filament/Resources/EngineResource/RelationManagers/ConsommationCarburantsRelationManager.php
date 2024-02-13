@@ -35,8 +35,8 @@ class ConsommationCarburantsRelationManager extends RelationManager
 
                 Grid::make(3)
                     ->schema([
-                        Forms\Components\DatePicker::make('date')
-                            ->beforeOrEqual(date_format(now(), 'd-m-Y')) // to do: make it unique for every engine
+                        Forms\Components\DatePicker::make('date_prise')
+                            // ->beforeOrEqual(date_format(now(), 'd-m-Y')) // to do: make it unique for every engine
                             ->required(),
 
                         Forms\Components\Hidden::make('state')
@@ -118,10 +118,9 @@ class ConsommationCarburantsRelationManager extends RelationManager
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('date')
-                    ->sortable()
-                    ->label('Date')
-                    ->date('d-m-Y'),
+                Tables\Columns\TextColumn::make('date_prise')
+                    ->date('d-m-Y')
+                    ->sortable(),
 
                 Tables\Columns\TextColumn::make('ticket')
                     ->label('Ticket N°'),
@@ -139,6 +138,10 @@ class ConsommationCarburantsRelationManager extends RelationManager
 
                 Tables\Columns\TextColumn::make('quantite')
                     ->label('Quantité (L)'),
+
+                Tables\Columns\TextColumn::make('quantite')
+                    ->label('Quantité (L)')
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Filter::make('date_lancement')
@@ -159,11 +162,11 @@ class ConsommationCarburantsRelationManager extends RelationManager
                         return $query
                             ->when(
                                 $data['date_from'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('date', '>=', $date),
+                                fn (Builder $query, $date): Builder => $query->whereDate('date_prise', '>=', $date),
                             )
                             ->when(
                                 $data['date_to'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('date', '<=', $date),
+                                fn (Builder $query, $date): Builder => $query->whereDate('date_prise', '<=', $date),
                             );
                     })
                     ->indicateUsing(function (array $data): ?string {
@@ -226,6 +229,12 @@ class ConsommationCarburantsRelationManager extends RelationManager
                             ->where('engines.id', $livewire->ownerRecord->id)
                             ->first();
 
+                        $periodeDebut = Carbon::parse($action->getRecords()->min('date_prise'))->format('d-m-Y');
+
+                        $periodeFin = Carbon::parse($action->getRecords()->max('date_prise'))->format('d-m-Y');
+
+                        $consoMoyenne = number_format((float) (($action->getRecords()->sum('quantite')) / ($action->getRecords()->count())), 2, '.', '');
+
                         $total = $action->getRecords()->sum('quantite');
 
                         return [
@@ -237,21 +246,27 @@ class ConsommationCarburantsRelationManager extends RelationManager
                             'carburant' => $OwnerEngine->carburant,
                             'departement' => $OwnerEngine->departement,
                             'total' => $total,
+                            'debutPeriode' => $periodeDebut,
+                            'finPeriode' => $periodeFin,
+                            'consoMoyenne' => $consoMoyenne,
                         ];
                     }),
 
             ])
             ->actions([
-                // Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make(),
                 // Tables\Actions\DeleteAction::make(),
 
                 Tables\Actions\Action::make('Supprimer')
-                    ->action(fn () => $record->update(['state' => StatesClass::Deactivated()->value])),
+                    ->color('danger')
+                    ->icon('heroicon-o-x')
+                    ->action(fn ($record) => $record->update(['state' => StatesClass::Deactivated()->value]))
+                    ->requiresConfirmation(),
             ])
             ->bulkActions([
 
             ])
-            ->defaultSort('date', 'asc');
+            ->defaultSort('date_prise', 'asc');
     }
 
     public function getTableQuery(): Builder

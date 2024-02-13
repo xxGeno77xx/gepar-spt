@@ -23,29 +23,91 @@ class AssuranceMail extends Mailable
      */
     public function __construct()
     {
-        $this->mailableEngines = Engine::Join('assurances', function ($join) {
+        // $this->mailableEngines = Engine::Join('assurances', function ($join) {
 
-            $limite = parametre::where('options', 'Assurances')->value('limite');
+        //     $limite = parametre::where('options', 'Assurances')->value('limite');
 
-            $join->on('engines.id', '=', 'assurances.engine_id')
-                ->whereRaw(
-                    'assurances.created_at = (SELECT MAX(created_at) FROM assurances WHERE engine_id = engines.id AND assurances.state =?)',
-                    [StatesClass::Activated()->value]
-                )
-                ->whereRaw("DATE(assurances.date_fin)<= DATE_ADD(CURDATE(), INTERVAL  $limite DAY) ")
-                ->where('assurances.state', StatesClass::Activated()->value)
-                ->whereNull('assurances.deleted_at');
-        })
+        //     $join->on('engines.id', '=', 'assurances.engine_id')
+        //         ->whereRaw(
+        //             'assurances.created_at = (SELECT MAX(created_at) FROM assurances WHERE engine_id = engines.id AND assurances.state =?)',
+        //             [StatesClass::Activated()->value]
+        //         )
+        //         ->whereRaw("DATE(assurances.date_fin)<= DATE_ADD(CURDATE(), INTERVAL  $limite DAY) ")
+        //         ->where('assurances.state', StatesClass::Activated()->value)
+        //         ->whereNull('assurances.deleted_at');
+        // })
+        //     ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
+        //     // ->join('departements','engines.departement_id','departements.id')
+        //     ->join('marques', 'modeles.marque_id', '=', 'marques.id')
+        //     ->select('engines.*', /*'departements.nom_departement',*/ 'marques.logo as logo', 'assurances.date_debut as date_debut',
+        //         DB::raw('DATE(assurances.date_fin) as date_fin'),
+        //         'marques.nom_marque', 'modeles.nom_modele')
+        //     ->where('engines.state', StatesClass::Activated()->value)
+        //     ->where('engines.assurances_mail_sent', '=', 0)
+        //     ->groupBy('engines.id', 'marques.nom_marque', 'assurances.date_debut', 'assurances.date_fin')
+        //     ->distinct('engines.id')->get();
+
+        $limite = parametre::where('options', 'Assurances')->value('limite');
+
+        $activated = StatesClass::Activated()->value;
+
+        $this->mailableEngines = Engine::Join('assurances', 'engines.id', '=', 'assurances.engine_id')
+            ->whereRaw('assurances.created_at = (SELECT MAX(created_at) FROM assurances WHERE engine_id = engines.id AND assurances.state = ?)', [$activated])
+            ->whereRaw('TRUNC(assurances.date_fin) <= TRUNC(SYSDATE + TRUNC(?))', [$limite])
+            ->where('assurances.state', $activated)
+            ->whereNull('assurances.deleted_at')
+            ->whereNull('engines.deleted_at')
             ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
-            // ->join('departements','engines.departement_id','departements.id')
+            ->join('centre', 'engines.departement_id', 'centre.code_centre')
             ->join('marques', 'modeles.marque_id', '=', 'marques.id')
-            ->select('engines.*', /*'departements.nom_departement',*/ 'marques.logo as logo', 'assurances.date_debut as date_debut',
-                DB::raw('DATE(assurances.date_fin) as date_fin'),
-                'marques.nom_marque', 'modeles.nom_modele')
-            ->where('engines.state', StatesClass::Activated()->value)
-            ->where('engines.assurances_mail_sent', '=', 0)
-            ->groupBy('engines.id', 'marques.nom_marque', 'assurances.date_debut', 'assurances.date_fin')
-            ->distinct('engines.id')->get();
+            ->select('engines.*', 'marques.logo as logo', 'assurances.date_debut as date_debut', 'assurances.date_fin as date_fin')
+            ->where('engines.state', '<>', StatesClass::Deactivated()->value)
+            ->distinct('engines.id')
+            ->groupBy(
+                'assurances.date_fin',
+                'assurances.date_debut',
+                'engines.id',
+                'engines.modele_id',
+                'engines.power',
+                'engines.departement_id',
+                'engines.price',
+                'engines.circularization_date',
+                'engines.date_aquisition',
+                'engines.plate_number',
+                'engines.type_id',
+                'engines.car_document',
+                'engines.carburant_id',
+                'engines.assurances_mail_sent',
+                'engines.visites_mail_sent',
+                'engines.state',
+                'engines.numero_chassis',
+                'engines.moteur',
+                'engines.carosserie',
+                'engines.pl_ass',
+                'engines.matricule_precedent',
+                'engines.poids_total_en_charge',
+                'engines.poids_a_vide',
+                'engines.poids_total_roulant',
+                'engines.Charge_utile',
+                'engines.largeur',
+                'engines.surface',
+                'engines.couleur',
+                'engines.date_cert_precedent',
+                'engines.kilometrage_achat',
+                'engines.numero_carte_grise',
+                'engines.user_id',
+                'engines.updated_at_user_id',
+                'engines.deleted_at',
+                'engines.created_at',
+                'engines.updated_at',
+                'sigle_centre',
+                'nom_modele',
+                'nom_marque',
+                'logo',
+
+            )
+            ->distinct()
+            ->get();
 
     }
 

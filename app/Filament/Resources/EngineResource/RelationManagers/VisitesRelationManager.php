@@ -63,9 +63,8 @@ class VisitesRelationManager extends RelationManager
     protected function getTableQuery(): Builder
     {
         return parent::getTableQuery()
-            ->leftjoin('users', 'visites.user_id', '=', 'users.id')
             ->join('engines', 'visites.engine_id', 'engines.id')
-            ->select('engines.plate_number', 'visites.*', 'users.name')
+            ->select('engines.plate_number', 'visites.*')
             ->whereNull('engines.deleted_at')
             ->whereNull('visites.deleted_at')
             ->where('visites.state', StatesClass::Activated()->value);

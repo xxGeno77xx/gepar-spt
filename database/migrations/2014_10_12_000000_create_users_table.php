@@ -35,6 +35,9 @@ return new class extends Migration
 
             $table->softDeletes();
             $table->timestamps();
+
+            // $sequence = DB::getSequence();
+            // $sequence->drop('users_id_seq');
         });
     }
 

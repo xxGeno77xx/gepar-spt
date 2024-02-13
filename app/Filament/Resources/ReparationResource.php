@@ -186,12 +186,6 @@ class ReparationResource extends Resource
                     ->searchable()
                     ->label('Prestataire'),
 
-                TextColumn::make('name')
-                    ->label('Enregistré par')
-                    ->alignment('center')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-
                 TextColumn::make('cout_reparation')
                     ->placeholder('-')
                     ->searchable()

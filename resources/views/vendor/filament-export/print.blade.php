@@ -444,7 +444,7 @@
             </p>
         </div>
     </div>
-    <h3 style="text-align: center">Relevé des prises de carburant</h3>
+    <h3 style="text-align: center">Relevé des consommations de carburant</h3>
     <!-- The two header rows are divided by an blue line, we use the HR element for this. -->
     <hr />
     <div class="headerSection">
@@ -474,9 +474,9 @@
         <div>
             <h3>Période</h3>
             <p>
-                <b>Du 07 April 2021 au 25 April 2021</b>
+                <b>Du {{$debutPeriode}} au {{$finPeriode}}</b>
             </p>
-            <h3>Département</h3>
+            <h3>Service utilisateur</h3>
             <p>
                 <b>{{$departement}}</b>
             </p>
@@ -556,6 +556,9 @@
                 </td>
             </tr>
         </table>
+
+        <b>Consommation moyenne pour la période: {{$consoMoyenne}} litres.</b>
+
     </main>
     <hr />
     <div>

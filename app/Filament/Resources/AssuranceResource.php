@@ -24,7 +24,7 @@ class AssuranceResource extends Resource
 {
     protected static ?string $model = Assurance::class;
 
-    protected static ?string $navigationGroup = 'Administration';
+    protected static ?string $navigationGroup = 'Documents administratifs';
 
     protected static ?string $navigationIcon = 'heroicon-o-folder-open';
 
@@ -86,11 +86,6 @@ class AssuranceResource extends Resource
                 TextColumn::make('date_fin')
                     ->dateTime('d-m-Y')
                     ->searchable(),
-
-                TextColumn::make('name')
-                    ->label('Enregistré par')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
 
                 BadgeColumn::make('created_at')->label('Ajouté le')
                     ->dateTime('d-m-Y')

@@ -31,11 +31,11 @@ return new class extends Migration
             $table->unsignedBigInteger('engine_id');
             $table->foreign('engine_id')->references('id')->on('engines');
 
-            // $table->unsignedBigInteger('prestataire_id');
+            $table->unsignedBigInteger('prestataire_id');
             // $table->foreign('prestataire_id')->references('id')->on('fournisseurs');
 
             $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users');
+            // $table->foreign('user_id')->references('id')->on('users');
 
             $table->unsignedBigInteger('updated_at_user_id');
 

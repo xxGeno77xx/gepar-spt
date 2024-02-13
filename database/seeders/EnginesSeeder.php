@@ -25,7 +25,7 @@ class EnginesSeeder extends Seeder
             '1111-AG',
             '0003-AZ',
             '3000-AR',
-            '1036-AB',
+            // '1036-AB',
         ];
 
         foreach ($plates as $key => $plate) {

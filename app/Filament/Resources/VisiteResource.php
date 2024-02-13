@@ -24,7 +24,7 @@ class VisiteResource extends Resource
 {
     protected static ?string $model = Visite::class;
 
-    protected static ?string $navigationGroup = 'Administration';
+    protected static ?string $navigationGroup = 'Documents administratifs';
 
     protected static ?string $label = 'Visites techniques';
 
@@ -89,11 +89,6 @@ class VisiteResource extends Resource
                 TextColumn::make('date_expiration')
                     ->dateTime('d-m-Y')
                     ->searchable(),
-
-                TextColumn::make('name')
-                    ->label('Enregistré par')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
 
                 BadgeColumn::make('created_at')->label('Ajouté le')
                     ->dateTime('d-m-Y')

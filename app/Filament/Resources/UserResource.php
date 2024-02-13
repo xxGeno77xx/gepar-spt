@@ -10,7 +10,6 @@ use App\Support\Database\PermissionsClass;
 use App\Support\Database\StatesClass;
 use Database\Seeders\RolesPermissionsSeeder;
 use Filament\Forms\Components\Card;
-use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -18,9 +17,9 @@ use Filament\Resources\Form;
 use Filament\Resources\Resource;
 use Filament\Resources\Table;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TagsColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\TernaryFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Hash;
@@ -92,14 +91,9 @@ class UserResource extends Resource
                             ->preload(true)
                             ->label(strval(__('filament-authentication::filament-authentication.field.user.roles'))),
 
-                        // Radio::make('state')
-                        // ->label('Etat')
-                        //     ->options([
-                        //         StatesClass::Activated()->value  => 'Activé' ,
-                        //         StatesClass::Deactivated()->value => 'Désactivé',
-                        //         StatesClass::Suspended()->value => 'Suspendu'
+                        TextInput::make('username')
+                            ->label("Nom d'utilisateur"),
 
-                        //     ])
                     ])->columns(2),
                 Toggle::make('notification')
                     ->offIcon('heroicon-o-mail')
@@ -128,7 +122,14 @@ class UserResource extends Resource
                     ->sortable()
                     ->label(strval(__('filament-authentication::filament-authentication.field.user.email'))),
 
-                ToggleColumn::make('state'),
+                SelectColumn::make('state')
+                    ->label('Etat')
+                    ->disablePlaceholderSelection()
+                    ->options([
+                        StatesClass::Activated()->value,
+                        StatesClass::Suspended()->value,
+                        StatesClass::Deactivated()->value,
+                    ]),
 
                 IconColumn::make('notification')
                     ->trueIcon('heroicon-o-badge-check')

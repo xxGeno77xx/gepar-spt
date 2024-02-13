@@ -103,9 +103,8 @@ class AssurancesRelationManager extends RelationManager
     {
 
         return parent::getTableQuery()
-            ->leftjoin('users', 'assurances.user_id', '=', 'users.id')
             ->join('engines', 'assurances.engine_id', '=', 'engines.id')
-            ->select('engines.plate_number', 'assurances.*', 'users.name')
+            ->select('engines.plate_number', 'assurances.*')
             ->whereNull('assurances.deleted_at')
             ->where('assurances.state', '=', StatesClass::Activated()->value);
     }

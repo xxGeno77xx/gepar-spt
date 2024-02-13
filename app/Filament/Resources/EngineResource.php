@@ -59,16 +59,16 @@ class EngineResource extends Resource
 
                         TextInput::make('matricule_precedent')
                             ->label('Matricule précédent')
-                            ->regex('/^\d{4}-[A-Z]{2}$/')
-                            ->placeholder('1234-AB')
-                            ->maxLength(7)
+                            ->regex('/^TG\s\d{4}-[A-Z]{2}$/')
+                            ->placeholder('TG 1234-AB')
+                            ->maxLength(10)
                             ->unique(ignoreRecord: true),
 
                         TextInput::make('plate_number')
                             ->label('Numéro de plaque')
-                            ->placeholder('1234-AB')
-                            ->regex('/^\d{4}-[A-Z]{2}$/')
-                            ->maxLength(7)
+                            ->placeholder('TG 1234-AB')
+                            ->regex('/^TG\s\d{4}-[A-Z]{2}$/')
+                            ->maxLength(10)
                             ->required()
                             // ->unique(ignoreRecord: true)
                             ->rules([
@@ -82,6 +82,10 @@ class EngineResource extends Resource
                                             if ($existingEngine->id != $record->id) {
                                                 $fail('Un engin avec ce numéro de plaque existe déjà.');
                                             }
+                                        }
+
+                                        if ($existingEngine) {
+                                            $fail('Un engin avec ce numéro de plaque existe déjà.');
                                         }
                                     };
                                 },
@@ -130,6 +134,10 @@ class EngineResource extends Resource
                                                     if ($existingEngine->id != $record->id) {
                                                         $fail('Un engin avec ce numéro de chassis existe déjà.');
                                                     }
+                                                }
+
+                                                if ($existingEngine) {
+                                                    $fail('Un engin avec ce numéro de chassis existe déjà.');
                                                 }
                                             };
                                         },
@@ -205,6 +213,11 @@ class EngineResource extends Resource
                                                 $fail('Un engin avec ce numéro de carte grise existe déjà.');
                                             }
                                         }
+
+                                        if ($existingEngine) {
+                                            $fail('Un engin avec ce numéro de carte grise existe déjà.');
+                                        }
+
                                     };
                                 },
                             ]),
@@ -329,16 +342,10 @@ class EngineResource extends Resource
                     ->default(asset('images/default_product_image.jpg'))
                     ->alignment('center'),
 
-                TextColumn::make('nom_marque')
-                    ->alignment('center')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-
-                TextColumn::make('name')
-                    ->label('Enregistré par')
-                    ->alignment('center')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                // TextColumn::make('nom_marque')
+                //     ->alignment('center')
+                //     ->searchable()
+                //     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('date_expiration')
                     ->label('Visite (expiration)')

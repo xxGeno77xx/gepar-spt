@@ -28,9 +28,8 @@ class ListAssurances extends ListRecords
     protected function getTableQuery(): Builder
     {
         return static::getResource()::getEloquentQuery()
-            ->leftjoin('users', 'assurances.user_id', '=', 'users.id')
             ->join('engines', 'assurances.engine_id', '=', 'engines.id')
-            ->select('engines.plate_number', 'assurances.*', 'users.name')
+            ->select('engines.plate_number', 'assurances.*')
             ->where('assurances.state', StatesClass::Activated()->value);
 
     }

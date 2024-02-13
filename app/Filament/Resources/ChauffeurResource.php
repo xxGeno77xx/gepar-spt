@@ -6,7 +6,6 @@ use App\Filament\Resources\ChauffeurResource\Pages;
 use App\Models\Chauffeur;
 use App\Models\Departement;
 use App\Support\Database\PermissionsClass;
-use App\Support\Database\StatesClass;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
@@ -33,36 +32,35 @@ class ChauffeurResource extends Resource
     public static function form(Form $form): Form
     {
 
-        return $form;
-        // ->schema([
-        //     TextInput::make('name')
-        //         ->label('Nom')
-        //         ->required(),
+        return $form
+            ->schema([
+                TextInput::make('name')
+                    ->label('Nom')
+                    ->required(),
 
-        //     Select::make('departement_id')
-        //         ->label('Département')
-        //         ->options(
-        //             Departement::where('state', StatesClass::Activated())
-        //                 // ->whereNull('chauffeur_id')
-        //                 ->pluck('nom_departement', 'id')
-        //         )
-        //         ->searchable()
-        //         ->required(),
+                Select::make('departement_id')
+                    ->label('Département')
+                    ->options(
+                        Departement::select(['sigle_centre', 'code_centre'])
+                            ->pluck('sigle_centre', 'code_centre')
+                    )
+                    ->searchable()
+                    ->required(),
 
-        //     Card::make()
-        //         ->schema([
-        //             Placeholder::make('created_at')
-        //                 ->label('Ajouté')
-        //                 ->content(fn(Chauffeur $record): ?string => $record->created_at),
+                Card::make()
+                    ->schema([
+                        Placeholder::make('created_at')
+                            ->label('Ajouté')
+                            ->content(fn (Chauffeur $record): ?string => $record->created_at),
 
-        //             Placeholder::make('updated_at')
-        //                 ->label('Mise à jour')
-        //                 ->content(fn(Chauffeur $record): ?string => $record->updated_at),
+                        Placeholder::make('updated_at')
+                            ->label('Mise à jour')
+                            ->content(fn (Chauffeur $record): ?string => $record->updated_at),
 
-        //         ])
-        //         ->columnSpan(['lg' => 1])
-        //         ->hidden(fn(?Chauffeur $record) => $record === null),
-        // ]);
+                    ])
+                    ->columnSpan(['lg' => 1])
+                    ->hidden(fn (?Chauffeur $record) => $record === null),
+            ]);
     }
 
     public static function table(Table $table): Table

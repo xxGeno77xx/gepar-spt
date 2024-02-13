@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\EngineResource\Pages;
 
 use App\Filament\Resources\EngineResource;
-use App\Filament\Resources\EngineResource\Widgets\EngineFuelConsumption;
 use App\Models\Chauffeur;
 use App\Models\Engine;
 use App\Models\Engine as Engin;
@@ -113,13 +112,6 @@ class EditEngine extends EditRecord
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');
-    }
-
-    protected function getFooterWidgets(): array
-    {
-        return [
-            EngineFuelConsumption::class,
-        ];
     }
 
     // public function afterSave()
