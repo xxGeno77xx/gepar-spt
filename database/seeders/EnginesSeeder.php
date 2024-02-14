@@ -18,14 +18,14 @@ class EnginesSeeder extends Seeder
     public function run(): void
     {
         $plates = [
-            '1236-AF',
-            '1364-AC',
-            '1995-AS',
-            '1242-AX',
-            '1111-AG',
-            '0003-AZ',
-            '3000-AR',
-            // '1036-AB',
+            'TG 1236-AF',
+            'TG 1364-AC',
+            'TG 1995-AS',
+            'TG 1242-AX',
+            'TG 1111-AG',
+            'TG 0003-AZ',
+            'TG 3000-AR',
+            'TG 1036-AB',
         ];
 
         foreach ($plates as $key => $plate) {
@@ -55,6 +55,7 @@ class EnginesSeeder extends Seeder
                 'moteur' => 05,
                 'kilometrage_achat' => 25000,
                 'departement_id' => mt_rand(1, 5),
+                'numero_carte_grise' => Str::random(6),
             ]);
 
             Visite::create([

@@ -28,9 +28,9 @@ class ListVisites extends ListRecords
     protected function getTableQuery(): Builder
     {
         return static::getResource()::getEloquentQuery()
-            ->leftjoin('users', 'visites.user_id', '=', 'users.id')
+            // ->leftjoin('users', 'visites.user_id', '=', 'users.id')
             ->join('engines', 'visites.engine_id', 'engines.id')
-            ->select('engines.plate_number', 'visites.*', 'users.name')
+            ->select('engines.plate_number', 'visites.*'/* 'users.name'*/)
             ->where('visites.state', StatesClass::Activated()->value);
     }
 

@@ -25,7 +25,7 @@ class ListModeles extends ListRecords
         return static::getResource()::getEloquentQuery()
             ->join('marques', 'marques.id', '=', 'modeles.marque_id')
             ->select('marques.nom_marque', 'marques.logo', 'modeles.nom_modele', 'modeles.created_at', 'modeles.id')
-            ->where('modeles.state', StatesClass::Activated()->value);
+            ->whereRaw('modeles.state LIKE ?', [StatesClass::Activated()->value]);
     }
 
     protected function getTableRecordsPerPageSelectOptions(): array

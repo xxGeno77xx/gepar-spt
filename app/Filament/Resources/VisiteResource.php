@@ -110,7 +110,7 @@ class VisiteResource extends Resource
             ])
             ->bulkActions([
                 // Tables\Actions\DeleteBulkAction::make(),
-            ]);
+            ])->defaultSort('visites.created_at', 'desc');
     }
 
     public static function getRelations(): array

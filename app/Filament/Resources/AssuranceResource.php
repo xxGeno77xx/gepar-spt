@@ -74,6 +74,9 @@ class AssuranceResource extends Resource
     {
         return $table
             ->columns([
+
+                // TextColumn::make('id'),
+
                 TextColumn::make('plate_number')
                     ->label('Numéro de plaque')
                     ->searchable()

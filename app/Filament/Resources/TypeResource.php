@@ -5,7 +5,9 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\TypeResource\Pages;
 use App\Models\Type;
 use App\Support\Database\PermissionsClass;
+use App\Support\Database\StatesClass;
 use Database\Seeders\RolesPermissionsSeeder;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Form;
 use Filament\Resources\Resource;
@@ -13,6 +15,7 @@ use Filament\Resources\Table;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 
 class TypeResource extends Resource
 {
@@ -30,6 +33,9 @@ class TypeResource extends Resource
                     ->label('Nom du type')
                     ->required()
                     ->unique(),
+
+                Hidden::make('state')
+                    ->default(StatesClass::Activated()->value),
             ]);
     }
 
@@ -40,7 +46,11 @@ class TypeResource extends Resource
 
                 TextColumn::make('nom_type')
                     ->label('Nom')
-                    ->searchable(),
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+
+                        return $query->selectRaw('nom_type')->whereRaw('LOWER(nom_type) LIKE ?', ['%'.strtolower($search).'%']);
+
+                    }),
 
             ])->defaultSort('created_at', 'desc')
             ->filters([

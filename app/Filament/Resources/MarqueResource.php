@@ -5,7 +5,9 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\MarqueResource\Pages;
 use App\Models\Marque;
 use App\Support\Database\PermissionsClass;
+use App\Support\Database\StatesClass;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Form;
 use Filament\Resources\Resource;
@@ -13,6 +15,7 @@ use Filament\Resources\Table;
 use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 
 class MarqueResource extends Resource
 {
@@ -31,6 +34,9 @@ class MarqueResource extends Resource
                     ->required()
                     ->unique(ignoreRecord: true),
 
+                Hidden::make('state')
+                    ->default(StatesClass::Activated()->value),
+
                 FileUpload::make('logo')
                     ->imageResizeTargetWidth('1300')
                     ->imageResizeTargetHeight('1200'),
@@ -44,21 +50,25 @@ class MarqueResource extends Resource
                 // TextColumn::make('id')->label('ID'),
 
                 TextColumn::make('nom_marque')
-                    ->searchable(),
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+
+                        return $query->selectRaw('nom_marque')->whereRaw('LOWER(nom_marque) LIKE ?', ['%'.strtolower($search).'%']);
+
+                    }),
 
                 ImageColumn::make('logo')
                     ->alignment('center'),
             ])->defaultSort('created_at', 'desc')
 
             ->filters([
-                //
+                     //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                     Tables\Actions\ViewAction::make(),
+                     Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                // Tables\Actions\DeleteBulkAction::make(),
+                     // Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
 

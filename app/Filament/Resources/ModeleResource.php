@@ -7,6 +7,7 @@ use App\Models\Marque;
 use App\Models\Modele;
 use App\Support\Database\PermissionsClass;
 use App\Support\Database\StatesClass;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Form;
@@ -15,6 +16,7 @@ use Filament\Resources\Table;
 use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Builder;
 
 class ModeleResource extends Resource
 {
@@ -34,11 +36,13 @@ class ModeleResource extends Resource
                     ->required()
                     ->unique(ignoreRecord: true),
 
+                Hidden::make('state')
+                    ->default(StatesClass::Activated()->value),
+
                 Select::make('marque_id')
                 // ->relationship('marque','nom_marque')
                     ->label('Marque')
                     ->options(Marque::select('nom_marque', 'id')->where('state', StatesClass::Activated()->value)->pluck('nom_marque', 'id'))
-                    ->searchable()
                     ->required(),
 
             ]);
@@ -50,20 +54,22 @@ class ModeleResource extends Resource
             ->columns([
                 TextColumn::make('nom_modele')
                     ->label('Modèle')
-                    ->sortable()
-                    ->searchable(),
+                    ->sortable(),
 
                 TextColumn::make('nom_marque')
                     ->label('Marque')
-                    ->sortable()
-                    ->searchable(),
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+
+                        return $query->selectRaw('modeles.nom_modele')->whereRaw('LOWER(nom_modele) LIKE ?', ['%'.strtolower($search).'%']);
+
+                    }),
 
                 ImageColumn::make('logo')
                     ->label('Logo')
                     ->alignment('center')
                     ->defaultImageUrl(url('images/no_logo.png')),
 
-            ])->defaultSort('created_at', 'desc')
+            ])//->defaultSort('nom_marque', 'desc')
 
             ->filters([
                 //
@@ -72,6 +78,7 @@ class ModeleResource extends Resource
             ->actions([
                 // Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                // Tables\Actions\DeleteAction::make(),
             ])
 
             ->bulkActions([

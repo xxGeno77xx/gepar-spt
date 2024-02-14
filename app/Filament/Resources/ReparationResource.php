@@ -183,12 +183,10 @@ class ReparationResource extends Resource
                     ->searchable(),
 
                 PrestataireColumn::make('prestataire')
-                    ->searchable()
                     ->label('Prestataire'),
 
                 TextColumn::make('cout_reparation')
                     ->placeholder('-')
-                    ->searchable()
                     ->label('Coût de la réparation'),
 
             ])->defaultSort('reparations.created_at', 'desc')

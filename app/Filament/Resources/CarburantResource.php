@@ -6,6 +6,7 @@ use App\Filament\Resources\CarburantResource\Pages;
 use App\Models\Carburant;
 use App\Support\Database\PermissionsClass;
 use App\Support\Database\StatesClass;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\Form;
@@ -30,6 +31,8 @@ class CarburantResource extends Resource
             ->schema([
                 TextInput::make('type_carburant')
                     ->unique(ignoreRecord: true),
+
+                Hidden::make('state')->default(StatesClass::Activated()->value),
             ]);
     }
 

@@ -82,9 +82,7 @@ class EngineResource extends Resource
                                             if ($existingEngine->id != $record->id) {
                                                 $fail('Un engin avec ce numéro de plaque existe déjà.');
                                             }
-                                        }
-
-                                        if ($existingEngine) {
+                                        } elseif ($existingEngine) {
                                             $fail('Un engin avec ce numéro de plaque existe déjà.');
                                         }
                                     };
@@ -134,9 +132,7 @@ class EngineResource extends Resource
                                                     if ($existingEngine->id != $record->id) {
                                                         $fail('Un engin avec ce numéro de chassis existe déjà.');
                                                     }
-                                                }
-
-                                                if ($existingEngine) {
+                                                } elseif ($existingEngine) {
                                                     $fail('Un engin avec ce numéro de chassis existe déjà.');
                                                 }
                                             };
@@ -212,9 +208,7 @@ class EngineResource extends Resource
                                             if ($existingEngine->id != $record->id) {
                                                 $fail('Un engin avec ce numéro de carte grise existe déjà.');
                                             }
-                                        }
-
-                                        if ($existingEngine) {
+                                        } elseif ($existingEngine) {
                                             $fail('Un engin avec ce numéro de carte grise existe déjà.');
                                         }
 
@@ -272,7 +266,7 @@ class EngineResource extends Resource
                             ]),
 
                         Select::make('carburant_id')
-                            ->options(Carburant::all()
+                            ->options(Carburant::where('state', StatesClass::Activated()->value)
                                 ->pluck('type_carburant', 'id'))
                             ->label('Carburant')
                             ->searchable()
@@ -326,7 +320,11 @@ class EngineResource extends Resource
 
                 TextColumn::make('plate_number')
                     ->label('Numéro de plaque')
-                    ->searchable(),
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+
+                        return $query->selectRaw('plate_number')->whereRaw('LOWER(plate_number) LIKE ?', ['%'.strtolower($search).'%']);
+
+                    }),
 
                 // TextColumn::make('chauffeur')
                 //     ->label('Chauffeur')
@@ -334,7 +332,6 @@ class EngineResource extends Resource
                 //     ->placeholder('-'),
 
                 DepartementColumn::make('departement_id')
-                    ->searchable()
                     ->label('Département'),
 
                 ImageColumn::make('logo')
@@ -349,7 +346,6 @@ class EngineResource extends Resource
 
                 TextColumn::make('date_expiration')
                     ->label('Visite (expiration)')
-                    ->searchable()
                     ->dateTime('d-m-Y'),
 
                 TextColumn::make('date_fin')
