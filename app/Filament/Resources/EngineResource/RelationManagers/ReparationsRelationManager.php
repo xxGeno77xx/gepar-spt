@@ -2,33 +2,34 @@
 
 namespace App\Filament\Resources\EngineResource\RelationManagers;
 
-use App\Models\Engine;
-use App\Models\Prestataire;
-use App\Models\Reparation;
-use App\Support\Database\CommonInfos;
-use App\Support\Database\PermissionsClass;
-use App\Support\Database\StatesClass;
-use Carbon\Carbon;
 use closure;
-use Filament\Forms\Components\Builder as FilamentBuilder;
-use Filament\Forms\Components\Card;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\MarkdownEditor;
-use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Resources\Form;
-use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Resources\Table;
+use Carbon\Carbon;
 use Filament\Tables;
+use App\Models\Engine;
+use App\Models\Reparation;
+use App\Models\Prestataire;
+use Filament\Resources\Form;
+use Filament\Resources\Table;
+use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Grid;
+use Filament\Tables\Filters\Filter;
+use App\Support\Database\CommonInfos;
+use App\Support\Database\StatesClass;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\TagsColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
+use App\Support\Database\PermissionsClass;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\MarkdownEditor;
+use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Forms\Components\Builder as FilamentBuilder;
+use AlperenErsoy\FilamentExport\Actions\FilamentExportHeaderAction;
 
 class ReparationsRelationManager extends RelationManager
 {
@@ -216,6 +217,8 @@ class ReparationsRelationManager extends RelationManager
             ])
             ->headerActions([
                 // Tables\Actions\CreateAction::make(),
+                FilamentExportHeaderAction::make('export')
+               
             ])
             ->actions([
                 Tables\Actions\EditAction::make()

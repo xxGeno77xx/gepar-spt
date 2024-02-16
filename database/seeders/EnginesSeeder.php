@@ -56,6 +56,7 @@ class EnginesSeeder extends Seeder
                 'kilometrage_achat' => 25000,
                 'departement_id' => mt_rand(1, 5),
                 'numero_carte_grise' => Str::random(6),
+                "date_aquisition" => today()
             ]);
 
             Visite::create([

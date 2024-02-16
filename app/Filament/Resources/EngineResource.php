@@ -93,7 +93,8 @@ class EngineResource extends Resource
                             ->label('Mise en circulation'),
 
                         DatePicker::make('date_aquisition')
-                            ->label("Date d'acquisition"),
+                            ->label("Date d'acquisition")
+                            ->required(),
 
                         TextInput::make('price')
                             ->label("Prix d'achat")

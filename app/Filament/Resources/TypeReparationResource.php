@@ -50,24 +50,24 @@ class TypeReparationResource extends Resource
                     }),
             ])
             ->filters([
-                     //
+                //
             ])
             ->actions([
-                     Tables\Actions\EditAction::make(),
-                     // Tables\Actions\DeleteAction::make(),
-                     Tables\Actions\Action::make('Supprimer')
-                         ->action(function (?TypeReparation $record) {
-                             $record->update(['state' => StatesClass::Deactivated()->value]);
-                             redirect('/type-reparations');
-                             Notification::make()
-                                 ->title('Supprimé(e)')
-                                 ->success()
-                                 ->persistent()
-                                 ->send();
-                         })
-                         ->icon('heroicon-o-x')
-                         ->color('danger')
-                         ->requiresConfirmation(),
+                Tables\Actions\EditAction::make(),
+                // Tables\Actions\DeleteAction::make(),
+                Tables\Actions\Action::make('Supprimer')
+                    ->action(function (?TypeReparation $record) {
+                        $record->update(['state' => StatesClass::Deactivated()->value]);
+                        redirect('/type-reparations');
+                        Notification::make()
+                            ->title('Supprimé(e)')
+                            ->success()
+                            ->persistent()
+                            ->send();
+                    })
+                    ->icon('heroicon-o-x')
+                    ->color('danger')
+                    ->requiresConfirmation(),
             ])
             ->bulkActions([
                 // Tables\Actions\DeleteBulkAction::make(),

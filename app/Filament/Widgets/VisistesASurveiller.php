@@ -81,6 +81,7 @@ class VisistesASurveiller extends BaseWidget
                 'nom_modele',
                 'nom_marque',
                 'logo',
+                'remainder'
 
             )
             ->distinct();

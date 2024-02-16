@@ -17,7 +17,7 @@ class ListReparations extends ListRecords
     protected function getActions(): array
     {
         return [
-            Actions\CreateAction::make()->label('Ajouter une réparation'),
+            Actions\CreateAction::make()->label('Nouvelle maintenance'),
         ];
     }
 

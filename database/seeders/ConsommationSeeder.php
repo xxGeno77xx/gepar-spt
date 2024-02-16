@@ -21,11 +21,13 @@ class ConsommationSeeder extends Seeder
 
         $previous_timestamp = mt_rand($start_timestamp, $end_timestamp);
 
+        $valeurPrecedente = 0;
+
         for ($i = 0; $i < 14; $i++) {
 
-            $previous_number = mt_rand(12620, 20000);
-
-            $next_number = mt_rand($previous_number + 1, $previous_number + 100);
+            $nouvelleValeur = $this->genererValeur($valeurPrecedente);
+            
+            $valeurPrecedente = $nouvelleValeur;
 
             $next_timestamp = mt_rand($previous_timestamp + 1, $end_timestamp);
 
@@ -37,13 +39,21 @@ class ConsommationSeeder extends Seeder
                 'carte_recharge_id' => mt_rand(1, 200),
                 'chauffeur_id' => 1,
                 'observation' => 'ok',
-                'kilometres_a_remplissage' => $next_number,
+                'kilometres_a_remplissage' => $nouvelleValeur,
                 'ticket' => mt_rand(1, 200).Str::random(4),
                 'state' => StatesClass::Activated()->value,
             ]);
 
             $previous_timestamp = $next_timestamp;
-            $previous_number = $next_number;
         }
     }
+
+
+    public function genererValeur($valeurPrecedente) {
+
+        $nouvelleValeur = $valeurPrecedente + rand(142, 198);
+        return $nouvelleValeur;
+    }
+    
+   
 }

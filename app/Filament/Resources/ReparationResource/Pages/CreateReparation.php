@@ -2,18 +2,20 @@
 
 namespace App\Filament\Resources\ReparationResource\Pages;
 
-use App\Filament\Resources\ReparationResource;
 use App\Models\Engine;
 use App\Models\Reparation;
-use App\Support\Database\PermissionsClass;
+use App\Models\TypeReparation;
+use Filament\Pages\Actions\Action;
 use App\Support\Database\StatesClass;
 use Filament\Notifications\Notification;
-use Filament\Pages\Actions\Action;
+use App\Support\Database\TypesReparation;
+use App\Support\Database\PermissionsClass;
 use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Resources\ReparationResource;
 
 class CreateReparation extends CreateRecord
 {
-    protected static ?string $title = 'Ajouter une réparation';
+    protected static ?string $title = 'Nouvelle maintenance';
 
     protected static string $resource = ReparationResource::class;
 
@@ -80,8 +82,15 @@ class CreateReparation extends CreateRecord
 
     public function afterCreate()
     {
+        $id = TypeReparation::where('libelle', '=', TypesReparation::Revision_simple()->value)->value('id');
 
         $concernedEngine = Engine::where('id', $this->record->engine_id)->first();
+
+        if(in_array($id, $this->data['révisions'])) {
+          
+          $concernedEngine->update(["remainder" => 0]);
+
+        }
 
         if (is_null($this->record['date_fin'])) {
             $concernedEngine->update([

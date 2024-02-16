@@ -428,7 +428,9 @@
             font-weight: bold;
         }
     </style>
-</head>
+
+    @if (isset($releve))
+        </head>
 <header style="background-color: #60D0E4">
     <div class="headerSection">
         <!-- As a logo we take an SVG element and add the name in an standard H1 element behind it. -->
@@ -489,7 +491,6 @@
 <body>
     <main>
         <table>
-            <!-- A THEAD element is used to ensure the header of the table is repeated if it consumes more than one page. -->
             <thead>
                 <tr>
                     @foreach ($columns as $column)
@@ -499,25 +500,8 @@
                     @endforeach
                 </tr>
             </thead>
-            <!-- The single invoice items are all within the TBODY of the table. -->
             <tbody>
                 <tr>
-                    {{-- <td>
-                        <b>Item Name</b>
-                        <br />
-                        Descrip
-                    </td>
-                    <td>
-                        $100
-                    </td>
-                    <td>
-                        4
-                    </td>
-                    <td>
-                        $40000
-                    </td>
-                </tr> --}}
-
                     @foreach ($rows as $row)
                 <tr>
                     @foreach ($columns as $column)
@@ -529,24 +513,7 @@
                 @endforeach
             </tbody>
         </table>
-        <!-- The summary table contains the subtotal, tax and total amount. -->
         <table class="summary">
-            {{-- <tr>
-                <th>
-                    Subtotal
-                </th>
-                <td>
-                    $1200.00
-                </td>
-            </tr>
-            <tr>
-                <th>
-                    Tax 4.7%
-                </th>
-                <td>
-                    $000.00
-                </td>
-            </tr> --}}
             <tr class="total">
                 <th>
                     Total
@@ -556,9 +523,7 @@
                 </td>
             </tr>
         </table>
-
         <b>Consommation moyenne pour la période: {{$consoMoyenne}} litres.</b>
-
     </main>
     <hr />
     <div>
@@ -572,5 +537,6 @@
 <footer>
     <p><b>NB: Le présent état doit être transmis à la division des Affaires Générales à la fin de chaque mois</b></p>
 </footer>
+    @endif
 
 </html>

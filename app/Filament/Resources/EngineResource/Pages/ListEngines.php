@@ -172,6 +172,7 @@ class ListEngines extends ListRecords
                 'nom_modele',
                 'nom_marque',
                 'logo',
+                "remainder"
             );
     }
 

@@ -40,59 +40,59 @@ class EditEngine extends EditRecord
                     })
                     ->requiresConfirmation(),
 
-                // Actions\Action::make("Retirer_du_patrimoine")
-                //     ->color('danger')
-                //     ->steps([
-                //         Step::make('Motif du retrait')
-                //             ->description('Donnez la raison du retrait')
-                //             ->schema([
-                //                 Select::make('Motif')
-                //                     ->options([
-                //                         'Véhicule cassé',
-                //                         'Kilométrage excessif',
-                //                         "Non conformité",
-                //                         "Vente"
-                //                     ])
-                //                     ->searchable()
-                //                     ->required()
-                //                     ->reactive(),
+                Actions\Action::make("Retirer_du_patrimoine")
+                    ->color('danger')
+                    ->steps([
+                        Step::make('Motif du retrait')
+                            ->description('Donnez la raison du retrait')
+                            ->schema([
+                                Select::make('Motif')
+                                    ->options([
+                                        'Véhicule cassé',
+                                        'Kilométrage excessif',
+                                        "Non conformité",
+                                        "Vente"
+                                    ])
+                                    ->searchable()
+                                    ->required()
+                                    ->reactive(),
 
-                //                 Select::make('Acheteur')
-                //                     ->searchable()
-                //                     ->visible(fn($get): bool => $get('Motif') == 1) //change option value to be the desired select field
-                //                     ->options([
-                //                         'Proprietaire actuel',
-                //                         'Nouveau propriétaire',
-                //                     ])
+                                Select::make('Acheteur')
+                                    ->searchable()
+                                    ->visible(fn($get): bool => $get('Motif') == 1) //change option value to be the desired select field
+                                    ->options([
+                                        'Proprietaire actuel',
+                                        'Nouveau propriétaire',
+                                    ])
 
-                //             ])
-                //             ->columns(2),
-                //         Step::make('Details')
-                //             ->description('Rajoutez quelques détails sur le retrait')
-                //             ->schema([
-                //                 MarkdownEditor::make('description'),
-                //             ]),
-                //         Step::make('Visibility')
-                //             ->description('Control who can view it')
-                //             ->schema([
-                //                 Toggle::make('is_visible')
-                //                     ->label('Visible to customers.')
-                //                     ->default(true),
-                //             ]),
+                            ])
+                            ->columns(2),
+                        Step::make('Details')
+                            ->description('Rajoutez quelques détails sur le retrait')
+                            ->schema([
+                                MarkdownEditor::make('description'),
+                            ]),
+                        Step::make('Visibility')
+                            ->description('Control who can view it')
+                            ->schema([
+                                Toggle::make('is_visible')
+                                    ->label('Visible to customers.')
+                                    ->default(true),
+                            ]),
 
-                //     ])
+                    ])
 
-                //     ->action(function (?Engin $record) {
+                    ->action(function (?Engin $record) {
 
-                //         redirect('/engines');
-                //         Notification::make()
-                //             ->title('Retrait du patrimoine')
-                //             ->iconColor('danger')
-                //             ->body('L\'engin immatriculé ' . $this->record->plate_number . ' ne fait désormais plus partie de votre patrimoine')
-                //             ->icon('heroicon-o-shield-exclamation')
-                //             ->persistent()
-                //             ->send();
-                //     })
+                        redirect('/engines');
+                        Notification::make()
+                            ->title('Retrait du patrimoine')
+                            ->iconColor('danger')
+                            ->body('L\'engin immatriculé ' . $this->record->plate_number . ' ne fait désormais plus partie de votre patrimoine')
+                            ->icon('heroicon-o-shield-exclamation')
+                            ->persistent()
+                            ->send();
+                    })
 
             ];
         } else {

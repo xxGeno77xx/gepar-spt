@@ -5,8 +5,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -32,7 +31,7 @@ return new class extends Migration
 
             $table->date('circularization_date')->nullable();
 
-            $table->date('date_aquisition')->nullable();
+            $table->date('date_aquisition');
 
             $table->string('plate_number')->unique();
 
@@ -48,7 +47,8 @@ return new class extends Migration
 
             $table->boolean('visites_mail_sent');
 
-            $table->enum('state', [StatesClass::Activated()->value,
+            $table->enum('state', [
+                StatesClass::Activated()->value,
                 StatesClass::Deactivated()->value,
                 StatesClass::Suspended()->value,
                 StatesClass::Repairing()->value,
@@ -90,6 +90,8 @@ return new class extends Migration
                 ->nullable();
 
             $table->unsignedBigInteger('user_id');
+
+            $table->integer('remainder')->default(0);
 
             $table->unsignedBigInteger('updated_at_user_id');
 
