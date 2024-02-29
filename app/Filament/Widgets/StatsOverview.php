@@ -157,7 +157,6 @@ class StatsOverview extends BaseWidget
                 'nom_marque',
                 'logo',
                 'remainder'
-                
 
             )
             ->distinct();

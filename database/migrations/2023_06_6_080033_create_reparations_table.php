@@ -35,7 +35,6 @@ return new class extends Migration
             // $table->foreign('prestataire_id')->references('id')->on('fournisseurs');
 
             $table->unsignedBigInteger('user_id');
-            // $table->foreign('user_id')->references('id')->on('users');
 
             $table->unsignedBigInteger('updated_at_user_id');
 
@@ -44,6 +43,12 @@ return new class extends Migration
             $table->integer('cout_reparation')->nullable();
 
             $table->enum('state', [StatesClass::Activated()->value,
+                StatesClass::Deactivated()->value,
+                StatesClass::Suspended()->value,
+            ]);
+
+            $table->enum('validation_state', [
+                StatesClass::Activated()->value,
                 StatesClass::Deactivated()->value,
                 StatesClass::Suspended()->value,
             ]);

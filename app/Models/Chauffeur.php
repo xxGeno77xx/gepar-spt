@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Chauffeur extends Model
 {
@@ -12,8 +12,8 @@ class Chauffeur extends Model
 
     protected $connection = 'oracle';
 
-    // public function engine(): BelongsTo
-    // {
-    //     return $this->belongsTo(Engine::class);
-    // }
+    public function ordreDeMissions(): HasMany
+    {
+        return $this->hasMany(OrdreDeMission::class);
+    }
 }

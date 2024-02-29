@@ -4,7 +4,9 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\EngineResource\Pages;
 use App\Filament\Resources\EngineResource\RelationManagers;
+use App\Filament\Resources\EngineResource\RelationManagers\AffectationsRelationManager;
 use App\Filament\Resources\EngineResource\RelationManagers\ConsommationCarburantsRelationManager;
+use App\Filament\Resources\EngineResource\RelationManagers\OrdreDeMissionsRelationManager;
 use App\Models\Carburant;
 use App\Models\Departement;
 use App\Models\Engine;
@@ -272,9 +274,11 @@ class EngineResource extends Resource
                             ->label('Carburant')
                             ->searchable()
                             ->required(),
+
                         Select::make('departement_id')
                             ->label('Département')
-                            ->options(Departement::pluck('sigle_centre', 'code_centre'))
+                            ->disabledOn('edit')
+                            ->options(Departement::where('sigle_centre', '<>', '0')->pluck('sigle_centre', 'code_centre'))
                             ->searchable()
                             ->reactive(),
 
@@ -376,7 +380,7 @@ class EngineResource extends Resource
                         Select::make('departement_id')
                             ->searchable()
                             ->label('Département')
-                            ->options(Departement::pluck('sigle_centre', 'code_centre')),
+                            ->options(Departement::where('sigle_centre', '<>', '0')->pluck('sigle_centre', 'code_centre')),
 
                     ])->query(function (Builder $query, array $data): Builder {
                         return $query
@@ -426,6 +430,8 @@ class EngineResource extends Resource
             RelationManagers\VisitesRelationManager::class,
             RelationManagers\ReparationsRelationManager::class,
             ConsommationCarburantsRelationManager::class,
+            AffectationsRelationManager::class,
+            OrdreDeMissionsRelationManager::class,
         ];
     }
 

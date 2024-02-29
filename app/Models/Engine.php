@@ -78,4 +78,14 @@ class Engine extends Model
     // {
     //     return $this->hasOne(Chauffeur::class);
     // }
+
+    public function affectations(): HasMany
+    {
+        return $this->hasMany(Affectation::class);
+    }
+
+    public function ordreDeMissions(): HasMany
+    {
+        return $this->hasMany(OrdreDeMission::class);
+    }
 }

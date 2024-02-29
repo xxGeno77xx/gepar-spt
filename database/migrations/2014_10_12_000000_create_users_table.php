@@ -31,6 +31,8 @@ return new class extends Migration
 
             $table->rememberToken();
 
+            $table->unsignedBigInteger('departement_id');  //is actually division_id
+
             $table->integer('login_attempts')->default(1)->comment('number of times a user can attempt login before account is blocked');
 
             $table->softDeletes();

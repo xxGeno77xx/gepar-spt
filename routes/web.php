@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\OrdreMissionPdfController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -12,3 +14,7 @@
 */
 
 Route::get('/a', fn () => view('welcome'));
+
+Route::get('ordre/N_{order}', [OrdreMissionPdfController::class, 'couleur'])->name('couleur');
+
+Route::get('ordre/{order}', [OrdreMissionPdfController::class, 'blackWhite'])->name('pdfNoirBlanc');

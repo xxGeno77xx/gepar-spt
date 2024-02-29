@@ -26,7 +26,7 @@ class ConsommationSeeder extends Seeder
         for ($i = 0; $i < 14; $i++) {
 
             $nouvelleValeur = $this->genererValeur($valeurPrecedente);
-            
+
             $valeurPrecedente = $nouvelleValeur;
 
             $next_timestamp = mt_rand($previous_timestamp + 1, $end_timestamp);
@@ -48,12 +48,11 @@ class ConsommationSeeder extends Seeder
         }
     }
 
-
-    public function genererValeur($valeurPrecedente) {
+    public function genererValeur($valeurPrecedente)
+    {
 
         $nouvelleValeur = $valeurPrecedente + rand(142, 198);
+
         return $nouvelleValeur;
     }
-    
-   
 }

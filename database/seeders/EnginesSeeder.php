@@ -54,9 +54,9 @@ class EnginesSeeder extends Seeder
                 'numero_chassis' => Str::random(4),
                 'moteur' => 05,
                 'kilometrage_achat' => 25000,
-                'departement_id' => mt_rand(1, 5),
+                'departement_id' => mt_rand(1, 5),  // is actually division_id
                 'numero_carte_grise' => Str::random(6),
-                "date_aquisition" => today()
+                'date_aquisition' => today(),
             ]);
 
             Visite::create([

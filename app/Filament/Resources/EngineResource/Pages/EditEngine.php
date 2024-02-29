@@ -3,14 +3,19 @@
 namespace App\Filament\Resources\EngineResource\Pages;
 
 use App\Filament\Resources\EngineResource;
+use App\Models\Affectation;
 use App\Models\Chauffeur;
+use App\Models\Departement;
 use App\Models\Engine;
 use App\Models\Engine as Engin;
 use App\Models\User;
 use App\Support\Database\PermissionsClass;
 use App\Support\Database\StatesClass;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\MarkdownEditor;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Wizard\Step;
 use Filament\Notifications\Notification;
@@ -40,35 +45,30 @@ class EditEngine extends EditRecord
                     })
                     ->requiresConfirmation(),
 
-                Actions\Action::make("Retirer_du_patrimoine")
+                Actions\Action::make('Retirer_du_patrimoine')
                     ->color('danger')
                     ->steps([
-                        Step::make('Motif du retrait')
-                            ->description('Donnez la raison du retrait')
+                        Step::make('Motif du déclassment')
                             ->schema([
                                 Select::make('Motif')
                                     ->options([
-                                        'Véhicule cassé',
-                                        'Kilométrage excessif',
-                                        "Non conformité",
-                                        "Vente"
+                                        'Véhicule accidenté',
+                                        'Véhicule volé',
+                                        'Non conformité',
+                                        'Vente aux enchères',
+                                        'Autre',
                                     ])
                                     ->searchable()
                                     ->required()
                                     ->reactive(),
 
-                                Select::make('Acheteur')
-                                    ->searchable()
-                                    ->visible(fn($get): bool => $get('Motif') == 1) //change option value to be the desired select field
-                                    ->options([
-                                        'Proprietaire actuel',
-                                        'Nouveau propriétaire',
-                                    ])
+                                TextInput::make('Acheteur')
+                                    ->visible(fn ($get): bool => $get('Motif') == 4) //change option value to be the desired select field
+                                ,
 
                             ])
                             ->columns(2),
                         Step::make('Details')
-                            ->description('Rajoutez quelques détails sur le retrait')
                             ->schema([
                                 MarkdownEditor::make('description'),
                             ]),
@@ -88,16 +88,72 @@ class EditEngine extends EditRecord
                         Notification::make()
                             ->title('Retrait du patrimoine')
                             ->iconColor('danger')
-                            ->body('L\'engin immatriculé ' . $this->record->plate_number . ' ne fait désormais plus partie de votre patrimoine')
+                            ->body('L\'engin immatriculé '.$this->record->plate_number.' ne fait désormais plus partie de votre patrimoine')
                             ->icon('heroicon-o-shield-exclamation')
                             ->persistent()
                             ->send();
+                    }),
+
+                Actions\Action::make('Réaffecter')
+                    ->action(function (array $data): void {
+
+                        $engine = $this->record;
+
+                        $oldDepartement = $this->record->departement_id;
+
+                        $engine->update(['departement_id' => $data['departement_id']]);
+
+                        $this->refreshFormData(['departement_id']);
+
+                        $newDepartement = Departement::where('code_centre', '=', $this->record->departement_id)->value('sigle_centre');
+
+                        Affectation::firstOrCreate([
+
+                            'engine_id' => $this->record->id,
+                            'departement_origine_id' => $oldDepartement,
+                            'departement_cible_id' => $data['departement_id'],
+                            'date_reaffectation' => $data['date_reaffectation'],
+                        ]);
+
+                        Notification::make()
+                            ->title('Réaffectation')
+                            ->iconColor('primary')
+                            ->body('L\'engin immatriculé '.$this->record->plate_number.' a été affecté à '.$newDepartement)
+                            ->icon('heroicon-o-chat-alt-2')
+                            ->persistent()
+                            ->send();
+
                     })
+                    ->form([
+                        Grid::make(3)
+                            ->schema([
+
+                                DatePicker::make('date_reaffectation')
+                                    ->label('Date de réaffectation')
+                                    ->beforeOrEqual(now()->format('d-m-Y')),
+
+                                Select::make('departement_id')
+                                    ->label('De')
+                                    ->disabled()
+                                    ->default(Departement::where('code_centre', '=', $this->record->departement_id)->value('sigle_centre'))
+                                    ->searchable(),
+
+                                Select::make('departement_id')
+                                    ->label('Vers')
+                                    ->options(Departement::where('sigle_centre', '<>', '0')->pluck('sigle_centre', 'code_centre'))
+                                    ->searchable(),
+                            ]),
+
+                    ])
+                    ->after(function () {
+                        $this->emit('refreshAffectations');
+                    }),
 
             ];
         } else {
             return [];
         }
+
     }
 
     protected function authorizeAccess(): void

@@ -3,10 +3,12 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ChauffeurResource\Pages;
+use App\Filament\Resources\ChauffeurResource\RelationManagers\OrdreDeMissionsRelationManager;
 use App\Models\Chauffeur;
 use App\Models\Departement;
 use App\Support\Database\PermissionsClass;
 use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -34,18 +36,26 @@ class ChauffeurResource extends Resource
 
         return $form
             ->schema([
-                TextInput::make('name')
-                    ->label('Nom')
-                    ->required(),
+                Card::make()
+                    ->schema([
+                        Grid::make(2)
+                            ->schema([
+                                TextInput::make('name')
+                                    ->label('Nom')
+                                    ->unique(ignoreRecord: true)
+                                    ->required(),
 
-                Select::make('departement_id')
-                    ->label('Département')
-                    ->options(
-                        Departement::select(['sigle_centre', 'code_centre'])
-                            ->pluck('sigle_centre', 'code_centre')
-                    )
-                    ->searchable()
-                    ->required(),
+                                Select::make('departement_id')
+                                    ->label('Département')
+                                    ->options(
+                                        Departement::select(['sigle_centre', 'code_centre'])
+                                            ->where('sigle_centre', '<>', '0')
+                                            ->pluck('sigle_centre', 'code_centre')
+                                    )
+                                    ->searchable()
+                                    ->required(),
+                            ]),
+                    ]),
 
                 Card::make()
                     ->schema([
@@ -93,7 +103,7 @@ class ChauffeurResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            OrdreDeMissionsRelationManager::class,
         ];
     }
 

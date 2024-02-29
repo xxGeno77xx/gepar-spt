@@ -2,16 +2,18 @@
 
 namespace App\Filament\Resources\ReparationResource\Pages;
 
+use App\Filament\Resources\ReparationResource;
 use App\Models\Engine;
 use App\Models\Reparation;
 use App\Models\TypeReparation;
-use Filament\Pages\Actions\Action;
-use App\Support\Database\StatesClass;
-use Filament\Notifications\Notification;
-use App\Support\Database\TypesReparation;
+use App\Models\User;
 use App\Support\Database\PermissionsClass;
+use App\Support\Database\StatesClass;
+use App\Support\Database\TypesReparation;
+use Filament\Notifications\Actions\Action as NotificationActions;
+use Filament\Notifications\Notification;
+use Filament\Pages\Actions\Action;
 use Filament\Resources\Pages\CreateRecord;
-use App\Filament\Resources\ReparationResource;
 
 class CreateReparation extends CreateRecord
 {
@@ -70,25 +72,15 @@ class CreateReparation extends CreateRecord
         }
     }
 
-    // protected function getCreateAnotherFormAction(): Action
-    // {
-    //     return Action::make('createAnother')
-    //         ->label(__('filament::resources/pages/create-record.form.actions.create_another.label'))
-    //         ->action('createAnother')
-    //         ->label('Ajouter & ajouter un(e) autre')
-    //         ->keyBindings(['mod+shift+s'])
-    //         ->color('secondary');
-    // }
-
     public function afterCreate()
     {
         $id = TypeReparation::where('libelle', '=', TypesReparation::Revision_simple()->value)->value('id');
 
         $concernedEngine = Engine::where('id', $this->record->engine_id)->first();
 
-        if(in_array($id, $this->data['révisions'])) {
-          
-          $concernedEngine->update(["remainder" => 0]);
+        if (in_array($id, $this->data['révisions'])) {
+
+            $concernedEngine->update(['remainder' => 0]);
 
         }
 
@@ -97,6 +89,18 @@ class CreateReparation extends CreateRecord
                 'state' => StatesClass::Repairing()->value,
             ]);
         }
+
+        Notification::make()
+            ->title('Nouvelle réparation')
+            ->body('Demande de réparation pour l\'engin immatriculé '.$concernedEngine->plate_number.'')
+            ->actions([
+                NotificationActions::make('voir')
+                    ->url(route('filament.resources.reparations.edit', $this->record->id), shouldOpenInNewTab: true)
+                    ->button()
+                    ->color('primary'),
+            ])
+            ->send()
+            ->sendToDatabase(User::first());
 
     }
 }

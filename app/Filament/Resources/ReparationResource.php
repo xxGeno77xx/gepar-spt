@@ -18,6 +18,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\MarkdownEditor;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -25,6 +26,7 @@ use Filament\Resources\Form;
 use Filament\Resources\Resource;
 use Filament\Resources\Table;
 use Filament\Tables;
+use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\TagsColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -65,6 +67,7 @@ class ReparationResource extends Resource
                                     ->options(Prestataire::pluck('raison_social_fr', 'code_fr'))
                                     ->searchable()
                                     ->preload(true)
+                                    ->reactive()
                                     ->required(),
 
                                 DatePicker::make('date_lancement')
@@ -79,6 +82,27 @@ class ReparationResource extends Resource
 
                             ])->columns(2),
 
+                        Section::make('Informations du fournisseur')
+                            ->description(fn ($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('raison_social_fr') : '')
+                            ->collapsible()
+                            ->schema([
+                                Grid::make(2)
+                                    ->schema([
+                                        Placeholder::make('Raison sociale')
+                                            ->content(fn ($get) => $get('prestataire_id') && (Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('nom_fr')) ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('nom_fr') : '-'),
+
+                                        Placeholder::make('Adresse')
+                                            ->content(fn ($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('adr_fr') : '-'),
+
+                                        Placeholder::make('Contact_1')
+                                            ->content(fn ($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('tel_fr') : '-'),
+
+                                        Placeholder::make('Contact_2')
+                                            ->content(fn ($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('tel2_frs') : '-'),
+
+                                    ]),
+
+                            ]),
                         Section::make('Travaux à faire')
                             ->schema([
 
@@ -132,10 +156,12 @@ class ReparationResource extends Resource
                             ->required(),
 
                         FileUpload::make('facture')
+                            ->label('Proforma')
                             ->enableDownload()
                             ->enableOpen(),
 
                         MarkdownEditor::make('details')
+                            ->label('Détails')
                             ->disableAllToolbarButtons()
                             ->enableToolbarButtons([
                                 // 'bold',
@@ -181,6 +207,21 @@ class ReparationResource extends Resource
                     ->label('Type de la réparation')
                     ->limit(3)
                     ->searchable(),
+
+                BadgeColumn::make('validation_state')
+                    ->label('Validation')
+                    ->colors([
+                        'secondary' => static fn ($state): bool => $state == 'draft',
+                        'warning' => static fn ($state): bool => $state == 'reviewing',
+                        'success' => static fn ($state): bool => $state == 'published',
+                        'danger' => static fn ($state): bool => $state == 'rejected',
+                    ])
+                    ->icons([
+                        'heroicon-o-x',
+                        'heroicon-o-document' => 'draft',
+                        'heroicon-o-refresh' => 'reviewing',
+                        'heroicon-o-truck' => 'published',
+                    ]),
 
                 PrestataireColumn::make('prestataire')
                     ->label('Prestataire'),
