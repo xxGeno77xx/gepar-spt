@@ -58,7 +58,7 @@ class AssuranceMail extends Mailable
             ->whereNull('assurances.deleted_at')
             ->whereNull('engines.deleted_at')
             ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
-            ->join('centre', 'engines.departement_id', 'centre.code_centre')
+            ->join('division', 'engines.departement_id', 'division.id')
             ->join('marques', 'modeles.marque_id', '=', 'marques.id')
             ->select('engines.*', 'marques.logo as logo', 'assurances.date_debut as date_debut', 'assurances.date_fin as date_fin')
             ->where('engines.state', '<>', StatesClass::Deactivated()->value)
@@ -100,7 +100,7 @@ class AssuranceMail extends Mailable
                 'engines.deleted_at',
                 'engines.created_at',
                 'engines.updated_at',
-                'sigle_centre',
+                'sigle_division',
                 'nom_modele',
                 'nom_marque',
                 'logo',

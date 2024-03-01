@@ -2,6 +2,8 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\Direction;
+use App\Models\Division;
 use App\Models\Engine;
 use App\Models\Parametre;
 use App\Support\Database\StatesClass;
@@ -35,7 +37,7 @@ class VisistesASurveiller extends BaseWidget
             ->whereNull('visites.deleted_at')
             ->whereNull('engines.deleted_at')
             ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
-            ->join('centre', 'engines.departement_id', 'centre.code_centre')
+            ->join('divisions', 'engines.departement_id', 'divisions.id')
             ->join('marques', 'modeles.marque_id', '=', 'marques.id')
             ->select('engines.*', /*'centre.sigle',*/ 'marques.logo as logo', 'visites.date_initiale as date_initiale', 'visites.date_expiration as date_expiration')
             ->where('engines.state', '<>', StatesClass::Deactivated()->value)
@@ -77,7 +79,7 @@ class VisistesASurveiller extends BaseWidget
                 'engines.deleted_at',
                 'engines.created_at',
                 'engines.updated_at',
-                'sigle_centre',
+                'sigle_division',
                 'nom_modele',
                 'nom_marque',
                 'logo',
@@ -96,9 +98,23 @@ class VisistesASurveiller extends BaseWidget
                 ->label('Numéro de plaque')
                 ->searchable(),
 
-            DepartementColumn::make('departement_id')
+            // DepartementColumn::make('departement_id')
+            //     ->searchable()
+            //     ->label('Département'),
+
+            TextColumn::make('departement_id')
+                ->label('Division/Direction')
                 ->searchable()
-                ->label('Département'),
+                ->placeholder('-')
+                ->formatStateUsing(function ($state) {
+
+                    $division = Division::where('id', $state)->first();
+
+                    $direction = Direction::where('id', $division->direction_id)->value('sigle_direction');
+
+                    return $division->sigle_division.'/'.$direction;
+
+                }),
 
             ImageColumn::make('logo')
                 ->searchable()

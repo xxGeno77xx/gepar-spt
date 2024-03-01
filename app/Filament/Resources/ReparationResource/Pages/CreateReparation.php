@@ -8,6 +8,7 @@ use App\Models\Reparation;
 use App\Models\TypeReparation;
 use App\Models\User;
 use App\Support\Database\PermissionsClass;
+use App\Support\Database\RolesEnum;
 use App\Support\Database\StatesClass;
 use App\Support\Database\TypesReparation;
 use Filament\Notifications\Actions\Action as NotificationActions;
@@ -90,7 +91,12 @@ class CreateReparation extends CreateRecord
             ]);
         }
 
-        Notification::make()
+        $chefDivision = User::role(RolesEnum::Chef_division()->value)
+        ->where("departement_id", $concernedEngine->departement_id ) //division_id
+        ->first();  
+
+        if($chefDivision){
+            Notification::make()
             ->title('Nouvelle réparation')
             ->body('Demande de réparation pour l\'engin immatriculé '.$concernedEngine->plate_number.'')
             ->actions([
@@ -100,7 +106,9 @@ class CreateReparation extends CreateRecord
                     ->color('primary'),
             ])
             ->send()
-            ->sendToDatabase(User::first());
+            ->sendToDatabase($chefDivision);
+        }
+        
 
     }
 }

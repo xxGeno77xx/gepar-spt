@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Database\ReparationValidationStates;
 use App\Support\Database\StatesClass;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -48,11 +49,20 @@ return new class extends Migration
             ]);
 
             $table->enum('validation_state', [
-                StatesClass::Activated()->value,
-                StatesClass::Deactivated()->value,
-                StatesClass::Suspended()->value,
+                ReparationValidationStates::Declaration_initiale()->value,
+                ReparationValidationStates::Demande_de_travail_Chef_division()->value,
+                ReparationValidationStates::Demande_de_travail_directeur_division()->value,
+                ReparationValidationStates::Demande_de_travail_dg()->value,
+                ReparationValidationStates::Demande_de_travail_chef_parc()->value,
+                ReparationValidationStates::Demande_de_travail_diga()->value,
             ]);
 
+            $table->string('motif_rejet')->nullable();
+
+            $table->unsignedBigInteger('rejete_par')->nullable();
+
+            $table->string('ref_proforma')->nullable();
+            
             $table->timestamps();
 
             $table->softDeletes();

@@ -9,6 +9,8 @@ use App\Filament\Resources\EngineResource\RelationManagers\ConsommationCarburant
 use App\Filament\Resources\EngineResource\RelationManagers\OrdreDeMissionsRelationManager;
 use App\Models\Carburant;
 use App\Models\Departement;
+use App\Models\Direction;
+use App\Models\Division;
 use App\Models\Engine;
 use App\Models\Engine as Engin;
 use App\Models\Modele;
@@ -276,9 +278,9 @@ class EngineResource extends Resource
                             ->required(),
 
                         Select::make('departement_id')
-                            ->label('Département')
+                            ->label('Division')
                             ->disabledOn('edit')
-                            ->options(Departement::where('sigle_centre', '<>', '0')->pluck('sigle_centre', 'code_centre'))
+                            ->options(Division::pluck('sigle_division', 'id'))
                             ->searchable()
                             ->reactive(),
 
@@ -315,6 +317,7 @@ class EngineResource extends Resource
                 CommonInfos::PlaceholderCard(),
 
             ]);
+
     }
 
     public static function table(Table $table): Table
@@ -331,23 +334,34 @@ class EngineResource extends Resource
 
                     }),
 
-                // TextColumn::make('chauffeur')
-                //     ->label('Chauffeur')
-                //     ->searchable()
-                //     ->placeholder('-'),
+                TextColumn::make('departement_id')
+                    ->label('Division/Direction')
+                    ->searchable()
+                    ->placeholder('-')
+                    ->formatStateUsing(function ($state) {
 
-                DepartementColumn::make('departement_id')
-                    ->label('Département'),
+                        $division = Division::where('id', $state)->first();
+
+                        $direction = Direction::where('id', $division->direction_id)->value('sigle_direction');
+
+                        return $division->sigle_division.'/'.$direction;
+
+                    }),
+
+                // DepartementColumn::make('departement_id')
+                //     ->label('Division/Direction')
+                //     ->formatStateUsing(function($state){
+
+                //         $division = Division::where("id", $state);
+                //         dd($division);
+
+                //         // fn ($state): string => Engine::find($state)->plate_number
+                //     }),
 
                 ImageColumn::make('logo')
                     ->label('Marque')
                     ->default(asset('images/default_product_image.jpg'))
                     ->alignment('center'),
-
-                // TextColumn::make('nom_marque')
-                //     ->alignment('center')
-                //     ->searchable()
-                //     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('date_expiration')
                     ->label('Visite (expiration)')
@@ -375,19 +389,26 @@ class EngineResource extends Resource
 
             ->filters([
 
-                Filter::make('Département')
+                Filter::make('Division')
+                    ->indicateUsing(function (array $data): ?string {
+                        if (! $data['departement_id']) {
+                            return null;
+                        }
+
+                        return 'Division: '.Division::where('id', $data['departement_id'])->value('sigle_division');
+                    })
                     ->form([
                         Select::make('departement_id')
                             ->searchable()
                             ->label('Département')
-                            ->options(Departement::where('sigle_centre', '<>', '0')->pluck('sigle_centre', 'code_centre')),
+                            ->options(Division::pluck('sigle_division', 'id')),
 
                     ])->query(function (Builder $query, array $data): Builder {
                         return $query
                             ->when(
                                 $data['departement_id'],
                                 function (Builder $query, $status) {
-                                    $search = Departement::where('code_centre', $status)->value('code_centre');
+                                    $search = Division::where('id', $status)->value('id');
 
                                     return $query->where('departement_id', $search);
                                 }

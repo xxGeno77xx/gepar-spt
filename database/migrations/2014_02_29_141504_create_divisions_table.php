@@ -9,8 +9,8 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    protected $connection ="oracle";
-    
+    protected $connection = 'oracle';
+
     public function up(): void
     {
         Schema::create('divisions', function (Blueprint $table) {

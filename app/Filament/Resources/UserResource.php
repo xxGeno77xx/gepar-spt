@@ -2,27 +2,28 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\UserResource\Pages\CreateUser;
-use App\Filament\Resources\UserResource\Pages\EditUser;
-use App\Filament\Resources\UserResource\Pages\ListUsers;
-use App\Filament\Resources\UserResource\Pages\ViewUser;
-use App\Support\Database\PermissionsClass;
-use App\Support\Database\StatesClass;
-use Database\Seeders\RolesPermissionsSeeder;
-use Filament\Forms\Components\Card;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
+use App\Models\Division;
 use Filament\Resources\Form;
-use Filament\Resources\Resource;
 use Filament\Resources\Table;
+use Filament\Resources\Resource;
+use Filament\Forms\Components\Card;
+use Illuminate\Support\Facades\Hash;
+use App\Support\Database\StatesClass;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
 use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TagsColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\TernaryFilter;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\SelectColumn;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Hash;
+use App\Support\Database\PermissionsClass;
+use Filament\Tables\Filters\TernaryFilter;
+use Database\Seeders\RolesPermissionsSeeder;
+use App\Filament\Resources\UserResource\Pages\EditUser;
+use App\Filament\Resources\UserResource\Pages\ViewUser;
+use App\Filament\Resources\UserResource\Pages\ListUsers;
+use App\Filament\Resources\UserResource\Pages\CreateUser;
 use Phpsa\FilamentAuthentication\Actions\ImpersonateLink;
 
 class UserResource extends Resource
@@ -93,6 +94,12 @@ class UserResource extends Resource
 
                         TextInput::make('username')
                             ->label("Nom d'utilisateur"),
+
+                            Select::make('departement_id')
+                            ->label('Division')
+                            ->options(Division::pluck('sigle_division', 'id'))
+                            ->searchable()
+                            ->reactive(),
 
                     ])->columns(2),
                 Toggle::make('notification')

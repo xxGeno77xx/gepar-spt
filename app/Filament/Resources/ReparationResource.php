@@ -2,36 +2,38 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ReparationResource\Pages;
-use App\Models\Engine;
-use App\Models\Prestataire;
-use App\Models\Reparation;
-use App\Support\Database\CommonInfos;
-use App\Support\Database\PermissionsClass;
-use App\Support\Database\StatesClass;
-use App\Tables\Columns\PrestataireColumn;
 use Carbon\Carbon;
-use Filament\Forms\Components\Builder as FilamentBuilder;
-use Filament\Forms\Components\Card;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\MarkdownEditor;
-use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Resources\Form;
-use Filament\Resources\Resource;
-use Filament\Resources\Table;
 use Filament\Tables;
-use Filament\Tables\Columns\BadgeColumn;
+use App\Models\Engine;
+use App\Models\Division;
+use App\Models\Direction;
+use App\Models\Reparation;
+use App\Models\Prestataire;
+use Filament\Resources\Form;
+use Filament\Resources\Table;
+use Filament\Resources\Resource;
+use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Grid;
+use Filament\Tables\Filters\Filter;
+use App\Support\Database\CommonInfos;
+use App\Support\Database\StatesClass;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\TagsColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\TextInput;
+use App\Tables\Columns\PrestataireColumn;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use App\Support\Database\PermissionsClass;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\MarkdownEditor;
+use App\Filament\Resources\ReparationResource\Pages;
+use App\Support\Database\ReparationValidationStates;
+use Filament\Forms\Components\Builder as FilamentBuilder;
 
 class ReparationResource extends Resource
 {
@@ -79,6 +81,8 @@ class ReparationResource extends Resource
                                     ->afterOrEqual('date_lancement'),
 
                                 Hidden::make('state')->default(StatesClass::Activated()->value),
+
+                                Hidden::make('validation_state')->default(ReparationValidationStates::Declaration_initiale()->value),
 
                             ])->columns(2),
 
@@ -153,12 +157,21 @@ class ReparationResource extends Resource
                         TextInput::make('cout_reparation')
                             ->label('Cout total de la révision')
                             ->numeric()
+                            ->required(fn($record) =>($record) && ($record->validation_state == ReparationValidationStates::Demande_de_travail_directeur_division()->value)?  true: false)
+                            ->visible(fn($record) =>($record) && ($record->validation_state == ReparationValidationStates::Demande_de_travail_directeur_division()->value)?  true: false)
                             ->required(),
 
                         FileUpload::make('facture')
+                        ->required(fn($record) =>($record) && ($record->validation_state == ReparationValidationStates::Demande_de_travail_directeur_division()->value)?  true: false)
+                        ->visible(fn($record) =>($record) && ($record->validation_state == ReparationValidationStates::Demande_de_travail_directeur_division()->value)?  true: false)
                             ->label('Proforma')
                             ->enableDownload()
                             ->enableOpen(),
+
+                        TextInput::make('ref_proforma')
+                        ->label('Référence du devis')
+                        ->required(fn($record) =>($record) && ($record->validation_state == ReparationValidationStates::Demande_de_travail_directeur_division()->value)?  true: false)
+                        ->visible(fn($record) =>($record) && ($record->validation_state == ReparationValidationStates::Demande_de_travail_directeur_division()->value)?  true: false),
 
                         MarkdownEditor::make('details')
                             ->label('Détails')
@@ -205,30 +218,69 @@ class ReparationResource extends Resource
 
                 TagsColumn::make('typeReparations.libelle')
                     ->label('Type de la réparation')
-                    ->limit(3)
+                    ->limit(1)
                     ->searchable(),
 
-                BadgeColumn::make('validation_state')
-                    ->label('Validation')
-                    ->colors([
-                        'secondary' => static fn ($state): bool => $state == 'draft',
-                        'warning' => static fn ($state): bool => $state == 'reviewing',
-                        'success' => static fn ($state): bool => $state == 'published',
-                        'danger' => static fn ($state): bool => $state == 'rejected',
-                    ])
-                    ->icons([
-                        'heroicon-o-x',
-                        'heroicon-o-document' => 'draft',
-                        'heroicon-o-refresh' => 'reviewing',
-                        'heroicon-o-truck' => 'published',
-                    ]),
+                TextColumn::make('validation_state')
+                    ->label("Statut de validation")
+                    ->color('primary')
+                    ->weight('bold')
+                    ->description(function (Reparation $record) {
+
+                        $engin = Engine::find($record->engine_id);
+
+                        $division = Division::find($engin->departement_id);
+
+                        $direction = Direction::find($division->direction_id);
+
+                     
+
+                        $returnString ="";
+
+                        switch($record->validation_state){
+
+                            case ReparationValidationStates::Declaration_initiale()->value : $returnString = 'En attente de validation du chef '.$division->sigle_division;
+                            break;
+
+                            case ReparationValidationStates::Demande_de_travail_Chef_division()->value : $returnString = 'En attente de validation du  '.$direction->sigle_direction;
+                            break;
+
+                            case ReparationValidationStates::Demande_de_travail_directeur_division()->value : $returnString = 'En attente du proforma';
+                            break;
+
+                            case ReparationValidationStates::Demande_de_travail_dg()->value : $returnString = 'En attente du proforma';
+                            break;
+
+                            case ReparationValidationStates::Demande_de_travail_chef_parc()->value : $returnString = 'En attente de validation par la DIGA';
+                            break;
+
+
+                        };
+                        
+                     return $returnString;
+
+                      
+                    }),
+
+                // ->colors([
+                //     'secondary' => static fn ($state): bool => $state == 'draft',
+                //     'warning' => static fn ($state): bool => $state == 'reviewing',
+                //     'success' => static fn ($state): bool => $state == 'published',
+                //     'danger' => static fn ($state): bool => $state == 'rejected',
+                // ])
+                // ->icons([
+                //     'heroicon-o-x',
+                //     'heroicon-o-document' => 'draft',
+                //     'heroicon-o-refresh' => 'reviewing',
+                //     'heroicon-o-truck' => 'published',
+                // ]),
 
                 PrestataireColumn::make('prestataire')
                     ->label('Prestataire'),
 
-                TextColumn::make('cout_reparation')
-                    ->placeholder('-')
-                    ->label('Coût de la réparation'),
+                // TextColumn::make('cout_reparation')
+                //     ->placeholder('-')
+                //     ->label('Coût de la réparation'),
 
             ])->defaultSort('reparations.created_at', 'desc')
             ->filters([

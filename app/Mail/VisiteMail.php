@@ -53,7 +53,7 @@ class VisiteMail extends Mailable
             ->whereNull('visites.deleted_at')
             ->whereNull('engines.deleted_at')
             ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
-            ->join('centre', 'engines.departement_id', 'centre.code_centre')
+            ->join('divisions', 'engines.departement_id', 'divisions.id')
             ->join('marques', 'modeles.marque_id', '=', 'marques.id')
             ->select('engines.*', /*'centre.sigle',*/ 'marques.logo as logo', 'visites.date_initiale as date_initiale', 'visites.date_expiration as date_expiration')
             ->where('engines.state', '<>', StatesClass::Deactivated()->value)
@@ -95,7 +95,7 @@ class VisiteMail extends Mailable
                 'engines.deleted_at',
                 'engines.created_at',
                 'engines.updated_at',
-                'sigle_centre',
+                'sigle_division',
                 'nom_modele',
                 'nom_marque',
                 'logo',
