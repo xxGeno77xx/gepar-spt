@@ -26,7 +26,7 @@ class ViewReparation extends ViewRecord
 
     protected function getActions(): array
     {
-        if (auth()->user()->hasAnyPermission([PermissionsClass::Reparation_update()->value])) {
+        if (auth()->user()->hasPermissionTo(PermissionsClass::Reparation_update()->value)) {
             return [
 
                 EditAction::make("edit"),
