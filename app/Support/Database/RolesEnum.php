@@ -13,7 +13,22 @@ use Spatie\Enum\Enum;
  * @method static self Budget()
  * @method static self Directeur_general()
  * @method static self Dpl()
+ * @method static self Diga()
  */
 class RolesEnum extends Enum
 {
+
+    protected static function values()
+    {
+         
+        return [
+            'Super_administrateur' => "Super administrateur",
+            'Chef_division' => "Chef division",
+            'Chef_parc' =>  "Chef parc ",
+            'Directeur_general' =>  "Directeur général",
+        
+        ];
+
+          
+    }
 }

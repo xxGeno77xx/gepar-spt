@@ -135,10 +135,10 @@ class EditReparation extends EditRecord
         abort_if(! $userPermission, 403, __("Vous n'avez pas access à cette page"));
     }
 
-    protected function getRedirectUrl(): string
-    {
-        return $this->getResource()::getUrl('index');
-    }
+    // protected function getRedirectUrl(): string
+    // {
+    //     return $this->getResource()::getUrl('index');
+    // }
 
     public function afterSave()
     {

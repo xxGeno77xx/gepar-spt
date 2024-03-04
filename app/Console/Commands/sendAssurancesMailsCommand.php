@@ -2,10 +2,13 @@
 
 namespace App\Console\Commands;
 
-use App\Mail\AssuranceMail;
 use App\Models\User;
+use App\Mail\AssuranceMail;
+use App\Support\Database\RolesEnum;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
+use Filament\Notifications\Notification;
+use Filament\Notifications\Actions\Action;
 
 class sendAssurancesMailsCommand extends Command
 {
@@ -30,18 +33,36 @@ class sendAssurancesMailsCommand extends Command
     {
         $assuranceMail = new AssuranceMail;
 
-        $notifiedUsers = User::where('notification', true)->pluck('email');
+        $notifiedUsers = User::Role(RolesEnum::Dpl()->value)->get(); // to do: change to DPL users
 
         if (count($assuranceMail->mailableEngines) >= 1) {
-            (Mail::to($notifiedUsers)->send(new AssuranceMail($assuranceMail->mailableEngines)));
 
-            foreach ($assuranceMail->mailableEngines as $engine) {
-                $engine->assurances_mail_sent = true;
-                $engine->save();
-            }
-            $this->info('The command was successful, Assurance mails sent!!!');
+            Notification::make("alerte")
+                ->title("Alerte assurance")
+                ->icon('heroicon-o-information-circle')
+                ->iconColor('danger')
+                ->body("Les assurances des engins suivants arrivent à expiration:")
+                ->actions(function () use ($assuranceMail) {
+
+                    foreach ($assuranceMail->mailableEngines as $engine) {
+                        $engine->assurances_mail_sent = true;
+                        $engine->save();
+
+                        return [
+                            Action::make('view')
+                                ->label($engine->plate_number)
+                                ->color("danger")
+                                ->url(route('filament.resources.engines.view', $engine->id), shouldOpenInNewTab: true)
+                                ->button(),
+                        ];
+                    }
+                })
+
+                ->sendToDatabase($notifiedUsers);
+
+            $this->info('The command was successful, Assurance notif sent!!!');
         } else {
-            $this->info('The command successfull but no Assurance mails to be sent!!!');
+            $this->info('The command successfull but no Assurance notif to be sent!!!');
         }
 
     }

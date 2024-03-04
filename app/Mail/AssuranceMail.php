@@ -51,14 +51,16 @@ class AssuranceMail extends Mailable
 
         $activated = StatesClass::Activated()->value;
 
-        $this->mailableEngines = Engine::Join('assurances', 'engines.id', '=', 'assurances.engine_id')
+       
+            $this->mailableEngines = Engine::Join('assurances', 'engines.id', '=', 'assurances.engine_id')
             ->whereRaw('assurances.created_at = (SELECT MAX(created_at) FROM assurances WHERE engine_id = engines.id AND assurances.state = ?)', [$activated])
             ->whereRaw('TRUNC(assurances.date_fin) <= TRUNC(SYSDATE + TRUNC(?))', [$limite])
             ->where('assurances.state', $activated)
+            ->where('engines.assurances_mail_sent', '=', 0)
             ->whereNull('assurances.deleted_at')
             ->whereNull('engines.deleted_at')
             ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
-            ->join('division', 'engines.departement_id', 'division.id')
+            ->join('divisions', 'engines.departement_id', 'divisions.id')
             ->join('marques', 'modeles.marque_id', '=', 'marques.id')
             ->select('engines.*', 'marques.logo as logo', 'assurances.date_debut as date_debut', 'assurances.date_fin as date_fin')
             ->where('engines.state', '<>', StatesClass::Deactivated()->value)
@@ -104,10 +106,10 @@ class AssuranceMail extends Mailable
                 'nom_modele',
                 'nom_marque',
                 'logo',
+                'remainder'
 
             )
-            ->distinct()
-            ->get();
+            ->distinct()->get();
 
     }
 

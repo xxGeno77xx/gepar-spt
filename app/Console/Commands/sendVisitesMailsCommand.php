@@ -2,10 +2,13 @@
 
 namespace App\Console\Commands;
 
-use App\Mail\VisiteMail;
 use App\Models\User;
+use App\Mail\VisiteMail;
 use Illuminate\Console\Command;
+use App\Support\Database\RolesEnum;
 use Illuminate\Support\Facades\Mail;
+use Filament\Notifications\Notification;
+use Filament\Notifications\Actions\Action;
 
 class sendVisitesMailsCommand extends Command
 {
@@ -26,22 +29,61 @@ class sendVisitesMailsCommand extends Command
     /**
      * Execute the console command.
      */
+    // public function handle()
+    // {
+    //     $visiteMail = new VisiteMail;
+
+    //     $notifiedUsers = User::where('notification', true)->pluck('email');
+
+    //     if (count($visiteMail->mailableEngines) >= 1) {
+    //         (Mail::to($notifiedUsers)->send(new VisiteMail($visiteMail->mailableEngines)));
+
+    //         foreach ($visiteMail->mailableEngines as $engine) {
+    //             $engine->visites_mail_sent = true;
+    //             $engine->save();
+    //         }
+    //         $this->info('The command was successful, Visite mails sent!!!');
+    //     } else {
+    //         $this->info('The command successfull but no Visite mails to send!!!');
+    //     }
+
+    // }
+
     public function handle()
     {
+
         $visiteMail = new VisiteMail;
 
-        $notifiedUsers = User::where('notification', true)->pluck('email');
+        $notifiedUsers = User::Role(RolesEnum::Dpl()->value)->get(); // to do: change to DPL users
 
         if (count($visiteMail->mailableEngines) >= 1) {
-            (Mail::to($notifiedUsers)->send(new VisiteMail($visiteMail->mailableEngines)));
 
-            foreach ($visiteMail->mailableEngines as $engine) {
-                $engine->visites_mail_sent = true;
-                $engine->save();
-            }
-            $this->info('The command was successful, Visite mails sent!!!');
+            Notification::make("alerte")
+                ->title("Alerte Visite technique")
+                ->icon('heroicon-o-information-circle')
+                ->iconColor('danger')
+                ->body("Les visites techniques des engins suivants arrivent à expiration:")
+                ->actions(function () use ($visiteMail) {
+
+                    foreach ($visiteMail->mailableEngines as $engine) {
+                        $engine->visites_mail_sent = true;
+                        $engine->save();
+
+                        return [
+                            Action::make('view')
+                                ->label($engine->plate_number)
+                                ->color("danger")
+                                ->url(route('filament.resources.engines.view', $engine->id), shouldOpenInNewTab: true)
+                                ->button(),
+                        ];
+                    }
+                })
+
+                ->sendToDatabase($notifiedUsers);
+
+            $this->info('The command was successful, Visite notif sent!!!');
         } else {
-            $this->info('The command successfull but no Visite mails to send!!!');
+            $this->info('The command successfull but no Visite notif to be sent!!!');
         }
 
     }

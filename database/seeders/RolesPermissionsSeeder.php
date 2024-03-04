@@ -147,7 +147,9 @@ class RolesPermissionsSeeder extends Seeder
         //     ['name' => 'TCHOYO Yaou', 'username' => 'TCHOYO', 'email' => 'Yaou.Tchoyo@laposte.tg', 'notification' => 1, 'password' => Hash::make('L@poste+2024'), 'login_attempts' => 0, 'created_at' => now(), 'updated_at' => now(), 'state' => StatesClass::Activated()->value],
         // ]);
 
-        // $dg = collect(['name' => 'DJAGBANI Paguedame',  'username' => 'DJAGBANI', 'email' => 'Paguedame.Djagbani@laposte.tg', 'notification' => 1, 'password' => Hash::make('L@poste+2024'), 'login_attempts' => 0, 'created_at' => now(), 'updated_at' => now(), 'state' => StatesClass::Activated()->value]);
+        // $chefParc = collect(['name' => 'DJAGBANI Paguedame',  'username' => 'DJAGBANI', 'email' => 'Paguedame.Djagbani@laposte.tg', 'notification' => 1, 'password' => Hash::make('L@poste+2024'), 'login_attempts' => 0, 'created_at' => now(), 'updated_at' => now(), 'state' => StatesClass::Activated()->value]);
+
+        // $dg = collect(['name' => 'KWASI Kwadzo Dzodzro',  'username' => 'Kwadzo.kwasi', 'email' => 'Paguedame.Djagbani@laposte.tg', 'notification' => 1, 'password' => Hash::make('L@poste+2024'), 'login_attempts' => 0, 'created_at' => now(), 'updated_at' => now(), 'state' => StatesClass::Activated()->value]);
 
         foreach ($sptUsers as $user) {
 

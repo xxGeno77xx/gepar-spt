@@ -97,11 +97,11 @@ class CreateReparation extends CreateRecord
 
         if($chefDivision){
             Notification::make()
-            ->title('Nouvelle réparation')
+            ->title('Nouvelle demande')
             ->body('Demande de réparation pour l\'engin immatriculé '.$concernedEngine->plate_number.'')
             ->actions([
                 NotificationActions::make('voir')
-                    ->url(route('filament.resources.reparations.edit', $this->record->id), shouldOpenInNewTab: true)
+                    ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
                     ->button()
                     ->color('primary'),
             ])

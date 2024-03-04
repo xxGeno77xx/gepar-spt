@@ -55,6 +55,7 @@ return new class extends Migration
                 ReparationValidationStates::Demande_de_travail_dg()->value,
                 ReparationValidationStates::Demande_de_travail_chef_parc()->value,
                 ReparationValidationStates::Demande_de_travail_diga()->value,
+                ReparationValidationStates::Rejete()->value,
             ]);
 
             $table->string('motif_rejet')->nullable();

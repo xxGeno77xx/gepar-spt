@@ -15,11 +15,13 @@ use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\Radio;
 use App\Support\Database\CommonInfos;
 use App\Support\Database\StatesClass;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Fieldset;
 use Filament\Tables\Columns\TagsColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
@@ -87,23 +89,26 @@ class ReparationResource extends Resource
                             ])->columns(2),
 
                         Section::make('Informations du fournisseur')
-                            ->description(fn ($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('raison_social_fr') : '')
+                            ->description(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('raison_social_fr') : '')
                             ->collapsible()
                             ->schema([
                                 Grid::make(2)
                                     ->schema([
                                         Placeholder::make('Raison sociale')
-                                            ->content(fn ($get) => $get('prestataire_id') && (Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('nom_fr')) ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('nom_fr') : '-'),
+                                            ->content(fn($get) => $get('prestataire_id') && (Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('nom_fr')) ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('nom_fr') : '-'),
 
                                         Placeholder::make('Adresse')
-                                            ->content(fn ($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('adr_fr') : '-'),
+                                            ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('adr_fr') : '-'),
 
                                         Placeholder::make('Contact_1')
-                                            ->content(fn ($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('tel_fr') : '-'),
+                                            ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('tel_fr') : '-'),
 
                                         Placeholder::make('Contact_2')
-                                            ->content(fn ($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('tel2_frs') : '-'),
+                                            ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('tel2_frs') : '-'),
 
+
+                                            Placeholder::make('Secteur d\'activité')
+                                            ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('sect_activ') : '-'),
                                     ]),
 
                             ]),
@@ -112,7 +117,7 @@ class ReparationResource extends Resource
 
                                 Select::make('révisions')
                                     ->label('Type de la réparation')
-                                    ->relationship('typeReparations', 'libelle', fn (Builder $query) => $query->where('state', StatesClass::Activated()->value))
+                                    ->relationship('typeReparations', 'libelle', fn(Builder $query) => $query->where('state', StatesClass::Activated()->value))
                                     ->multiple()
                                     ->searchable()
                                     ->preload(true)
@@ -132,7 +137,7 @@ class ReparationResource extends Resource
                                                             ->numeric()
                                                             ->minValue(1)
                                                             ->reactive()
-                                                            ->afterStateUpdated(fn ($state, callable $set, $get) => $set('montant', $state * $get('Prix_unitaire'))),
+                                                            ->afterStateUpdated(fn($state, callable $set, $get) => $set('montant', $state * $get('Prix_unitaire'))),
 
                                                         TextInput::make('Prix_unitaire')
                                                             ->numeric()
@@ -140,7 +145,7 @@ class ReparationResource extends Resource
                                                             ->minValue(1)
                                                             ->reactive()
                                                             ->integer()
-                                                            ->afterStateUpdated(fn ($state, callable $set, $get) => $set('montant', $state * $get('nombre'))),
+                                                            ->afterStateUpdated(fn($state, callable $set, $get) => $set('montant', $state * $get('nombre'))),
 
                                                         TextInput::make('montant')
                                                             ->suffix('FCFA')
@@ -154,47 +159,108 @@ class ReparationResource extends Resource
                                     ->collapsible(),
                             ]),
 
-                        TextInput::make('cout_reparation')
-                            ->label('Cout total de la révision')
-                            ->numeric()
-                            ->required(fn($record) =>($record) && ($record->validation_state == ReparationValidationStates::Demande_de_travail_directeur_division()->value)?  true: false)
-                            ->visible(fn($record) =>($record) && ($record->validation_state == ReparationValidationStates::Demande_de_travail_directeur_division()->value)?  true: false)
-                            ->required(),
+                        Section::make('Suivi budgétaire')
+                            ->schema([
 
-                        FileUpload::make('facture')
-                        ->required(fn($record) =>($record) && ($record->validation_state == ReparationValidationStates::Demande_de_travail_directeur_division()->value)?  true: false)
-                        ->visible(fn($record) =>($record) && ($record->validation_state == ReparationValidationStates::Demande_de_travail_directeur_division()->value)?  true: false)
-                            ->label('Proforma')
-                            ->enableDownload()
-                            ->enableOpen(),
+                                Radio::make('budget')
+                                    ->label("BUDGETS:")
+                                    ->options([
+                                        'EXPLOITATION' => 'EXPLOITATION',
+                                        'INVESTISSEMENTS' => 'INVESTISSEMENTS',
+                                    ])->inline(),
 
-                        TextInput::make('ref_proforma')
-                        ->label('Référence du devis')
-                        ->required(fn($record) =>($record) && ($record->validation_state == ReparationValidationStates::Demande_de_travail_directeur_division()->value)?  true: false)
-                        ->visible(fn($record) =>($record) && ($record->validation_state == ReparationValidationStates::Demande_de_travail_directeur_division()->value)?  true: false),
+                                Grid::make(3)
+                                    ->schema([
 
-                        MarkdownEditor::make('details')
-                            ->label('Détails')
-                            ->disableAllToolbarButtons()
-                            ->enableToolbarButtons([
-                                // 'bold',
-                                // 'bulletList',
-                                // 'edit',
-                                // 'italic',
-                                // 'preview',
-                                // 'strike',
-                            ])
-                            ->placeholder('Détails de la révision'),
 
-                        Hidden::make('user_id')->default(auth()->user()->id),
+                                        Fieldset::make('Références du projet')
+                                            ->schema([
 
-                        Hidden::make('updated_at_user_id')->default(auth()->user()->id),
+                                                TextInput::make('ref_projet')
+                                                    ->label("Type"),
 
-                        CommonInfos::PlaceholderCard(),
+
+                                                TextInput::make('num_projet')
+                                                    ->label("Numéro"),
+                                            ]),
+
+                                        Radio::make('inscription_budget')
+                                            ->label("INSCRIPTION AU BUDGET:")
+                                            ->options([
+                                                true => 'OUI',
+                                                false => 'NON',
+                                            ])->inline(),
+                                    ]),
+
+                                Grid::make(2)
+                                    ->schema([
+                                        TextInput::make('compte_imputation')
+                                            ->label("Compte d'imputation"),
+
+                                        TextInput::make('libelle')
+                                            ->label('Libelle'),
+
+                                        TextInput::make('dispo_pro')
+                                            ->label("Disponibilité provisoire"),
+
+                                        TextInput::make('dispo_pro_apres_engagement')
+                                            ->label('Disponibilité provisoire après engagement'),
+
+                                            TextInput::make('compte_four')
+                                            ->label("Compte fournisseur")
+                                            ->columnSpanFull(),
+                                    ])
+
+
+                            ]),
+
+
 
                     ]),
 
+
+                TextInput::make('cout_reparation')
+                    ->label('Cout total de la révision')
+                    ->numeric()
+                    ->required(fn($record) => ($record) && ($record->validation_state == ReparationValidationStates::Demande_de_travail_dg()->value) ? true : false)
+                    ->visible(fn($record) => ($record) && ($record->validation_state == ReparationValidationStates::Demande_de_travail_dg()->value) ? true : false)
+                    ->required(),
+
+                FileUpload::make('facture')
+                    ->required(fn($record) => ($record) && ($record->validation_state == ReparationValidationStates::Demande_de_travail_dg()->value) ? true : false)
+                    ->visible(fn($record) => ($record) && ($record->validation_state == ReparationValidationStates::Demande_de_travail_dg()->value) ? true : false)
+                    ->label('Proforma')
+                    ->enableDownload()
+                    ->enableOpen(),
+
+                TextInput::make('ref_proforma')
+                    ->label('Référence du devis')
+                    ->required(fn($record) => ($record) && ($record->validation_state == ReparationValidationStates::Demande_de_travail_dg()->value) ? true : false)
+                    ->visible(fn($record) => ($record) && ($record->validation_state == ReparationValidationStates::Demande_de_travail_dg()->value) ? true : false),
+
+                MarkdownEditor::make('details')
+                    ->label('Détails')
+                    ->disableAllToolbarButtons()
+                    ->enableToolbarButtons([
+                        // 'bold',
+                        // 'bulletList',
+                        // 'edit',
+                        // 'italic',
+                        // 'preview',
+                        // 'strike',
+                    ])
+                    ->columnSpanFull()
+                    ->placeholder('Détails de la révision'),
+
+                Hidden::make('user_id')->default(auth()->user()->id),
+
+                Hidden::make('updated_at_user_id')->default(auth()->user()->id),
+
+                CommonInfos::PlaceholderCard(),
+
             ]);
+
+
     }
 
     public static function table(Table $table): Table
@@ -233,33 +299,42 @@ class ReparationResource extends Resource
 
                         $direction = Direction::find($division->direction_id);
 
-                     
 
-                        $returnString ="";
 
-                        switch($record->validation_state){
+                        $returnString = "";
 
-                            case ReparationValidationStates::Declaration_initiale()->value : $returnString = 'En attente de validation du chef '.$division->sigle_division;
-                            break;
+                        switch ($record->validation_state) {
 
-                            case ReparationValidationStates::Demande_de_travail_Chef_division()->value : $returnString = 'En attente de validation du  '.$direction->sigle_direction;
-                            break;
+                            case ReparationValidationStates::Declaration_initiale()->value:
+                                $returnString = 'En attente de validation du chef ' . $division->sigle_division;
+                                break;
 
-                            case ReparationValidationStates::Demande_de_travail_directeur_division()->value : $returnString = 'En attente du proforma';
-                            break;
+                            case ReparationValidationStates::Demande_de_travail_Chef_division()->value:
+                                $returnString = 'En attente de validation du  ' . $direction->sigle_direction;
+                                break;
 
-                            case ReparationValidationStates::Demande_de_travail_dg()->value : $returnString = 'En attente du proforma';
-                            break;
+                            case ReparationValidationStates::Demande_de_travail_directeur_division()->value:
+                                $returnString = 'En attente de validation du DG';
+                                break;
 
-                            case ReparationValidationStates::Demande_de_travail_chef_parc()->value : $returnString = 'En attente de validation par la DIGA';
-                            break;
+                            case ReparationValidationStates::Demande_de_travail_dg()->value:
+                                $returnString = 'En attente du proforma';
+                                break;
+
+                            case ReparationValidationStates::Demande_de_travail_chef_parc()->value:
+                                $returnString = 'En attente de validation par la DIGA';
+                                break;
+
+                            case ReparationValidationStates::Demande_de_travail_diga()->value:
+                                $returnString = 'En attente de validation du Budget';
+                                break;
 
 
                         };
-                        
-                     return $returnString;
 
-                      
+                        return $returnString;
+
+
                     }),
 
                 // ->colors([
@@ -302,16 +377,16 @@ class ReparationResource extends Resource
                         return $query
                             ->when(
                                 $data['date_from'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('date_lancement', '>=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('date_lancement', '>=', $date),
                             )
                             ->when(
                                 $data['date_to'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('date_lancement', '<=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('date_lancement', '<=', $date),
                             );
                     })
                     ->indicateUsing(function (array $data): ?string {
                         if (($data['date_from']) && ($data['date_from'])) {
-                            return 'Date d\'envoi en réparation:  '.Carbon::parse($data['date_from'])->format('d-m-Y').' au '.Carbon::parse($data['date_to'])->format('d-m-Y');
+                            return 'Date d\'envoi en réparation:  ' . Carbon::parse($data['date_from'])->format('d-m-Y') . ' au ' . Carbon::parse($data['date_to'])->format('d-m-Y');
                         }
 
                         return null;
@@ -339,11 +414,11 @@ class ReparationResource extends Resource
                                 }
                             );
                     })->indicateUsing(function (array $data): ?string {
-                        if (! $data['prestataire_id']) {
+                        if (!$data['prestataire_id']) {
                             return null;
                         }
 
-                        return 'Prestataire: '.Prestataire::where('code_fr', $data['prestataire_id'])->value('raison_social_fr');
+                        return 'Prestataire: ' . Prestataire::where('code_fr', $data['prestataire_id'])->value('raison_social_fr');
                     }),
 
                 SelectFilter::make('Type de la réparation')
@@ -373,6 +448,7 @@ class ReparationResource extends Resource
             'index' => Pages\ListReparations::route('/'),
             'create' => Pages\CreateReparation::route('/create'),
             'edit' => Pages\EditReparation::route('/{record}/edit'),
+            'view' => Pages\ViewReparation::route('/{record}'),
         ];
     }
 

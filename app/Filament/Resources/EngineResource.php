@@ -336,6 +336,7 @@ class EngineResource extends Resource
 
                 TextColumn::make('departement_id')
                     ->label('Division/Direction')
+                    ->tooltip(fn($record) => (Division::find($record->departement_id))->libelle)
                     ->searchable()
                     ->placeholder('-')
                     ->formatStateUsing(function ($state) {
