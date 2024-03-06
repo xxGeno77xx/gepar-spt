@@ -2,19 +2,20 @@
 
 namespace App\Filament\Resources\ReparationResource\Pages;
 
-use App\Filament\Resources\ReparationResource;
+use App\Models\User;
 use App\Models\Engine;
+use App\Models\Circuit;
 use App\Models\Reparation;
 use App\Models\TypeReparation;
-use App\Models\User;
-use App\Support\Database\PermissionsClass;
+use Filament\Pages\Actions\Action;
 use App\Support\Database\RolesEnum;
 use App\Support\Database\StatesClass;
-use App\Support\Database\TypesReparation;
-use Filament\Notifications\Actions\Action as NotificationActions;
 use Filament\Notifications\Notification;
-use Filament\Pages\Actions\Action;
+use App\Support\Database\TypesReparation;
+use App\Support\Database\PermissionsClass;
 use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Resources\ReparationResource;
+use Filament\Notifications\Actions\Action as NotificationActions;
 
 class CreateReparation extends CreateRecord
 {
@@ -28,7 +29,7 @@ class CreateReparation extends CreateRecord
 
         $userPermission = $user->hasAnyPermission([PermissionsClass::reparation_create()->value]);
 
-        abort_if(! $userPermission, 403, __("Vous n'avez pas access à cette page"));
+        abort_if(!$userPermission, 403, __("Vous n'avez pas access à cette page"));
     }
 
     protected function getRedirectUrl(): string
@@ -56,7 +57,7 @@ class CreateReparation extends CreateRecord
             ->first();
 
         if ($latestReparation) {
-            if (! $latestReparation->date_fin) {
+            if (!$latestReparation->date_fin) {
                 Notification::make()
                     ->warning()
                     ->title('Attention!')
@@ -68,7 +69,7 @@ class CreateReparation extends CreateRecord
             }
         }
 
-        if (! is_null($newRaparation['date_fin'])) {
+        if (!is_null($newRaparation['date_fin'])) {
 
         }
     }
@@ -92,23 +93,42 @@ class CreateReparation extends CreateRecord
         }
 
         $chefDivision = User::role(RolesEnum::Chef_division()->value)
-        ->where("departement_id", $concernedEngine->departement_id ) //division_id
-        ->first();  
+            ->where("departement_id", $concernedEngine->departement_id) //division_id
+            ->first();
 
-        if($chefDivision){
+        if ($chefDivision) {
             Notification::make()
-            ->title('Nouvelle demande')
-            ->body('Demande de réparation pour l\'engin immatriculé '.$concernedEngine->plate_number.'')
-            ->actions([
-                NotificationActions::make('voir')
-                    ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
-                    ->button()
-                    ->color('primary'),
-            ])
-            ->send()
-            ->sendToDatabase($chefDivision);
+                ->title('Nouvelle demande')
+                ->body('Demande de réparation pour l\'engin immatriculé ' . $concernedEngine->plate_number . '')
+                ->actions([
+                    NotificationActions::make('voir')
+                        ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
+                        ->button()
+                        ->color('primary'),
+                ])
+                ->send()
+                ->sendToDatabase($chefDivision);
         }
-        
 
+
+
+
+
+    }
+
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        $circuit = Circuit::where('id', $this->data["circuit_id"])->get()->value("steps");
+
+        foreach ($circuit as $key => $item) {
+
+            $roleIds[] = $item['role_id'];
+        }
+
+        $result = $roleIds[0];
+
+        $data["validation_state"] = $result;
+
+        return $data;
     }
 }

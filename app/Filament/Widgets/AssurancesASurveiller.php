@@ -2,21 +2,22 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\Direction;
-use App\Models\Division;
-use App\Models\Engine;
-use App\Models\Parametre;
-use App\Support\Database\StatesClass;
-use App\Tables\Columns\DepartementColumn;
 use Closure;
-use Filament\Tables\Columns\BadgeColumn;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Widgets\TableWidget as BaseWidget;
-use Illuminate\Contracts\Support\Htmlable;
-use Illuminate\Database\Eloquent\Builder;
+use App\Models\Engine;
+use App\Models\Division;
+use App\Models\Direction;
+use App\Models\Parametre;
+use App\Models\Departement;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use App\Support\Database\StatesClass;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\ImageColumn;
+use App\Tables\Columns\DepartementColumn;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Contracts\Support\Htmlable;
+use Filament\Widgets\TableWidget as BaseWidget;
 
 class AssurancesASurveiller extends BaseWidget
 {
@@ -58,7 +59,7 @@ class AssurancesASurveiller extends BaseWidget
             ->whereNull('assurances.deleted_at')
             ->whereNull('engines.deleted_at')
             ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
-            ->join('divisions', 'engines.departement_id', 'divisions.id')
+            ->join('centre', 'engines.departement_id', 'centre.code_centre')
             ->join('marques', 'modeles.marque_id', '=', 'marques.id')
             ->select('engines.*', 'marques.logo as logo', 'assurances.date_debut as date_debut', 'assurances.date_fin as date_fin')
             ->where('engines.state', '<>', StatesClass::Deactivated()->value)
@@ -100,7 +101,7 @@ class AssurancesASurveiller extends BaseWidget
                 'engines.deleted_at',
                 'engines.created_at',
                 'engines.updated_at',
-                'sigle_division',
+                'sigle_centre',
                 'nom_modele',
                 'nom_marque',
                 'logo',
@@ -120,24 +121,25 @@ class AssurancesASurveiller extends BaseWidget
                 ->label('Numéro de plaque')
                 ->searchable(),
 
-            // DepartementColumn::make('departement_id')
-            //     ->searchable()
-            //     ->label('Département'),
-
-            TextColumn::make('departement_id')
-                ->label('Division/Direction')
-                ->tooltip(fn($record) => (Division::find($record->departement_id))->libelle)
+            DepartementColumn::make('departement_id')
                 ->searchable()
-                ->placeholder('-')
-                ->formatStateUsing(function ($state) {
+                ->label('Département')
+                ->tooltip(fn($record) => Departement::find($record->departement_id)->libelle),
 
-                    $division = Division::where('id', $state)->first();
+            // TextColumn::make('departement_id')
+            //     ->label('Division/Direction')
+            //     ->tooltip(fn($record) => (Division::find($record->departement_id))->libelle)
+            //     ->searchable()
+            //     ->placeholder('-')
+            //     ->formatStateUsing(function ($state) {
 
-                    $direction = Direction::where('id', $division->direction_id)->value('sigle_direction');
+            //         $division = Division::where('id', $state)->first();
 
-                    return $division->sigle_division.'/'.$direction;
+            //         $direction = Direction::where('id', $division->direction_id)->value('sigle_direction');
 
-                }),
+            //         return $division->sigle_division.'/'.$direction;
+
+            //     }),
 
             ImageColumn::make('logo')
                 ->searchable()

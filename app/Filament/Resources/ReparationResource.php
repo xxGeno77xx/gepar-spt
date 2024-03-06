@@ -3,8 +3,11 @@
 namespace App\Filament\Resources;
 
 use Carbon\Carbon;
+use App\Models\Role;
+use App\Models\User;
 use Filament\Tables;
 use App\Models\Engine;
+use App\Models\Circuit;
 use App\Models\Division;
 use App\Models\Direction;
 use App\Models\Reparation;
@@ -12,6 +15,7 @@ use App\Models\Prestataire;
 use Filament\Resources\Form;
 use Filament\Resources\Table;
 use Filament\Resources\Resource;
+use App\Support\Database\RolesEnum;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Filters\Filter;
@@ -57,6 +61,17 @@ class ReparationResource extends Resource
                     ->schema([
                         Card::make()
                             ->schema([
+
+
+                                Select::make('circuit_id')
+                                    ->label('Circuit de validation')
+                                    ->options(
+                                        Circuit::pluck('name', 'id')
+                                    )
+                                    ->searchable()
+                                    ->required(),
+
+
                                 Select::make('engine_id')
                                     ->label('Numéro de plaque')
                                     ->options(
@@ -84,8 +99,10 @@ class ReparationResource extends Resource
 
                                 Hidden::make('state')->default(StatesClass::Activated()->value),
 
-                                Hidden::make('validation_state')->default(ReparationValidationStates::Declaration_initiale()->value),
+                                Hidden::make('validation_state')->default(""),
 
+                                Hidden::make("validation_step")->default(0),
+                         
                             ])->columns(2),
 
                         Section::make('Informations du fournisseur')
@@ -107,7 +124,7 @@ class ReparationResource extends Resource
                                             ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('tel2_frs') : '-'),
 
 
-                                            Placeholder::make('Secteur d\'activité')
+                                        Placeholder::make('Secteur d\'activité')
                                             ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('sect_activ') : '-'),
                                     ]),
 
@@ -159,60 +176,190 @@ class ReparationResource extends Resource
                                     ->collapsible(),
                             ]),
 
-                        Section::make('Suivi budgétaire')
-                            ->schema([
+                        // Section::make('Suivi budgétaire')
+                        //     ->schema([
 
-                                Radio::make('budget')
-                                    ->label("BUDGETS:")
-                                    ->options([
-                                        'EXPLOITATION' => 'EXPLOITATION',
-                                        'INVESTISSEMENTS' => 'INVESTISSEMENTS',
-                                    ])->inline(),
+                        //         // Radio::make('budget')
+                        //         //     ->label("BUDGETS:")
+                        //         //     ->options([
+                        //         //         'EXPLOITATION' => 'EXPLOITATION',
+                        //         //         'INVESTISSEMENTS' => 'INVESTISSEMENTS',
+                        //         //     ])->inline()
 
-                                Grid::make(3)
-                                    ->schema([
+                        //         //     ->required(function ($record) {
 
+                        //         //         if (
+                        //         //             ($record) && (in_array($record->validation_state, [
+                        //         //                 ReparationValidationStates::Demande_de_travail_diga()->value,
+                        //         //                 ReparationValidationStates::Termine()->value
 
-                                        Fieldset::make('Références du projet')
-                                            ->schema([
+                        //         //             ]))
+                        //         //         ) {
+                        //         //             return true;
+                        //         //         } else
+                        //         //             return false;
+                        //         //     }),
 
-                                                TextInput::make('ref_projet')
-                                                    ->label("Type"),
+                        //         // Grid::make(3)
+                        //         //     ->schema([
 
+                        //         //         Fieldset::make('Références du projet')
+                        //         //             ->schema([
 
-                                                TextInput::make('num_projet')
-                                                    ->label("Numéro"),
-                                            ]),
+                        //         //                 TextInput::make('ref_projet')
+                        //         //                     ->label("Type")
+                        //         //                     ->required(function ($record) {
 
-                                        Radio::make('inscription_budget')
-                                            ->label("INSCRIPTION AU BUDGET:")
-                                            ->options([
-                                                true => 'OUI',
-                                                false => 'NON',
-                                            ])->inline(),
-                                    ]),
+                        //         //                         if (
+                        //         //                             ($record) && (in_array($record->validation_state, [
+                        //         //                                 ReparationValidationStates::Demande_de_travail_diga()->value,
+                        //         //                                 ReparationValidationStates::Termine()->value
 
-                                Grid::make(2)
-                                    ->schema([
-                                        TextInput::make('compte_imputation')
-                                            ->label("Compte d'imputation"),
-
-                                        TextInput::make('libelle')
-                                            ->label('Libelle'),
-
-                                        TextInput::make('dispo_pro')
-                                            ->label("Disponibilité provisoire"),
-
-                                        TextInput::make('dispo_pro_apres_engagement')
-                                            ->label('Disponibilité provisoire après engagement'),
-
-                                            TextInput::make('compte_four')
-                                            ->label("Compte fournisseur")
-                                            ->columnSpanFull(),
-                                    ])
+                        //         //                             ]))
+                        //         //                         ) {
+                        //         //                             return true;
+                        //         //                         } else
+                        //         //                             return false;
+                        //         //                     }),
 
 
-                            ]),
+                        //         //                 TextInput::make('num_projet')
+                        //         //                     ->label("Numéro")
+                        //         //                     ->required(function ($record) {
+
+                        //         //                         if (
+                        //         //                             ($record) && (in_array($record->validation_state, [
+                        //         //                                 ReparationValidationStates::Demande_de_travail_diga()->value,
+                        //         //                                 ReparationValidationStates::Termine()->value
+
+                        //         //                             ]))
+                        //         //                         ) {
+                        //         //                             return true;
+                        //         //                         } else
+                        //         //                             return false;
+                        //         //                     }),
+                        //         //             ]),
+
+                        //         //         Radio::make('inscription_budget')
+                        //         //             ->label("INSCRIPTION AU BUDGET:")
+                        //         //             ->options([
+                        //         //                 true => 'OUI',
+                        //         //                 false => 'NON',
+                        //         //             ])->inline()
+                        //         //             ->required(function ($record) {
+
+                        //         //                 if (
+                        //         //                     ($record) && (in_array($record->validation_state, [
+                        //         //                         ReparationValidationStates::Demande_de_travail_diga()->value,
+                        //         //                         ReparationValidationStates::Termine()->value
+
+                        //         //                     ]))
+                        //         //                 ) {
+                        //         //                     return true;
+                        //         //                 } else
+                        //         //                     return false;
+                        //         //             }),
+                        //         //     ]),
+
+                        //         // Grid::make(2)
+                        //         //     ->schema([
+                        //         //         TextInput::make('compte_imputation')
+                        //         //             ->label("Compte d'imputation")
+                        //         //             ->required(function ($record) {
+
+                        //         //                 if (
+                        //         //                     ($record) && (in_array($record->validation_state, [
+                        //         //                         ReparationValidationStates::Demande_de_travail_diga()->value,
+                        //         //                         ReparationValidationStates::Termine()->value
+
+                        //         //                     ]))
+                        //         //                 ) {
+                        //         //                     return true;
+                        //         //                 } else
+                        //         //                     return false;
+                        //         //             }),
+
+                        //         //         TextInput::make('libelle')
+                        //         //             ->label('Libelle')
+                        //         //             ->required(function ($record) {
+
+                        //         //                 if (
+                        //         //                     ($record) && (in_array($record->validation_state, [
+                        //         //                         ReparationValidationStates::Demande_de_travail_diga()->value,
+                        //         //                         ReparationValidationStates::Termine()->value
+
+                        //         //                     ]))
+                        //         //                 ) {
+                        //         //                     return true;
+                        //         //                 } else
+                        //         //                     return false;
+                        //         //             }),
+
+                        //         //         TextInput::make('dispo_pro')
+                        //         //             ->label("Disponibilité provisoire")
+                        //         //             ->required(function ($record) {
+
+                        //         //                 if (
+                        //         //                     ($record) && (in_array($record->validation_state, [
+                        //         //                         ReparationValidationStates::Demande_de_travail_diga()->value,
+                        //         //                         ReparationValidationStates::Termine()->value
+
+                        //         //                     ]))
+                        //         //                 ) {
+                        //         //                     return true;
+                        //         //                 } else
+                        //         //                     return false;
+                        //         //             }),
+
+                        //         //         TextInput::make('dispo_pro_apres_engagement')
+                        //         //             ->label('Disponibilité provisoire après engagement')
+                        //         //             ->required(function ($record) {
+
+                        //         //                 if (
+                        //         //                     ($record) && (in_array($record->validation_state, [
+                        //         //                         ReparationValidationStates::Demande_de_travail_diga()->value,
+                        //         //                         ReparationValidationStates::Termine()->value
+
+                        //         //                     ]))
+                        //         //                 ) {
+                        //         //                     return true;
+                        //         //                 } else
+                        //         //                     return false;
+                        //         //             }),
+
+                        //         //         TextInput::make('compte_four')
+                        //         //             ->label("Compte fournisseur")
+                        //         //             ->columnSpanFull()
+                        //         //             ->required(function ($record) {
+
+                        //         //                 if (
+                        //         //                     ($record) && (in_array($record->validation_state, [
+                        //         //                         ReparationValidationStates::Demande_de_travail_diga()->value,
+                        //         //                         ReparationValidationStates::Termine()->value
+
+                        //         //                     ]))
+                        //         //                 ) {
+                        //         //                     return true;
+                        //         //                 } else
+                        //         //                     return false;
+                        //         //             })
+                        //         //     ])
+
+
+                        //     ])->visible(function ($record) {
+
+                        //         if (
+                        //             ($record) && (in_array($record->validation_state, [
+                        //                 ReparationValidationStates::Bon_de_travail_chef_parc()->value,
+                        //                 //et les autres
+                        //                 ReparationValidationStates::Termine()->value
+
+                        //             ]))
+                        //         ) {
+                        //             return true;
+                        //         } else
+                        //             return false;
+                        //     }),
 
 
 
@@ -222,22 +369,37 @@ class ReparationResource extends Resource
                 TextInput::make('cout_reparation')
                     ->label('Cout total de la révision')
                     ->numeric()
-                    ->required(fn($record) => ($record) && ($record->validation_state == ReparationValidationStates::Demande_de_travail_dg()->value) ? true : false)
-                    ->visible(fn($record) => ($record) && ($record->validation_state == ReparationValidationStates::Demande_de_travail_dg()->value) ? true : false)
-                    ->required(),
+                    ->required(function ($record) {
+
+                       
+                    })
+                    ->visible(function ($record) {
+
+                       
+                    }),
 
                 FileUpload::make('facture')
-                    ->required(fn($record) => ($record) && ($record->validation_state == ReparationValidationStates::Demande_de_travail_dg()->value) ? true : false)
-                    ->visible(fn($record) => ($record) && ($record->validation_state == ReparationValidationStates::Demande_de_travail_dg()->value) ? true : false)
-                    ->label('Proforma')
+                    ->required(function ($record) {
+
+                      
+                    })
+                    ->visible(function ($record) {
+
+                     
+                    })->label('Proforma')
                     ->enableDownload()
                     ->enableOpen(),
 
                 TextInput::make('ref_proforma')
                     ->label('Référence du devis')
-                    ->required(fn($record) => ($record) && ($record->validation_state == ReparationValidationStates::Demande_de_travail_dg()->value) ? true : false)
-                    ->visible(fn($record) => ($record) && ($record->validation_state == ReparationValidationStates::Demande_de_travail_dg()->value) ? true : false),
+                    ->required(function ($record) {
 
+                    
+                    })
+                    ->visible(function ($record) {
+
+                      
+                    }),
                 MarkdownEditor::make('details')
                     ->label('Détails')
                     ->disableAllToolbarButtons()
@@ -289,53 +451,74 @@ class ReparationResource extends Resource
 
                 TextColumn::make('validation_state')
                     ->label("Statut de validation")
+                    ->formatStateUsing(function($state){
+
+                        if($state == "nextValue")
+                        {
+                            return "Terminée";
+                        }
+                        else{
+                            $validator = (Role::find($state))->name;
+
+                            return "En attente de validation de: ". $validator ;
+                        }
+                       
+                    })
                     ->color('primary')
                     ->weight('bold')
-                    ->description(function (Reparation $record) {
+                    // ->description(function (Reparation $record) {
 
-                        $engin = Engine::find($record->engine_id);
+                    //     $engin = Engine::find($record->engine_id);
 
-                        $division = Division::find($engin->departement_id);
+                    //     $division = Division::find($engin->departement_id);
 
-                        $direction = Direction::find($division->direction_id);
-
-
-
-                        $returnString = "";
-
-                        switch ($record->validation_state) {
-
-                            case ReparationValidationStates::Declaration_initiale()->value:
-                                $returnString = 'En attente de validation du chef ' . $division->sigle_division;
-                                break;
-
-                            case ReparationValidationStates::Demande_de_travail_Chef_division()->value:
-                                $returnString = 'En attente de validation du  ' . $direction->sigle_direction;
-                                break;
-
-                            case ReparationValidationStates::Demande_de_travail_directeur_division()->value:
-                                $returnString = 'En attente de validation du DG';
-                                break;
-
-                            case ReparationValidationStates::Demande_de_travail_dg()->value:
-                                $returnString = 'En attente du proforma';
-                                break;
-
-                            case ReparationValidationStates::Demande_de_travail_chef_parc()->value:
-                                $returnString = 'En attente de validation par la DIGA';
-                                break;
-
-                            case ReparationValidationStates::Demande_de_travail_diga()->value:
-                                $returnString = 'En attente de validation du Budget';
-                                break;
+                    //     $direction = Direction::find($division->direction_id);
 
 
-                        };
 
-                        return $returnString;
+                    //     $returnString = "";
+
+                    //     switch ($record->validation_state) {
+
+                    //         case ReparationValidationStates::Declaration_initiale()->value:
+                    //             $returnString = 'En attente de validation du chef ' . $division->sigle_division;
+                    //             break;
+
+                    //         case ReparationValidationStates::Demande_de_travail_Chef_division()->value:
+                    //             $returnString = 'En attente de validation du  ' . $direction->sigle_direction;
+                    //             break;
+
+                    //         case ReparationValidationStates::Demande_de_travail_directeur_division()->value:
+                    //             $returnString = 'En attente de validation du DG';
+                    //             break;
+
+                    //         case ReparationValidationStates::Demande_de_travail_dg()->value:
+                    //             $returnString = 'En attente du proforma';
+                    //             break;
+
+                    //         case ReparationValidationStates::Demande_de_travail_chef_parc()->value:
+                    //             $returnString = 'En attente de validation du devis par la DIGA';
+                    //             break;
+
+                    //         case ReparationValidationStates::Demande_de_travail_diga()->value:
+                    //             $returnString = 'Mise en place du Bon de travail par Chef Parc';
+                    //             break;   // ici que je suis au 5 03 2024
+            
+                    //         case ReparationValidationStates::Bon_de_travail_chef_division()->value:
+                    //             $returnString = 'Bon validé par le chef Division';
+                    //             break;
+
+                    //         case ReparationValidationStates::Bon_de_travail_chef_parc()->value:
+                    //             $returnString = 'Suivi du Budget';  //suivi budgétaire des engagements
+                    //             break;
 
 
-                    }),
+                    //     };
+
+                    //     return $returnString;
+
+
+                    // }),
 
                 // ->colors([
                 //     'secondary' => static fn ($state): bool => $state == 'draft',
@@ -349,9 +532,10 @@ class ReparationResource extends Resource
                 //     'heroicon-o-refresh' => 'reviewing',
                 //     'heroicon-o-truck' => 'published',
                 // ]),
-
+,
                 PrestataireColumn::make('prestataire')
-                    ->label('Prestataire'),
+                    ->label('Prestataire')
+                ,
 
                 // TextColumn::make('cout_reparation')
                 //     ->placeholder('-')

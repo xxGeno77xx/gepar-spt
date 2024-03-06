@@ -278,9 +278,9 @@ class EngineResource extends Resource
                             ->required(),
 
                         Select::make('departement_id')
-                            ->label('Division')
+                            ->label('Centre')
                             ->disabledOn('edit')
-                            ->options(Division::pluck('sigle_division', 'id'))
+                            ->options(Departement::pluck('sigle_centre', 'code_centre'))
                             ->searchable()
                             ->reactive(),
 
@@ -334,30 +334,24 @@ class EngineResource extends Resource
 
                     }),
 
-                TextColumn::make('departement_id')
-                    ->label('Division/Direction')
-                    ->tooltip(fn($record) => (Division::find($record->departement_id))->libelle)
-                    ->searchable()
-                    ->placeholder('-')
-                    ->formatStateUsing(function ($state) {
-
-                        $division = Division::where('id', $state)->first();
-
-                        $direction = Direction::where('id', $division->direction_id)->value('sigle_direction');
-
-                        return $division->sigle_division.'/'.$direction;
-
-                    }),
-
-                // DepartementColumn::make('departement_id')
+                // TextColumn::make('departement_id')
                 //     ->label('Division/Direction')
-                //     ->formatStateUsing(function($state){
+                //     ->tooltip(fn($record) => (Division::find($record->departement_id))->libelle)
+                //     ->searchable()
+                //     ->placeholder('-')
+                //     ->formatStateUsing(function ($state) {
 
-                //         $division = Division::where("id", $state);
-                //         dd($division);
+                //         $division = Division::where('id', $state)->first();
 
-                //         // fn ($state): string => Engine::find($state)->plate_number
+                //         $direction = Direction::where('id', $division->direction_id)->value('sigle_direction');
+
+                //         return $division->sigle_division.'/'.$direction;
+
                 //     }),
+
+                DepartementColumn::make('departement_id')
+                    ->label('Centre')
+                    ->tooltip(fn($record)=>Departement::find($record->departement_id)->libelle),
 
                 ImageColumn::make('logo')
                     ->label('Marque')

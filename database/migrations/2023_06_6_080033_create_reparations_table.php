@@ -6,8 +6,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -32,7 +31,7 @@ return new class extends Migration
             $table->unsignedBigInteger('engine_id');
             $table->foreign('engine_id')->references('id')->on('engines');
 
-            $table->unsignedBigInteger('prestataire_id');
+            $table->unsignedBigInteger('prestataire_id')->nullable();
             // $table->foreign('prestataire_id')->references('id')->on('fournisseurs');
 
             $table->unsignedBigInteger('user_id');
@@ -43,27 +42,40 @@ return new class extends Migration
 
             $table->integer('cout_reparation')->nullable();
 
-            $table->enum('state', [StatesClass::Activated()->value,
+            $table->enum('state', [
+                StatesClass::Activated()->value,
                 StatesClass::Deactivated()->value,
                 StatesClass::Suspended()->value,
             ]);
 
-            $table->enum('validation_state', [
-                ReparationValidationStates::Declaration_initiale()->value,
-                ReparationValidationStates::Demande_de_travail_Chef_division()->value,
-                ReparationValidationStates::Demande_de_travail_directeur_division()->value,
-                ReparationValidationStates::Demande_de_travail_dg()->value,
-                ReparationValidationStates::Demande_de_travail_chef_parc()->value,
-                ReparationValidationStates::Demande_de_travail_diga()->value,
-                ReparationValidationStates::Rejete()->value,
-            ]);
+            $table->integer("validation_step");  //   validation roles are stored in array. validation step is the said array key
+
+            $table->string("validation_state");  //role in validation circuit
+            // $table->enum('validation_state', [
+            //     ReparationValidationStates::Declaration_initiale()->value,
+            //     ReparationValidationStates::Demande_de_travail_Chef_division()->value,
+            //     ReparationValidationStates::Demande_de_travail_directeur_division()->value,
+            //     ReparationValidationStates::Demande_de_travail_dg()->value,
+            //     ReparationValidationStates::Demande_de_travail_chef_parc()->value,
+            //     ReparationValidationStates::Demande_de_travail_diga()->value,
+            //     ReparationValidationStates::Bon_de_travail_chef_parc()->value,//  mise en place du projet,
+            //     ReparationValidationStates::Bon_de_travail_chef_division()->value,
+            //     ReparationValidationStates::Bon_de_travail_budget()->value,  //bon de travail,
+            //     ReparationValidationStates::Bon_de_travail_Directeur_dvision()->value,
+            //     ReparationValidationStates::Bon_de_travail_Directeur_general()->value,
+            //     ReparationValidationStates::Bon_de_travail_retour_budget()->value,  //bon de commande,
+            //     ReparationValidationStates::Termine()->value,   // par le chef parc,
+            //     ReparationValidationStates::Rejete()->value,
+            // ]);
 
             $table->string('motif_rejet')->nullable();
 
             $table->unsignedBigInteger('rejete_par')->nullable();
 
             $table->string('ref_proforma')->nullable();
-            
+
+            $table->unsignedBigInteger('circuit_id')->nullable();
+
             $table->timestamps();
 
             $table->softDeletes();

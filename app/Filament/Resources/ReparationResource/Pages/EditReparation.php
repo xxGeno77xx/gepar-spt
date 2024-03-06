@@ -25,101 +25,7 @@ class EditReparation extends EditRecord
     {
         if (auth()->user()->hasAnyPermission([PermissionsClass::reparation_delete()->value])) {
             return [
-                // Actions\DeleteAction::make(),
-                // Actions\Action::make('Supprimer')
-                //     ->color('danger')
-                //     ->icon('heroicon-o-eye-off')
-                //     ->action(function (?Reparation $record) {
-
-                //         $this->record->update(['state' => StatesClass::Deactivated()->value]);
-                //         redirect('/reparations');
-                //         Notification::make()
-                //             ->title('Supprimé(e)')
-                //             ->success()
-                //             ->persistent()
-                //             ->send();
-                //     })
-                //     ->requiresConfirmation(),
-
-                    // Actions\Action::make('Valider (Chef div)')
-                    // ->color('success')
-                    // ->icon('heroicon-o-check-circle')
-                    // ->action(function (?Reparation $record) {
-
-                    //     $this->record->update(['validation_state' => ReparationValidationStates::Demande_de_travail_Chef_division()->value]);
-                    //     Notification::make()
-                    //         ->title('Validé(e)')
-                    //         ->success()
-                    //         ->persistent()
-                    //         ->send();
-                    // }),
-
-
-
-                    // Actions\Action::make('Valider (Directeur)')
-                    // ->color('success')
-                    // ->icon('heroicon-o-check-circle')
-                    // ->action(function (?Reparation $record) {
-
-                    //     $this->record->update(['validation_state' => ReparationValidationStates::Demande_de_travail_directeur_division()->value]);
-                    //     Notification::make()
-                    //         ->title('Validé(e)')
-                    //         ->success()
-                    //         ->persistent()
-                    //         ->send();
-                    // }),
-
-
-                    // Actions\Action::make('Valider (Chef parc)')
-                    // ->color('success')
-                    // ->icon('heroicon-o-check-circle')
-                    // ->action(function (?Reparation $record) {
-
-                    //     $this->record->update(['validation_state' => ReparationValidationStates::Demande_de_travail_chef_parc()->value]);
-                    //     Notification::make()
-                    //         ->title('Validé(e)')
-                    //         ->success()
-                    //         ->persistent()
-                    //         ->send();
-                    // }),
-
-
-                    // Actions\Action::make('Valider'.strtoupper('diga'))
-                    // ->label('DIGA')
-                    // ->color('success')
-                    // ->icon('heroicon-o-check-circle')
-                    // ->action(function (?Reparation $record) {
-
-                    //     $this->record->update(['validation_state' => ReparationValidationStates::Demande_de_travail_diga()->value]);
-                    //     Notification::make()
-                    //         ->title('Validé(e)')
-                    //         ->success()
-                    //         ->persistent()
-                    //         ->send();
-                    // }),
-
-                    // Actions\Action::make('Rejeter')
-                    // ->label('Rejeter')
-                    // ->color('danger')
-                    // ->icon('heroicon-o-x')
-                    // ->form([
-                    //     RichEditor::make('motif_rejet')
-                    //     ->label('Motif du rejet')
-                    //     ->required(),
-
-                    //     Hidden::make('rejete_par')
-                    //     ->default(auth()->user()->id)
-                    // ])
-                    // ->action(function (?Reparation $record) {
-
-                    //     $this->record->update(['validation_state' => ReparationValidationStates::Rejete()->value]);
-                    //     Notification::make()
-                    //         ->title('Rejeté(e)')
-                    //         ->success()
-                    //         ->persistent()
-                    //         ->send();
-                    // })
-
+            
             ];
 
         }
@@ -129,13 +35,19 @@ class EditReparation extends EditRecord
 
     protected function authorizeAccess(): void
     {
+   
         $user = auth()->user();
 
         $userPermission = $user->hasAnyPermission([PermissionsClass::reparation_update()->value]);
 
         if($userPermission)
         {
-            if( !in_array($this->record->validation_state, [null, ReparationValidationStates::Declaration_initiale()->value]))
+
+            if($this->record->validation_state == "nextValue" || $this->record->validation_step == "100")
+            {
+                abort(403, "Vous ne pouvez plus modifier une réparation déjà achevée");
+            }
+            elseif( !in_array($this->record->validation_state, [null, ReparationValidationStates::Declaration_initiale()->value]))
             {
                 abort_unless(($user->hasAnyRole([
                     RolesEnum::Chef_parc()->value,
@@ -144,7 +56,7 @@ class EditReparation extends EditRecord
                  ]) && in_array($this->record->validation_state, [
                     ReparationValidationStates::Demande_de_travail_dg()->value,
                     ReparationValidationStates::Demande_de_travail_diga()->value,
-                    // ReparationValidationStates::Dpl()->value,
+                    ReparationValidationStates::Demande_de_travail_chef_parc()->value,
                  ])),403 ,"Vous n'avez pas les permissions pour modifier une demande en cours de validation");
             }
 

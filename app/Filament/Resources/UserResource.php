@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Models\Division;
+use App\Models\Departement;
 use Filament\Resources\Form;
 use Filament\Resources\Table;
 use Filament\Resources\Resource;
@@ -69,19 +70,19 @@ class UserResource extends Resource
                             ->regex('/.*@laposte\.tg$/') // field must end with @laposte.tg
                             ->label(strval(__('filament-authentication::filament-authentication.field.user.email'))),
 
-                        TextInput::make('password')
-                            ->same('passwordConfirmation')
-                            ->password()
-                            ->maxLength(255)
-                            ->required(fn ($component, $get, $livewire, $model, $record, $set, $state) => $record === null)
-                            ->dehydrateStateUsing(fn ($state) => ! empty($state) ? Hash::make($state) : '')
-                            ->label(strval(__('filament-authentication::filament-authentication.field.user.password'))),
+                        // TextInput::make('password')
+                        //     ->same('passwordConfirmation')
+                        //     ->password()
+                        //     ->maxLength(255)
+                        //     ->required(fn ($component, $get, $livewire, $model, $record, $set, $state) => $record === null)
+                        //     ->dehydrateStateUsing(fn ($state) => ! empty($state) ? Hash::make($state) : '')
+                        //     ->label(strval(__('filament-authentication::filament-authentication.field.user.password'))),
 
-                        TextInput::make('passwordConfirmation')
-                            ->password()
-                            ->dehydrated(false)
-                            ->maxLength(255)
-                            ->label(strval(__('filament-authentication::filament-authentication.field.user.confirm_password'))),
+                        // TextInput::make('passwordConfirmation')
+                        //     ->password()
+                        //     ->dehydrated(false)
+                        //     ->maxLength(255)
+                        //     ->label(strval(__('filament-authentication::filament-authentication.field.user.confirm_password'))),
 
                         //removed super admin from roles list here
                         Select::make('roles')
@@ -96,8 +97,8 @@ class UserResource extends Resource
                             ->label("Nom d'utilisateur"),
 
                             Select::make('departement_id')
-                            ->label('Division')
-                            ->options(Division::pluck('sigle_division', 'id'))
+                            ->label('Centre')
+                            ->options(Departement::pluck('sigle_centre', 'code_centre'))
                             ->searchable()
                             ->reactive(),
 

@@ -119,11 +119,11 @@ class ListEngines extends ListRecords
             })
             ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
             ->join('marques', 'modeles.marque_id', '=', 'marques.id')
-            ->join('divisions', 'engines.departement_id', 'divisions.id')
+            ->join('centre', 'engines.departement_id', 'centre.code_centre')
             ->where('engines.state', '<>', StatesClass::Deactivated()->value)
             ->select(
                 'engines.*',
-                'divisions.sigle_division',
+                'centre.sigle_centre',
                 'marques.nom_marque',
                 'marques.logo',
                 'assurances.date_fin as date_fin',
@@ -168,7 +168,7 @@ class ListEngines extends ListRecords
                 'engines.deleted_at',
                 'engines.created_at',
                 'engines.updated_at',
-                'sigle_division',
+                'sigle_centre',
                 'nom_modele',
                 'nom_marque',
                 'logo',
