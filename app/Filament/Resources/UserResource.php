@@ -100,6 +100,7 @@ class UserResource extends Resource
                             ->label('Centre')
                             ->options(Departement::pluck('sigle_centre', 'code_centre'))
                             ->searchable()
+                            ->required()
                             ->reactive(),
 
                     ])->columns(2),
@@ -148,6 +149,7 @@ class UserResource extends Resource
                 TagsColumn::make('roles.name')
                     ->label(strval(__('filament-authentication::filament-authentication.field.user.roles'))),
                 TextColumn::make('created_at')
+                ->sortable()
                     ->dateTime('d-m-Y H:i:s')
                     ->label(strval(__('filament-authentication::filament-authentication.field.user.created_at'))),
             ])

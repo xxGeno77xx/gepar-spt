@@ -110,10 +110,6 @@ class CreateReparation extends CreateRecord
                 ->sendToDatabase($chefDivision);
         }
 
-
-
-
-
     }
 
     protected function mutateFormDataBeforeCreate(array $data): array

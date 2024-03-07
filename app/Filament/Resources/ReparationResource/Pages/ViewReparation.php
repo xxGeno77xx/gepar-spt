@@ -31,9 +31,10 @@ class ViewReparation extends ViewRecord
         if (auth()->user()->hasPermissionTo(PermissionsClass::Reparation_update()->value)) {
             return [
 
-                EditAction::make("edit"),
+                EditAction::make("edit")
+                ->visible(fn($record) => ($record->validation_state == "nextValue" || $record->validation_step == 100)? false : true ),
 
-                Actions\Action::make('Valider (Chef div)')
+                Actions\Action::make('Valider')
                     ->color('success')
                     ->visible(function ($record) {
 
@@ -123,12 +124,6 @@ class ViewReparation extends ViewRecord
                             ]);
                         }
 
-
-                        $user = auth()->user();
-
-                        //    $indice = $roleIds[$this->record->validation_step]; 
-        
-                        // $this->record->update(['validation_state' => ReparationValidationStates::Demande_de_travail_Chef_division()->value]);
                         Notification::make()
                             ->title('Validé(e)')
                             ->success()
@@ -161,8 +156,18 @@ class ViewReparation extends ViewRecord
                     })
                     ->visible(function ($record) {
 
+                     if($this->record->validation_state != "nextValue")
+                     {
                         $user = auth()->user();
 
+                        $circuit = Circuit::where('id', $this->record->circuit_id)->value("steps");
+
+                      
+                        foreach ($circuit as $key => $item) {
+
+                            $roleIds[] = $item['role_id'];
+                        }
+ 
                         if (
                             $user->hasAnyRole([
                                 RolesEnum::Chef_division()->value,
@@ -172,11 +177,13 @@ class ViewReparation extends ViewRecord
                                 RolesEnum::Directeur_general()->value,
                                 RolesEnum::Budget()->value,
                                 RolesEnum::Dpl()->value,
-                            ])
+                            ]) &&  ( in_array( Role::find($this->record->validation_state)->name  , $user->getRoleNames()->toArray()) ) // if required role is within  user's roles
                         ) {
                             return true;
                         } else
                             return false;
+                     }
+                       else return false; 
                     }),
 
 

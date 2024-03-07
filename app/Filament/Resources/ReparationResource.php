@@ -102,7 +102,7 @@ class ReparationResource extends Resource
                                 Hidden::make('validation_state')->default(""),
 
                                 Hidden::make("validation_step")->default(0),
-                         
+
                             ])->columns(2),
 
                         Section::make('Informations du fournisseur')
@@ -364,41 +364,263 @@ class ReparationResource extends Resource
 
 
                     ]),
+                FileUpload::make('facture')
+                    ->required(function ($record) {
+                        if ($record) {
 
+                            $circuit = Circuit::find($record->circuit_id)->value("steps");
+
+                            foreach ($circuit as $key => $item) {
+
+                                $roleIds[] = $item['role_id'];
+                            }
+
+                            $searchedRoleId = (Role::where("name", RolesEnum::Directeur_general()->value)->first())->id;
+
+                            $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
+            
+                            $arrayKeys = array_keys($roleIds);
+
+                            $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole + 1);
+
+                            if (in_array($record->validation_step, $indicesDesired)) {
+                                return true;
+                            } else
+                                return false;
+                        } else
+                            return false;
+
+
+                    })
+                    ->visible(function ($record) {
+                        if ($record) {
+
+                            if($record->validation_state == "nextValue")
+                            {
+                                return true;
+                            }
+                            else{
+
+                                $circuit = Circuit::find($record->circuit_id)->value("steps");
+
+                                foreach ($circuit as $key => $item) {
+    
+                                    $roleIds[] = $item['role_id'];
+                                }
+    
+                                $searchedRoleId = (Role::where("name", RolesEnum::Directeur_general()->value)->first())->id;
+    
+                                $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
+                
+                                $arrayKeys = array_keys($roleIds);
+    
+                                $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole + 1); //remaiing indices
+                     
+                                if (in_array($record->validation_step, $indicesDesired)) {
+                                    return true;
+                                } else
+                                    return false;
+                            }
+
+                           
+                        } else
+                            return false;
+
+
+                    })->label('Proforma')
+                    ->enableDownload()
+                    ->enableOpen(),
+
+                FileUpload::make('bon_commande')
+                    ->label("Bon de commande")
+                    ->required(function ($record) {
+                        if ($record) {
+
+                            $circuit = Circuit::find($record->circuit_id)->value("steps");
+
+                            foreach ($circuit as $key => $item) {
+
+                                $roleIds[] = $item['role_id'];
+                            }
+
+                            $searchedRoleId = (Role::where("name", RolesEnum::Directeur_general()->value)->first())->id;
+
+                            $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
+            
+                            $slicedArray = array_slice($roleIds, $firstOccurenceOfRole + 1);
+
+                            $secondOccurenceOfRole = array_search($searchedRoleId, $slicedArray); // first array key where role occurs
+
+                            $arrayKeys = array_keys($slicedArray);
+
+                            $indicesDesired = array_slice($arrayKeys, $secondOccurenceOfRole + 1); // key to slice array from
+            
+
+
+
+
+                            if (in_array($record->validation_step, $indicesDesired)) {
+                                return true;
+                            } else
+                                return false;
+                        } else
+                            return false;
+
+
+                    })
+                    ->visible(function ($record) {
+                        if ($record) {
+
+                            $circuit = Circuit::find($record->circuit_id)->value("steps");
+
+                            foreach ($circuit as $key => $item) {
+
+                                $roleIds[] = $item['role_id'];
+                            }
+
+                            $searchedRoleId = (Role::where("name", RolesEnum::Directeur_general()->value)->first())->id;
+
+                            $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
+            
+                            $slicedArray = array_slice($roleIds, $firstOccurenceOfRole + 1);
+
+                            $secondOccurenceOfRole = array_search($searchedRoleId, $slicedArray);
+
+                            $arrayKeys = array_keys($slicedArray);
+
+                            $indicesDesired = array_slice($arrayKeys, $secondOccurenceOfRole ); // key to slice array from
+            
+
+
+                            if (in_array($record->validation_step, $indicesDesired)) {
+                                return true;
+                            } else
+                                return false;
+                        } else
+                            return false;
+
+                    })
+                    ->enableDownload()
+                    ->enableOpen(),
 
                 TextInput::make('cout_reparation')
                     ->label('Cout total de la révision')
                     ->numeric()
                     ->required(function ($record) {
 
-                       
+                        if ($record) {
+
+                            $circuit = Circuit::find($record->circuit_id)->value("steps");
+
+                            foreach ($circuit as $key => $item) {
+
+                                $roleIds[] = $item['role_id'];
+                            }
+
+                            $searchedRoleId = (Role::where("name", RolesEnum::Directeur_general()->value)->first())->id;
+
+                            $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
+            
+                            $arrayKeys = array_keys($roleIds);
+
+                            $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole + 1);
+
+                            if (in_array($record->validation_step, $indicesDesired)) {
+                                return true;
+                            } else
+                                return false;
+                        } else
+                            return false;
+
+
                     })
-                    ->visible(function ($record) {
+                    ->visible(
+                        function ($record) {
 
-                       
-                    }),
+                            if ($record) {
 
-                FileUpload::make('facture')
-                    ->required(function ($record) {
+                                $circuit = Circuit::find($record->circuit_id)->value("steps");
 
-                      
-                    })
-                    ->visible(function ($record) {
+                                foreach ($circuit as $key => $item) {
 
-                     
-                    })->label('Proforma')
-                    ->enableDownload()
-                    ->enableOpen(),
+                                    $roleIds[] = $item['role_id'];
+                                }
+
+                                $searchedRoleId = (Role::where("name", RolesEnum::Directeur_general()->value)->first())->id;
+
+                                $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
+                
+                                $arrayKeys = array_keys($roleIds);
+
+                                $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole + 1);
+
+                                if (in_array($record->validation_step, $indicesDesired)) {
+                                    return true;
+                                } else
+                                    return false;
+                            } else
+                                return false;
+
+                        }
+                    ),
+
+
 
                 TextInput::make('ref_proforma')
                     ->label('Référence du devis')
                     ->required(function ($record) {
+                        if ($record) {
 
-                    
+                            $circuit = Circuit::find($record->circuit_id)->value("steps");
+
+                            foreach ($circuit as $key => $item) {
+
+                                $roleIds[] = $item['role_id'];
+                            }
+
+                            $searchedRoleId = (Role::where("name", RolesEnum::Directeur_general()->value)->first())->id;
+
+                            $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
+            
+                            $arrayKeys = array_keys($roleIds);
+
+                            $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole + 1);
+
+                            if (in_array($record->validation_step, $indicesDesired)) {
+                                return true;
+                            } else
+                                return false;
+                        } else
+                            return false;
+
+
                     })
                     ->visible(function ($record) {
+                        if ($record) {
 
-                      
+                            $circuit = Circuit::find($record->circuit_id)->value("steps");
+
+                            foreach ($circuit as $key => $item) {
+
+                                $roleIds[] = $item['role_id'];
+                            }
+
+                            $searchedRoleId = (Role::where("name", RolesEnum::Directeur_general()->value)->first())->id;
+
+                            $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
+            
+                            $arrayKeys = array_keys($roleIds);
+
+                            $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole + 1);
+
+                            if (in_array($record->validation_step, $indicesDesired)) {
+                                return true;
+                            } else
+                                return false;
+                        } else
+                            return false;
+
+
                     }),
                 MarkdownEditor::make('details')
                     ->label('Détails')
@@ -451,74 +673,72 @@ class ReparationResource extends Resource
 
                 TextColumn::make('validation_state')
                     ->label("Statut de validation")
-                    ->formatStateUsing(function($state){
+                    ->formatStateUsing(function ($state) {
 
-                        if($state == "nextValue")
-                        {
+                        if ($state == "nextValue") {
                             return "Terminée";
-                        }
-                        else{
+                        } else {
                             $validator = (Role::find($state))->name;
 
-                            return "En attente de validation de: ". $validator ;
+                            return "En attente de validation de: " . $validator;
                         }
-                       
+
                     })
                     ->color('primary')
                     ->weight('bold')
-                    // ->description(function (Reparation $record) {
+                // ->description(function (Reparation $record) {
 
-                    //     $engin = Engine::find($record->engine_id);
+                //     $engin = Engine::find($record->engine_id);
 
-                    //     $division = Division::find($engin->departement_id);
+                //     $division = Division::find($engin->departement_id);
 
-                    //     $direction = Direction::find($division->direction_id);
-
-
-
-                    //     $returnString = "";
-
-                    //     switch ($record->validation_state) {
-
-                    //         case ReparationValidationStates::Declaration_initiale()->value:
-                    //             $returnString = 'En attente de validation du chef ' . $division->sigle_division;
-                    //             break;
-
-                    //         case ReparationValidationStates::Demande_de_travail_Chef_division()->value:
-                    //             $returnString = 'En attente de validation du  ' . $direction->sigle_direction;
-                    //             break;
-
-                    //         case ReparationValidationStates::Demande_de_travail_directeur_division()->value:
-                    //             $returnString = 'En attente de validation du DG';
-                    //             break;
-
-                    //         case ReparationValidationStates::Demande_de_travail_dg()->value:
-                    //             $returnString = 'En attente du proforma';
-                    //             break;
-
-                    //         case ReparationValidationStates::Demande_de_travail_chef_parc()->value:
-                    //             $returnString = 'En attente de validation du devis par la DIGA';
-                    //             break;
-
-                    //         case ReparationValidationStates::Demande_de_travail_diga()->value:
-                    //             $returnString = 'Mise en place du Bon de travail par Chef Parc';
-                    //             break;   // ici que je suis au 5 03 2024
-            
-                    //         case ReparationValidationStates::Bon_de_travail_chef_division()->value:
-                    //             $returnString = 'Bon validé par le chef Division';
-                    //             break;
-
-                    //         case ReparationValidationStates::Bon_de_travail_chef_parc()->value:
-                    //             $returnString = 'Suivi du Budget';  //suivi budgétaire des engagements
-                    //             break;
+                //     $direction = Direction::find($division->direction_id);
 
 
-                    //     };
 
-                    //     return $returnString;
+                //     $returnString = "";
+
+                //     switch ($record->validation_state) {
+
+                //         case ReparationValidationStates::Declaration_initiale()->value:
+                //             $returnString = 'En attente de validation du chef ' . $division->sigle_division;
+                //             break;
+
+                //         case ReparationValidationStates::Demande_de_travail_Chef_division()->value:
+                //             $returnString = 'En attente de validation du  ' . $direction->sigle_direction;
+                //             break;
+
+                //         case ReparationValidationStates::Demande_de_travail_directeur_division()->value:
+                //             $returnString = 'En attente de validation du DG';
+                //             break;
+
+                //         case ReparationValidationStates::Demande_de_travail_dg()->value:
+                //             $returnString = 'En attente du proforma';
+                //             break;
+
+                //         case ReparationValidationStates::Demande_de_travail_chef_parc()->value:
+                //             $returnString = 'En attente de validation du devis par la DIGA';
+                //             break;
+
+                //         case ReparationValidationStates::Demande_de_travail_diga()->value:
+                //             $returnString = 'Mise en place du Bon de travail par Chef Parc';
+                //             break;   // ici que je suis au 5 03 2024
+
+                //         case ReparationValidationStates::Bon_de_travail_chef_division()->value:
+                //             $returnString = 'Bon validé par le chef Division';
+                //             break;
+
+                //         case ReparationValidationStates::Bon_de_travail_chef_parc()->value:
+                //             $returnString = 'Suivi du Budget';  //suivi budgétaire des engagements
+                //             break;
 
 
-                    // }),
+                //     };
+
+                //     return $returnString;
+
+
+                // }),
 
                 // ->colors([
                 //     'secondary' => static fn ($state): bool => $state == 'draft',
@@ -532,7 +752,7 @@ class ReparationResource extends Resource
                 //     'heroicon-o-refresh' => 'reviewing',
                 //     'heroicon-o-truck' => 'published',
                 // ]),
-,
+                ,
                 PrestataireColumn::make('prestataire')
                     ->label('Prestataire')
                 ,
