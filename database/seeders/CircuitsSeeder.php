@@ -14,7 +14,7 @@ class CircuitsSeeder extends Seeder
     public function run(): void
     {
 
-        $circuitLong = [
+        $circuitDeDivision = [
             ["role_id" => 5],
             ["role_id" => 7],
             ["role_id" => 9],
@@ -25,41 +25,71 @@ class CircuitsSeeder extends Seeder
             ["role_id" => 8],
             ["role_id" => 7],
             ["role_id" => 9],
+            ["role_id" => 8],
             ["role_id" => 6]
         ];
 
-
-
-        // $circuitMoyen =[
-
-        // ];
-
-        // $circuitCourt =[
-
-        // ];
-
-        // $circuitSpecialise =[
-
-        // ];
-
         Circuit::create([
-            "name"=> "Circuit long",
-            "steps"=>  $circuitLong,
+            "name" => "Circuit de Division",
+            "steps" => $circuitDeDivision,
         ]);
 
-        // Circuit::create([
-        //     "name"=> "Circuit moyen",
-        //     "steps"=>  $circuitMoyen,
-        // ]);
+        $circuitdeDirection = [
 
-        // Circuit::create([
-        //     "name"=> "Circuit court",
-        //     "steps"=>  $circuitCourt,
-        // ]);
+            ["role_id" => 7],
+            ["role_id" => 9],
+            ["role_id" => 6],
+            ["role_id" => 13],
+            ["role_id" => 6],
+            ["role_id" => 8],
+            ["role_id" => 7],
+            ["role_id" => 9],
+            ["role_id" => 8],
+            ["role_id" => 6]
+        ];
 
-        // Circuit::create([
-        //     "name"=> "Circuit specialise",
-        //     "steps"=>  $circuitSpecialise,
-        // ]);
+        Circuit::create([
+            "name" => "Circuit de Direction",
+            "steps" => $circuitdeDirection,
+        ]);
+
+
+        $circuitDeLaDirectionGenerale = [
+
+            ["role_id" => 9],
+            ["role_id" => 6],
+            ["role_id" => 13],
+            ["role_id" => 6],
+            ["role_id" => 8],
+            ["role_id" => 9],
+            ["role_id" => 8],
+            ["role_id" => 6]
+        ];
+
+        Circuit::create([
+            "name" => "Circuit de la Direction Générale",
+            "steps" => $circuitDeLaDirectionGenerale,
+        ]);
+
+
+
+        $circuitParticulier = [  // circuits où  le DG est à la fois le directeur de département
+
+            ["role_id" => 5],
+            ["role_id" => 9],
+            ["role_id" => 6],
+            ["role_id" => 13],
+            ["role_id" => 6],
+            ["role_id" => 5],
+            ["role_id" => 8],
+            ["role_id" => 9],
+            ["role_id" => 8],
+            ["role_id" => 6]
+        ];
+
+        Circuit::create([
+            "name"=> "Circuit particulier",
+            "steps"=>  $circuitParticulier,
+        ]);
     }
 }

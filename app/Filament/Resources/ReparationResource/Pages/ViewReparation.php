@@ -32,7 +32,7 @@ class ViewReparation extends ViewRecord
             return [
 
                 EditAction::make("edit")
-                ->visible(fn($record) => ($record->validation_state == "nextValue" || $record->validation_step == 100)? false : true ),
+                    ->visible(fn($record) => ($record->validation_state == "nextValue" || $record->validation_step == 100) ? false : true),
 
                 Actions\Action::make('Valider')
                     ->color('success')
@@ -53,20 +53,20 @@ class ViewReparation extends ViewRecord
                             $indice = $roleIds[$this->record->validation_step];
 
                             $requiredRole = Role::where("id", $indice)->first();
-                            
-                            if(in_array($requiredRole, [
-                                Role::where("name", RolesEnum::Chef_parc()->value)->first(),
-                                Role::where("name", RolesEnum::Directeur_general()->value)->first(),
-                                Role::where("name", RolesEnum::Diga()->value)->first(),
-                                Role::where("name", RolesEnum::Budget()->value)->first(),
-                                Role::where("name", RolesEnum::Dpl()->value)->first(),
 
-                            ]) && $user->hasRole(Role::where("id", $indice)->value("id"))){   // if require role is in list (array) and user has the role 
-                                
+                            if (
+                                in_array($requiredRole, [
+                                    Role::where("name", RolesEnum::Chef_parc()->value)->first(),
+                                    Role::where("name", RolesEnum::Directeur_general()->value)->first(),
+                                    Role::where("name", RolesEnum::Diga()->value)->first(),
+                                    Role::where("name", RolesEnum::Budget()->value)->first(),
+                                    Role::where("name", RolesEnum::Dpl()->value)->first(),
+
+                                ]) && $user->hasRole(Role::where("id", $indice)->value("id"))
+                            ) {   // if require role is in list (array) and user has the role 
+        
                                 return true;
-                            }
-
-                            elseif ($user->hasRole(Role::where("id", $indice)->value("id")) && ($user->departement_id == intval($concernedEngine->departement_id))) {
+                            } elseif ($user->hasRole(Role::where("id", $indice)->value("id")) && ($user->departement_id == intval($concernedEngine->departement_id))) {
                                 return true;
                             } else
                                 return false;
@@ -78,7 +78,7 @@ class ViewReparation extends ViewRecord
                     ->icon('heroicon-o-check-circle')
                     ->action(function (?Reparation $record) {
 
-
+                        $user = auth()->user();
 
                         $circuit = Circuit::where('id', $this->record->circuit_id)->value("steps");
 
@@ -87,21 +87,41 @@ class ViewReparation extends ViewRecord
                             $roleIds[] = $item['role_id'];
                         }
 
+        
+
+                        if ($user->hasRole(Role::where("name", RolesEnum::Chef_parc()->value)->first()->name)) {
+
+               
+                            if (!$this->record->facture || !$this->record->ref_proforma || !$this->record->cout_reparation) {
+
+                                Notification::make()
+                                    ->title('Attention')
+                                    ->warning()
+                                    ->body("Les informations du devis doivent être renseignées avant validation")
+                                    ->send();
+
+                                $this->halt();
+                            }
+
+                        }
+
+
+
                         $currentKey = $this->record->validation_step; // key in array
-
+        
                         $currentvalue = $roleIds[$this->record->validation_step]; // value of the key array
-
+        
 
                         $a = 0;
                         for ($i = 0; $i < count($roleIds); $i++) {
-                        
+
                             if ($i == $currentKey) {
 
                                 next($roleIds);
                                 break;
                             }
 
-                            $a =   next($roleIds);
+                            $a = next($roleIds);
 
 
                         }
@@ -156,34 +176,33 @@ class ViewReparation extends ViewRecord
                     })
                     ->visible(function ($record) {
 
-                     if($this->record->validation_state != "nextValue")
-                     {
-                        $user = auth()->user();
+                        if ($this->record->validation_state != "nextValue") {
+                            $user = auth()->user();
 
-                        $circuit = Circuit::where('id', $this->record->circuit_id)->value("steps");
+                            $circuit = Circuit::where('id', $this->record->circuit_id)->value("steps");
 
-                      
-                        foreach ($circuit as $key => $item) {
 
-                            $roleIds[] = $item['role_id'];
-                        }
- 
-                        if (
-                            $user->hasAnyRole([
-                                RolesEnum::Chef_division()->value,
-                                RolesEnum::Chef_parc()->value,
-                                RolesEnum::Diga()->value,
-                                RolesEnum::Directeur()->value,
-                                RolesEnum::Directeur_general()->value,
-                                RolesEnum::Budget()->value,
-                                RolesEnum::Dpl()->value,
-                            ]) &&  ( in_array( Role::find($this->record->validation_state)->name  , $user->getRoleNames()->toArray()) ) // if required role is within  user's roles
-                        ) {
-                            return true;
+                            foreach ($circuit as $key => $item) {
+
+                                $roleIds[] = $item['role_id'];
+                            }
+
+                            if (
+                                $user->hasAnyRole([
+                                    RolesEnum::Chef_division()->value,
+                                    RolesEnum::Chef_parc()->value,
+                                    RolesEnum::Diga()->value,
+                                    RolesEnum::Directeur()->value,
+                                    RolesEnum::Directeur_general()->value,
+                                    RolesEnum::Budget()->value,
+                                    RolesEnum::Dpl()->value,
+                                ]) && (in_array(Role::find($this->record->validation_state)->name, $user->getRoleNames()->toArray())) // if required role is within  user's roles
+                            ) {
+                                return true;
+                            } else
+                                return false;
                         } else
                             return false;
-                     }
-                       else return false; 
                     }),
 
 

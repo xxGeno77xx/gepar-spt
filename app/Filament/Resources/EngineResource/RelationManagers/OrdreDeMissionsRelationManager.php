@@ -37,7 +37,7 @@ class OrdreDeMissionsRelationManager extends RelationManager
 
                 BadgeColumn::make('chauffeur_id')
                     ->label('Chauffeur')
-                    ->formatStateUsing(fn ($state): string => Chauffeur::find($state)->name)
+                    ->formatStateUsing(fn ($state): string => Chauffeur::find($state)->fullname)
                     ->color('success'),
 
                 BadgeColumn::make('date_de_depart')
@@ -60,7 +60,7 @@ class OrdreDeMissionsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                // Tables\Actions\CreateAction::make(),
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([

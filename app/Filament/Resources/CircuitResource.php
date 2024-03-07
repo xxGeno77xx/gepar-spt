@@ -24,7 +24,7 @@ class CircuitResource extends Resource
 {
     protected static ?string $model = Circuit::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-collection';
+    protected static ?string $navigationIcon = 'heroicon-o-chevron-double-right';
 
     public static function form(Form $form): Form
     {
@@ -33,7 +33,6 @@ class CircuitResource extends Resource
                 TextInput::make('name'),
                 Repeater::make("steps")
                     ->schema([
-
 
                             Select::make('role_id')
                             ->searchable()
@@ -48,7 +47,7 @@ class CircuitResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name'),
-                TagsColumn::make('role_id')
+
             ])
             ->filters([
                 //
@@ -57,7 +56,7 @@ class CircuitResource extends Resource
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\DeleteBulkAction::make(),
+                // Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
 

@@ -38,22 +38,22 @@ class ChauffeurResource extends Resource
             ->schema([
                 Card::make()
                     ->schema([
-                        Grid::make(2)
+                        Grid::make(1)
                             ->schema([
-                                TextInput::make('name')
-                                    ->label('Nom')
+                                TextInput::make('fullname')
+                                    ->label('Nom complet')
                                     ->unique(ignoreRecord: true)
                                     ->required(),
 
-                                Select::make('departement_id')
-                                    ->label('Département')
-                                    ->options(
-                                        Departement::select(['sigle_centre', 'code_centre'])
-                                            ->where('sigle_centre', '<>', '0')
-                                            ->pluck('sigle_centre', 'code_centre')
-                                    )
-                                    ->searchable()
-                                    ->required(),
+                                // Select::make('departement_id')
+                                //     ->label('Département')
+                                //     ->options(
+                                //         Departement::select(['sigle_centre', 'code_centre'])
+                                //             ->where('sigle_centre', '<>', '0')
+                                //             ->pluck('sigle_centre', 'code_centre')
+                                //     )
+                                //     ->searchable()
+                                //     ->required(),
                             ]),
                     ]),
 
@@ -77,17 +77,18 @@ class ChauffeurResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name')
+                TextColumn::make('fullname')
                     ->searchable()
+                    ->label('Nom complet')
                     ->placeholder('-'),
 
-                TextColumn::make('nom_departement')
-                    ->label('Département')
-                    ->placeholder('-'),
+                // TextColumn::make('nom_departement')
+                //     ->label('Département')
+                //     ->placeholder('-'),
 
-                TextColumn::make('plate_number')
-                    ->label('Engin')
-                    ->placeholder('-'),
+                // TextColumn::make('plate_number')
+                //     ->label('Engin')
+                //     ->placeholder('-'),
             ])
             ->filters([
                 //

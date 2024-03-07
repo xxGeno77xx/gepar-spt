@@ -364,9 +364,44 @@ class ReparationResource extends Resource
 
 
                     ]),
+              Section::make("Devis")
+              ->schema([
                 FileUpload::make('facture')
-                    ->required(function ($record) {
-                        if ($record) {
+                ->required(function ($record) {
+                    if ($record) {
+
+                        $circuit = Circuit::find($record->circuit_id)->value("steps");
+
+                        foreach ($circuit as $key => $item) {
+
+                            $roleIds[] = $item['role_id'];
+                        }
+
+                        $searchedRoleId = (Role::where("name", RolesEnum::Directeur_general()->value)->first())->id;
+
+                        $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
+        
+                        $arrayKeys = array_keys($roleIds);
+
+                        $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole + 1);
+
+                        if (in_array($record->validation_step, $indicesDesired)) {
+                            return true;
+                        } else
+                            return false;
+                    } else
+                        return false;
+
+
+                })
+                ->visible(function ($record) {
+                    if ($record) {
+
+                        if($record->validation_state == "nextValue")
+                        {
+                            return true;
+                        }
+                        else{
 
                             $circuit = Circuit::find($record->circuit_id)->value("steps");
 
@@ -381,247 +416,273 @@ class ReparationResource extends Resource
             
                             $arrayKeys = array_keys($roleIds);
 
-                            $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole + 1);
-
+                            $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole + 1); //remaiing indices
+                 
                             if (in_array($record->validation_step, $indicesDesired)) {
                                 return true;
                             } else
                                 return false;
+                        }
+
+                       
+                    } else
+                        return false;
+
+
+                })->label('Proforma')
+                ->enableDownload()
+                ->enableOpen(),
+
+            FileUpload::make('bon_commande')
+            ->dehydrated(false)
+                ->label("Bon de commande")
+                ->required(function ($record) {
+                    if ($record) {
+
+                        $circuit = Circuit::find($record->circuit_id)->value("steps");
+
+                        foreach ($circuit as $key => $item) {
+
+                            $roleIds[] = $item['role_id'];
+                        }
+
+                        $searchedRoleId = (Role::where("name", RolesEnum::Directeur_general()->value)->first())->id;
+
+                        $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
+        
+                        $slicedArray = array_slice($roleIds, $firstOccurenceOfRole + 1);
+
+                        $secondOccurenceOfRole = array_search($searchedRoleId, $slicedArray); // first array key where role occurs
+
+                        $arrayKeys = array_keys($slicedArray);
+
+                        $indicesDesired = array_slice($arrayKeys, $secondOccurenceOfRole + 1); // key to slice array from
+        
+
+
+
+
+                        if (in_array($record->validation_step, $indicesDesired)) {
+                            return true;
                         } else
                             return false;
+                    } else
+                        return false;
 
 
-                    })
-                    ->visible(function ($record) {
-                        if ($record) {
+                })
+                ->visible(function ($record) {
+                    if ($record) {
 
-                            if($record->validation_state == "nextValue")
-                            {
-                                return true;
-                            }
-                            else{
+                        $circuit = Circuit::find($record->circuit_id)->value("steps");
 
-                                $circuit = Circuit::find($record->circuit_id)->value("steps");
+                        foreach ($circuit as $key => $item) {
 
-                                foreach ($circuit as $key => $item) {
-    
-                                    $roleIds[] = $item['role_id'];
-                                }
-    
-                                $searchedRoleId = (Role::where("name", RolesEnum::Directeur_general()->value)->first())->id;
-    
-                                $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
-                
-                                $arrayKeys = array_keys($roleIds);
-    
-                                $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole + 1); //remaiing indices
-                     
-                                if (in_array($record->validation_step, $indicesDesired)) {
-                                    return true;
-                                } else
-                                    return false;
-                            }
+                            $roleIds[] = $item['role_id'];
+                        }
 
-                           
+                        $searchedRoleId = (Role::where("name", RolesEnum::Directeur_general()->value)->first())->id;
+
+                        $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
+
+
+                        
+        
+                        $slicedArray = array_slice($roleIds, $firstOccurenceOfRole + 1);
+
+                        $secondOccurenceOfRole = array_search($searchedRoleId, $slicedArray);
+
+
+                        $secondOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $slicedArray)) +  $firstOccurenceOfRole +1;
+
+
+
+                        $remainingKeys = array_slice($roleIds, $secondOccurenceOfRoleInOriginalRolesArray);
+
+                        // array_flip(($remainingKeys));
+
+                        // dd(array_flip(($remainingKeys) ));
+
+                        $arrayKeys = array_keys($slicedArray);
+
+                        $indicesDesired = array_slice($slicedArray, $secondOccurenceOfRole +1); // key to slice array from
+
+
+                        $r =  array_keys($indicesDesired);
+
+
+        // dd( $roleIds, $firstOccurenceOfRole,  $slicedArray,   $indicesDesired, in_array($record->validation_step, $indicesDesired), $r);
+
+                        if (in_array($record->validation_step, $remainingKeys)) {
+                            return true;
                         } else
                             return false;
+                    } else
+                        return false;
 
+                })
+                ->enableDownload()
+                ->enableOpen(),
 
-                    })->label('Proforma')
-                    ->enableDownload()
-                    ->enableOpen(),
-
-                FileUpload::make('bon_commande')
-                    ->label("Bon de commande")
-                    ->required(function ($record) {
-                        if ($record) {
-
-                            $circuit = Circuit::find($record->circuit_id)->value("steps");
-
-                            foreach ($circuit as $key => $item) {
-
-                                $roleIds[] = $item['role_id'];
-                            }
-
-                            $searchedRoleId = (Role::where("name", RolesEnum::Directeur_general()->value)->first())->id;
-
-                            $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
-            
-                            $slicedArray = array_slice($roleIds, $firstOccurenceOfRole + 1);
-
-                            $secondOccurenceOfRole = array_search($searchedRoleId, $slicedArray); // first array key where role occurs
-
-                            $arrayKeys = array_keys($slicedArray);
-
-                            $indicesDesired = array_slice($arrayKeys, $secondOccurenceOfRole + 1); // key to slice array from
-            
-
-
-
-
-                            if (in_array($record->validation_step, $indicesDesired)) {
-                                return true;
-                            } else
-                                return false;
-                        } else
-                            return false;
-
-
-                    })
-                    ->visible(function ($record) {
-                        if ($record) {
-
-                            $circuit = Circuit::find($record->circuit_id)->value("steps");
-
-                            foreach ($circuit as $key => $item) {
-
-                                $roleIds[] = $item['role_id'];
-                            }
-
-                            $searchedRoleId = (Role::where("name", RolesEnum::Directeur_general()->value)->first())->id;
-
-                            $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
-            
-                            $slicedArray = array_slice($roleIds, $firstOccurenceOfRole + 1);
-
-                            $secondOccurenceOfRole = array_search($searchedRoleId, $slicedArray);
-
-                            $arrayKeys = array_keys($slicedArray);
-
-                            $indicesDesired = array_slice($arrayKeys, $secondOccurenceOfRole ); // key to slice array from
-            
-
-
-                            if (in_array($record->validation_step, $indicesDesired)) {
-                                return true;
-                            } else
-                                return false;
-                        } else
-                            return false;
-
-                    })
-                    ->enableDownload()
-                    ->enableOpen(),
-
-                TextInput::make('cout_reparation')
+                Grid::make(2)
+                ->schema([
+                    TextInput::make('cout_reparation')
                     ->label('Cout total de la révision')
                     ->numeric()
                     ->required(function ($record) {
-
+    
                         if ($record) {
-
+    
                             $circuit = Circuit::find($record->circuit_id)->value("steps");
-
+    
                             foreach ($circuit as $key => $item) {
-
+    
                                 $roleIds[] = $item['role_id'];
                             }
-
+    
                             $searchedRoleId = (Role::where("name", RolesEnum::Directeur_general()->value)->first())->id;
-
+    
                             $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
             
                             $arrayKeys = array_keys($roleIds);
-
+    
                             $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole + 1);
-
+    
                             if (in_array($record->validation_step, $indicesDesired)) {
                                 return true;
                             } else
                                 return false;
                         } else
                             return false;
-
-
+    
+    
                     })
                     ->visible(
                         function ($record) {
-
+    
                             if ($record) {
-
+    
                                 $circuit = Circuit::find($record->circuit_id)->value("steps");
-
+    
                                 foreach ($circuit as $key => $item) {
-
+    
                                     $roleIds[] = $item['role_id'];
                                 }
-
+    
                                 $searchedRoleId = (Role::where("name", RolesEnum::Directeur_general()->value)->first())->id;
-
+    
                                 $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
                 
                                 $arrayKeys = array_keys($roleIds);
-
+    
                                 $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole + 1);
-
+    
                                 if (in_array($record->validation_step, $indicesDesired)) {
                                     return true;
                                 } else
                                     return false;
                             } else
                                 return false;
-
+    
                         }
                     ),
-
-
-
+    
+    
+    
                 TextInput::make('ref_proforma')
                     ->label('Référence du devis')
                     ->required(function ($record) {
                         if ($record) {
-
+    
                             $circuit = Circuit::find($record->circuit_id)->value("steps");
-
+    
                             foreach ($circuit as $key => $item) {
-
+    
                                 $roleIds[] = $item['role_id'];
                             }
-
+    
                             $searchedRoleId = (Role::where("name", RolesEnum::Directeur_general()->value)->first())->id;
-
+    
                             $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
             
                             $arrayKeys = array_keys($roleIds);
-
+    
                             $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole + 1);
-
+    
                             if (in_array($record->validation_step, $indicesDesired)) {
                                 return true;
                             } else
                                 return false;
                         } else
                             return false;
-
-
+    
+    
                     })
                     ->visible(function ($record) {
                         if ($record) {
-
+    
                             $circuit = Circuit::find($record->circuit_id)->value("steps");
-
+    
                             foreach ($circuit as $key => $item) {
-
+    
                                 $roleIds[] = $item['role_id'];
                             }
-
+    
                             $searchedRoleId = (Role::where("name", RolesEnum::Directeur_general()->value)->first())->id;
-
+    
                             $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
             
                             $arrayKeys = array_keys($roleIds);
-
+    
                             $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole + 1);
-
+    
                             if (in_array($record->validation_step, $indicesDesired)) {
                                 return true;
                             } else
                                 return false;
                         } else
                             return false;
-
-
+    
+    
                     }),
+                ])
+           
+            ])->visible(function ($record) {
+                if ($record) {
+
+                    if($record->validation_state == "nextValue")
+                    {
+                        return true;
+                    }
+                    else{
+
+                        $circuit = Circuit::find($record->circuit_id)->value("steps");
+
+                        foreach ($circuit as $key => $item) {
+
+                            $roleIds[] = $item['role_id'];
+                        }
+
+                        $searchedRoleId = (Role::where("name", RolesEnum::Directeur_general()->value)->first())->id;
+
+                        $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
+        
+                        $arrayKeys = array_keys($roleIds);
+
+                        $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole + 1); //remaiing indices
+             
+                        if (in_array($record->validation_step, $indicesDesired)) {
+                            return true;
+                        } else
+                            return false;
+                    }
+
+                   
+                } else
+                    return false;
+
+
+            }),
                 MarkdownEditor::make('details')
                     ->label('Détails')
                     ->disableAllToolbarButtons()

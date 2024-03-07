@@ -3,7 +3,7 @@
     use App\Models\Engine;
     use Carbon\Carbon;
 
-    $chauffeur = Chauffeur::find($order->chauffeur_id)->value('name');
+    $chauffeur = Chauffeur::find($order->chauffeur_id)->value('fullname');
     $moyenTransport = Engine::find($order->engine_id)->value('plate_number');
     $agents = $order->agents;
 

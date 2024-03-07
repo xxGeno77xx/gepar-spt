@@ -20,17 +20,17 @@ return new class extends Migration
         Schema::create('chauffeurs', function (Blueprint $table) {
             $table->id();
 
-            $table->string('name');
+            $table->string('fullname');
 
-            $table->string('prenom');
+            // $table->string('prenom');
 
-            $table->string('age');
+            // $table->string('age');
 
-            $table->string('carte_identite');
+            // $table->string('carte_identite');
 
-            $table->string('num_permis');
+            // $table->string('num_permis');
 
-            $table->string('permmis');
+            // $table->string('permmis');
 
             $table->enum('state', [
                 StatesClass::Activated()->value,

@@ -22,6 +22,6 @@ class ListOrdreDeMissions extends ListRecords
     {
         return static::getResource()::getEloquentQuery()
             ->join('chauffeurs', 'chauffeurs.id', 'ordre_de_missions.chauffeur_id')
-            ->select('ordre_de_missions.*', 'chauffeurs.name as chauffeur');
+            ->select('ordre_de_missions.*', 'chauffeurs.fullname as chauffeur');
     }
 }

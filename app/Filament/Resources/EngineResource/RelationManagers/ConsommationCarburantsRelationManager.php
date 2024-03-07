@@ -150,7 +150,7 @@ class ConsommationCarburantsRelationManager extends RelationManager
                         Forms\Components\Select::make('chauffeur_id')
                             ->label('Chauffeur')
                             ->options(
-                                Chauffeur::select(['name', 'id'])->get()->pluck('name', 'id')
+                                Chauffeur::select(['fullname', 'id'])->get()->pluck('fullname', 'id')
                             )
                             ->required()
                             ->searchable(),
@@ -186,7 +186,7 @@ class ConsommationCarburantsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('kilometres_a_remplissage')
                     ->label('Indice compteur'),
 
-                Tables\Columns\TextColumn::make('name')
+                Tables\Columns\TextColumn::make('fullname')
                     ->label('Chauffeur'),
 
                 Tables\Columns\TextColumn::make('observation')
@@ -240,7 +240,7 @@ class ConsommationCarburantsRelationManager extends RelationManager
                         Select::make('chauffeur_id')
                             ->searchable()
                             ->label('Chauffeur')
-                            ->options(Chauffeur::pluck('name', 'id')),
+                            ->options(Chauffeur::pluck('fullname', 'id')),
 
                     ])->query(function (Builder $query, array $data): Builder {
                         return $query
@@ -258,7 +258,7 @@ class ConsommationCarburantsRelationManager extends RelationManager
                             return null;
                         }
 
-                        return 'Chauffeur: '.Chauffeur::where('chauffeurs.id', $data['chauffeur_id'])->value('name');
+                        return 'Chauffeur: '.Chauffeur::where('chauffeurs.id', $data['chauffeur_id'])->value('fullname');
                     }),
             ])
             ->headerActions([
@@ -370,7 +370,7 @@ class ConsommationCarburantsRelationManager extends RelationManager
     {
         return ConsommationCarburant::leftJoin('chauffeurs', 'consommation_carburants.chauffeur_id', 'chauffeurs.id')
             ->leftJoin('engines', 'consommation_carburants.engine_id', 'engines.id')
-            ->select(['consommation_carburants.*', 'chauffeurs.name'])
+            ->select(['consommation_carburants.*', 'chauffeurs.fullname'])
             ->where('consommation_carburants.state', StatesClass::Activated()->value)
             ->where('engines.id', $this->ownerRecord->id);
     }

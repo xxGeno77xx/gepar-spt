@@ -42,10 +42,10 @@ class OrdreDeMissionResource extends Resource
                                 Select::make('chauffeur_id')
                                     ->label('Chauffeur')
                                     ->options(
-                                        Chauffeur::select(['name', 'id'])
+                                        Chauffeur::select(['fullname', 'id'])
                                             ->where('Chauffeurs.state', StatesClass::Activated()->value)
                                             ->get()
-                                            ->pluck('name', 'id')
+                                            ->pluck('fullname', 'id')
                                     )
                                     ->required()
                                     ->searchable(),
@@ -64,6 +64,7 @@ class OrdreDeMissionResource extends Resource
 
                                             ->schema([
                                                 TextInput::make('Nom')
+                                                ->label('Nom complet')
                                                     ->required(),
 
                                                 TextInput::make('Désignation')
@@ -98,7 +99,7 @@ class OrdreDeMissionResource extends Resource
                                     ->columnSpanFull(),
 
                                 Hidden::make('numero_ordre')
-                                    ->default(0001), //generate the number
+                                    ->default(fn() => OrdreDeMission::orderBy("id", "desc")->first()? OrdreDeMission::orderBy("id", "desc")->first()->id + 1 : 1), //generate the number
                             ]),
                     ]),
 

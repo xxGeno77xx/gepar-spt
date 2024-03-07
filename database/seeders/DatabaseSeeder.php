@@ -26,10 +26,10 @@ class DatabaseSeeder extends Seeder
         $this->call(EnginesSeeder::class);
 
         // $this->call(PrestataireSeeder::class);
-
+        $this->call(CircuitsSeeder::class);
         $this->call(ConsommationSeeder::class);
 
-        $this->call(CircuitsSeeder::class);
+
 
     }
 }

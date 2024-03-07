@@ -27,7 +27,7 @@ class EditReparation extends EditRecord
     {
         if (auth()->user()->hasAnyPermission([PermissionsClass::reparation_delete()->value])) {
             return [
-            
+
             ];
 
         }
@@ -37,7 +37,7 @@ class EditReparation extends EditRecord
 
     protected function authorizeAccess(): void
     {
-   
+
         $user = auth()->user();
 
         $userPermission = $user->hasAnyPermission([PermissionsClass::reparation_update()->value]);
@@ -51,50 +51,47 @@ class EditReparation extends EditRecord
             $roleIds[] = $item['role_id'];
         }
 
-    $currentlyRequiredValidationRole = Role::where("id",  $roleIds[$this->record->validation_step]);
+        $currentlyRequiredValidationRole = Role::where("id", $roleIds[$this->record->validation_step]);
 
 
         $concernedEngine = Engine::where("id", $this->record->engine_id)->first();
 
         $user = auth()->user();
 
-        if($userPermission)
-        {
+        if ($userPermission) {
 
-           
-            if($this->record->validation_state == "nextValue" || $this->record->validation_step == "100")  // if reparation is finished
+
+            if ($this->record->validation_state == "nextValue" || $this->record->validation_step == "100")  // if reparation is finished
             {
                 abort(403, "Vous ne pouvez plus modifier une réparation déjà achevée");
-            }
-
-
-            elseif( ($this->record->validation_step != 0)) // if is not in starting step
+            } elseif (($this->record->validation_step != 0)) // if is not in starting step
             {
 
 
                 $chefParcRoleId = (Role::where("name", RolesEnum::Directeur_general()->value)->first())->id;
 
                 $firstOccurenceOfRole = array_search($chefParcRoleId, $roleIds); // first array key where role occurs
-    
+
                 $arrayKeys = array_keys($roleIds); //get array keys
-    
+
                 $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole + 1);
-    
-    
-                abort_unless($user->hasAnyRole([
-                    Role::where("name", RolesEnum::Chef_parc()->value)->first()->name,
-                    Role::where("name", RolesEnum::Dpl()->value)->first()->name,
-                    Role::where("name", RolesEnum::Budget()->value)->first()->name,
-                ]) && (in_array($this->record->validation_step, $indicesDesired)),
-                403, 
-                "Vous n'avez pas les permissions pour modifier une demande en cours de validation");
+
+
+                abort_unless(
+                    $user->hasAnyRole([
+                        Role::where("name", RolesEnum::Chef_parc()->value)->first()->name,
+                        Role::where("name", RolesEnum::Dpl()->value)->first()->name,
+                        Role::where("name", RolesEnum::Budget()->value)->first()->name,
+                    ]) && (in_array($this->record->validation_step, $indicesDesired)),
+                    403,
+                    "Vous n'avez pas les permissions pour modifier une demande en cours de validation"
+                );
             }
 
 
-            
-        }
-       
-        else abort(403, __("Vous n'avez pas access à cette page"));
+
+        } else
+            abort(403, __("Vous n'avez pas access à cette page"));
     }
 
     public function afterSave()
@@ -110,5 +107,10 @@ class EditReparation extends EditRecord
                 'state' => StatesClass::Activated()->value,
             ]);
         }
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('view', $this->record->id);
     }
 }
