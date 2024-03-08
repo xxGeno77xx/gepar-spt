@@ -1,12 +1,12 @@
 <?php
 
-use App\Support\Database\ReparationValidationStates;
 use App\Support\Database\StatesClass;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
@@ -48,11 +48,11 @@ return new class extends Migration {
                 StatesClass::Suspended()->value,
             ]);
 
-            $table->integer("validation_step");  //   validation roles are stored in array. validation step is the said array key
+            $table->integer('validation_step');  //   validation roles are stored in array. validation step is the said array key
 
-            $table->string("validation_state");  //role in validation circuit
-           
-            $table->string("bon_commande")->nullable();
+            $table->string('validation_state');  //role in validation circuit
+
+            $table->string('bon_commande')->nullable();
 
             $table->string('motif_rejet')->nullable();
 

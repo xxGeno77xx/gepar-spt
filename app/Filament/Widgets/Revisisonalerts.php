@@ -18,7 +18,7 @@ class Revisisonalerts extends BaseWidget
     protected function getTableQuery(): Builder
     {
         $alertingEngine = Engine::select('engines.id', 'remainder')
-            ->where('state', '=', StatesClass::Activated()->value)
+            ->where('state', '<>', StatesClass::Deactivated()->value)
             ->where('remainder', '>=', config('app.limitePourLaRevision'))
             ->select('engines.plate_number', 'engines.id', 'engines.remainder');
 

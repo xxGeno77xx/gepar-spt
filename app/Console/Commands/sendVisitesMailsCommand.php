@@ -2,13 +2,13 @@
 
 namespace App\Console\Commands;
 
-use App\Models\User;
 use App\Mail\VisiteMail;
-use Illuminate\Console\Command;
+use App\Models\User;
 use App\Support\Database\RolesEnum;
-use Illuminate\Support\Facades\Mail;
-use Filament\Notifications\Notification;
 use Filament\Notifications\Actions\Action;
+use Filament\Notifications\Notification;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Mail;
 
 class sendVisitesMailsCommand extends Command
 {
@@ -58,11 +58,11 @@ class sendVisitesMailsCommand extends Command
 
         if (count($visiteMail->mailableEngines) >= 1) {
 
-            Notification::make("alerte")
-                ->title("Alerte Visite technique")
+            Notification::make('alerte')
+                ->title('Alerte Visite technique')
                 ->icon('heroicon-o-information-circle')
                 ->iconColor('danger')
-                ->body("Les visites techniques des engins suivants arrivent à expiration:")
+                ->body('Les visites techniques des engins suivants arrivent à expiration:')
                 ->actions(function () use ($visiteMail) {
 
                     foreach ($visiteMail->mailableEngines as $engine) {
@@ -72,7 +72,7 @@ class sendVisitesMailsCommand extends Command
                         return [
                             Action::make('view')
                                 ->label($engine->plate_number)
-                                ->color("danger")
+                                ->color('danger')
                                 ->url(route('filament.resources.engines.view', $engine->id), shouldOpenInNewTab: true)
                                 ->button(),
                         ];

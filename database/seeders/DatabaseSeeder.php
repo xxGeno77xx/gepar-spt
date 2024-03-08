@@ -29,7 +29,5 @@ class DatabaseSeeder extends Seeder
         $this->call(CircuitsSeeder::class);
         $this->call(ConsommationSeeder::class);
 
-
-
     }
 }

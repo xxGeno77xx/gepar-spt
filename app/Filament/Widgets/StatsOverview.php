@@ -163,9 +163,8 @@ class StatsOverview extends BaseWidget
 
         $enginesCloseToExpiry = $visitesASurveiller->union($assurancesASurveiller)->distinct()->count();
 
-        
         return [
-            Card::make('Total des engins du parc', Engine::where('engines.state',"<>", StatesClass::Deactivated()->value)->count()) //  to do:  where activated  or reparing
+            Card::make('Total des engins du parc', Engine::where('engines.state', '<>', StatesClass::Deactivated()->value)->count()) //  to do:  where activated  or reparing
                 ->chart([mt_rand(1, 50), mt_rand(1, 50), mt_rand(1, 50), mt_rand(1, 50), mt_rand(1, 50), mt_rand(1, 50), mt_rand(1, 50)])
                 ->color('success'),
 

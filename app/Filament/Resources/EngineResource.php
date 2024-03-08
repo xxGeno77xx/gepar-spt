@@ -102,14 +102,19 @@ class EngineResource extends Resource
 
                         TextInput::make('price')
                             ->label("Prix d'achat")
-                            ->columnSpanFull()
                             ->suffix('FCFA')
                             ->numeric(),
 
                         TextInput::make('kilometrage_achat')
                             ->label("Kilométrage à l'achat")
-                            ->columnSpanFull()
                             ->numeric(),
+
+                        Select::make('activite_id')
+                            ->label('Activité')
+                            ->options(Modele::where('state', StatesClass::Activated()->value)->pluck('nom_modele', 'id')) // activité de l'engin:  mixte/financière/postale
+                            ->searchable()
+                            ->required()
+                            ->columnSpanFull(),
 
                         Grid::make(6)
                             ->schema([
@@ -351,7 +356,7 @@ class EngineResource extends Resource
 
                 DepartementColumn::make('departement_id')
                     ->label('Centre')
-                    ->tooltip(fn($record)=>Departement::find($record->departement_id)->libelle),
+                    ->tooltip(fn ($record) => Departement::find($record->departement_id)->libelle),
 
                 ImageColumn::make('logo')
                     ->label('Marque')

@@ -2,28 +2,23 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
-use App\Models\Role;
-use Filament\Tables;
-use App\Models\Circuit;
-use Filament\Resources\Form;
-use Filament\Resources\Table;
-use Filament\Resources\Resource;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Columns\BadgeColumn;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\CircuitResource\Pages;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\CircuitResource\RelationManagers;
-use Filament\Tables\Columns\TagsColumn;
+use App\Models\Circuit;
+use App\Models\Role;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Resources\Form;
+use Filament\Resources\Resource;
+use Filament\Resources\Table;
+use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 
 class CircuitResource extends Resource
 {
     protected static ?string $model = Circuit::class;
 
+    protected static ?string $navigationGroup = 'REGLAGES';
     protected static ?string $navigationIcon = 'heroicon-o-chevron-double-right';
 
     public static function form(Form $form): Form
@@ -31,14 +26,14 @@ class CircuitResource extends Resource
         return $form
             ->schema([
                 TextInput::make('name'),
-                Repeater::make("steps")
+                Repeater::make('steps')
                     ->schema([
 
-                            Select::make('role_id')
+                        Select::make('role_id')
                             ->searchable()
                             ->label('roles')
                             ->options(Role::pluck('name', 'id')),
-                    ])
+                    ]),
             ]);
     }
 

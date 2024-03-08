@@ -23,17 +23,7 @@ class EditReparation extends EditRecord
 {
     protected static string $resource = ReparationResource::class;
 
-    protected function getActions(): array
-    {
-        if (auth()->user()->hasAnyPermission([PermissionsClass::reparation_delete()->value])) {
-            return [
 
-            ];
-
-        }
-
-        return [];
-    }
 
     protected function authorizeAccess(): void
     {
@@ -42,8 +32,6 @@ class EditReparation extends EditRecord
 
         $userPermission = $user->hasAnyPermission([PermissionsClass::reparation_update()->value]);
 
-
-
         $circuit = Circuit::where('id', $this->record->circuit_id)->value("steps");
 
         foreach ($circuit as $key => $item) {
@@ -51,20 +39,16 @@ class EditReparation extends EditRecord
             $roleIds[] = $item['role_id'];
         }
 
-        $currentlyRequiredValidationRole = Role::where("id", $roleIds[$this->record->validation_step]);
-
-
-        $concernedEngine = Engine::where("id", $this->record->engine_id)->first();
-
         $user = auth()->user();
 
         if ($userPermission) {
 
 
-            if ($this->record->validation_state == "nextValue" || $this->record->validation_step == "100")  // if reparation is finished
+            if ($this->record->validation_state == "nextValue" || $this->record->validation_step == 100)  // if reparation is finished
             {
                 abort(403, "Vous ne pouvez plus modifier une réparation déjà achevée");
             } elseif (($this->record->validation_step != 0)) // if is not in starting step
+            
             {
 
 
@@ -107,6 +91,20 @@ class EditReparation extends EditRecord
                 'state' => StatesClass::Activated()->value,
             ]);
         }
+
+        // update validation state with new circuit data upon change in circuit_id
+
+            $circuit = Circuit::where('id', $this->data["circuit_id"])->first()->steps;
+
+            foreach ($circuit as $key => $item) {
+
+                $roleIds[] = $item['role_id'];
+            }
+
+            $reparation->update([
+                "validation_state"=> $roleIds[0] 
+            ]);
+
     }
 
     protected function getRedirectUrl(): string

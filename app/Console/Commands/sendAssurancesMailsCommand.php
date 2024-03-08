@@ -2,13 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\Models\User;
 use App\Mail\AssuranceMail;
+use App\Models\User;
 use App\Support\Database\RolesEnum;
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Mail;
-use Filament\Notifications\Notification;
 use Filament\Notifications\Actions\Action;
+use Filament\Notifications\Notification;
+use Illuminate\Console\Command;
 
 class sendAssurancesMailsCommand extends Command
 {
@@ -37,11 +36,11 @@ class sendAssurancesMailsCommand extends Command
 
         if (count($assuranceMail->mailableEngines) >= 1) {
 
-            Notification::make("alerte")
-                ->title("Alerte assurance")
+            Notification::make('alerte')
+                ->title('Alerte assurance')
                 ->icon('heroicon-o-information-circle')
                 ->iconColor('danger')
-                ->body("Les assurances des engins suivants arrivent à expiration:")
+                ->body('Les assurances des engins suivants arrivent à expiration:')
                 ->actions(function () use ($assuranceMail) {
 
                     foreach ($assuranceMail->mailableEngines as $engine) {
@@ -51,7 +50,7 @@ class sendAssurancesMailsCommand extends Command
                         return [
                             Action::make('view')
                                 ->label($engine->plate_number)
-                                ->color("danger")
+                                ->color('danger')
                                 ->url(route('filament.resources.engines.view', $engine->id), shouldOpenInNewTab: true)
                                 ->button(),
                         ];

@@ -19,19 +19,17 @@ use Spatie\Enum\Enum;
  */
 class RolesEnum extends Enum
 {
-
     protected static function values()
     {
-         
+
         return [
-            'Super_administrateur' => "Super administrateur",
-            'Chef_division' => "Chef division",
-            'Chef_parc' =>  "Chef parc ",
-            'Directeur_general' =>  "Directeur général",
-            "Secretaire" => "Sécrétaire",
-        
+            'Super_administrateur' => 'Super administrateur',
+            'Chef_division' => 'Chef division',
+            'Chef_parc' => 'Chef parc ',
+            'Directeur_general' => 'Directeur général',
+            'Secretaire' => 'Sécrétaire',
+
         ];
 
-          
     }
 }

@@ -2,29 +2,28 @@
 
 namespace App\Filament\Resources;
 
-use App\Models\Division;
+use App\Filament\Resources\UserResource\Pages\CreateUser;
+use App\Filament\Resources\UserResource\Pages\EditUser;
+use App\Filament\Resources\UserResource\Pages\ListUsers;
+use App\Filament\Resources\UserResource\Pages\ViewUser;
 use App\Models\Departement;
-use Filament\Resources\Form;
-use Filament\Resources\Table;
-use Filament\Resources\Resource;
-use Filament\Forms\Components\Card;
-use Illuminate\Support\Facades\Hash;
+use App\Support\Database\PermissionsClass;
 use App\Support\Database\StatesClass;
+use Database\Seeders\RolesPermissionsSeeder;
+use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Resources\Form;
+use Filament\Resources\Resource;
+use Filament\Resources\Table;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TagsColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Columns\SelectColumn;
-use Illuminate\Database\Eloquent\Builder;
-use App\Support\Database\PermissionsClass;
 use Filament\Tables\Filters\TernaryFilter;
-use Database\Seeders\RolesPermissionsSeeder;
-use App\Filament\Resources\UserResource\Pages\EditUser;
-use App\Filament\Resources\UserResource\Pages\ViewUser;
-use App\Filament\Resources\UserResource\Pages\ListUsers;
-use App\Filament\Resources\UserResource\Pages\CreateUser;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Hash;
 use Phpsa\FilamentAuthentication\Actions\ImpersonateLink;
 
 class UserResource extends Resource
@@ -96,7 +95,7 @@ class UserResource extends Resource
                         TextInput::make('username')
                             ->label("Nom d'utilisateur"),
 
-                            Select::make('departement_id')
+                        Select::make('departement_id')
                             ->label('Centre')
                             ->options(Departement::pluck('sigle_centre', 'code_centre'))
                             ->searchable()
@@ -149,7 +148,7 @@ class UserResource extends Resource
                 TagsColumn::make('roles.name')
                     ->label(strval(__('filament-authentication::filament-authentication.field.user.roles'))),
                 TextColumn::make('created_at')
-                ->sortable()
+                    ->sortable()
                     ->dateTime('d-m-Y H:i:s')
                     ->label(strval(__('filament-authentication::filament-authentication.field.user.created_at'))),
             ])

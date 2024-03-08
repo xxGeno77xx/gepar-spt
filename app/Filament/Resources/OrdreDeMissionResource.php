@@ -64,7 +64,7 @@ class OrdreDeMissionResource extends Resource
 
                                             ->schema([
                                                 TextInput::make('Nom')
-                                                ->label('Nom complet')
+                                                    ->label('Nom complet')
                                                     ->required(),
 
                                                 TextInput::make('Désignation')
@@ -99,7 +99,7 @@ class OrdreDeMissionResource extends Resource
                                     ->columnSpanFull(),
 
                                 Hidden::make('numero_ordre')
-                                    ->default(fn() => OrdreDeMission::orderBy("id", "desc")->first()? OrdreDeMission::orderBy("id", "desc")->first()->id + 1 : 1), //generate the number
+                                    ->default(fn () => OrdreDeMission::orderBy('id', 'desc')->first() ? OrdreDeMission::orderBy('id', 'desc')->first()->id + 1 : 1), //generate the number
                             ]),
                     ]),
 

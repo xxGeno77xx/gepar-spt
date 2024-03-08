@@ -46,12 +46,11 @@ class VisiteMail extends Mailable
 
         $activated = StatesClass::Activated()->value;
 
-       
         $this->mailableEngines = Engine::Join('visites', 'engines.id', '=', 'visites.engine_id')
             ->whereRaw('visites.created_at = (SELECT MAX(created_at) FROM visites WHERE engine_id = engines.id AND visites.state = ?)', [$activated])
             ->whereRaw('TRUNC(visites.date_expiration) <= TRUNC(SYSDATE + TRUNC(?))', [$limite])
             ->where('visites.state', $activated)
-            ->where('engines.visites_mail_sent', '=',0)
+            ->where('engines.visites_mail_sent', '=', 0)
             ->whereNull('visites.deleted_at')
             ->whereNull('engines.deleted_at')
             ->join('modeles', 'engines.modele_id', '=', 'modeles.id')

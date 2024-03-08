@@ -9,7 +9,7 @@ class Circuit extends Model
 {
     use HasFactory;
 
-    protected $casts =[
-        "steps" => "array",
+    protected $casts = [
+        'steps' => 'array',
     ];
 }

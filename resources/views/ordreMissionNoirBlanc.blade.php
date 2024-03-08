@@ -19,13 +19,26 @@
     {{-- <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css"> --}}
 
     <style>
+        @font-face {
+            font-family: 'Bookman Old Style';
+            font-weight: normal;
+            font-style: normal;
+            font-variant: normal;
+            src: url("fonts/BKMNOS.ttf") format('truetype');
+        }
+
+        body {
+            font-family: 'Bookman Old Style', sans-serif;
+        }
+
         body,
         html {
             margin: 0;
             padding: 0;
             height: 100%;
-            font-family: "Bookman Old Style";
-            font-size: 17px
+            /* font-family: "Bookman Old Style"; */
+            font-size: 17px;
+
         }
 
         .container {
@@ -85,9 +98,7 @@
                 <p style="font-family: Bookman Old Style;">Il est ordonné à Messieurs:</p>
                 <ul style="list-style-type:none;">
                     @foreach ($agents as $key => $agent)
-                       
-                            <li style="margin-bottom: 15px;">-{{ $agent['Nom'] }}, {{ $agent['Désignation'] }}</li>
-                       
+                        <li style="margin-bottom: 15px;">-{{ $agent['Nom'] }}, {{ $agent['Désignation'] }}</li>
                     @endforeach
 
                 </ul>
@@ -96,9 +107,11 @@
 
                 <br>
                 <div>
-                    <div style="display: inline-block; width: 31%;   vertical-align: top;"><u
-                            style="font-weight: bold; margin-right: 67px; ">Objet de la mission</u>:</div>
-                    <div style="display: inline-block; width: 68%; vertical-align: top;">{{ $order->objet_mission }}
+                    <div style="display: inline-block; width: 34%;   vertical-align: top;">
+                        <u style="font-weight: bold; margin-right: 65px; ">Objet de la mission</u>:
+                    </div>
+                    <div style="display: inline-block; width: 60%; vertical-align: top;">
+                        {{ $order->objet_mission }}
                     </div>
                 </div>
 
@@ -110,20 +123,20 @@
                 </p>
                 <p>
                     <span>
-                        <u style="font-weight: bold; font-style:italic; margin-right: 105px ">Date de retour</u>:
+                        <u style="font-weight: bold; font-style:italic; margin-right: 107px ">Date de retour</u>:
                         {{ Carbon::parse($order->date_de_retour)->translatedFormat('d F Y') }}
                     </span>
                 </p>
                 <p>
                     <span>
-                        <u style="font-weight: bold; font-style:italic; margin-right: 67px ">Moyen de transport </u>:
+                        <u style="font-weight: bold; font-style:italic; margin-right: 60px ">Moyen de transport </u>:
                         Véhicule {{ $moyenTransport }}
                     </span>
                 </p>
             </div>
 
-            <div class="bottom-right" >
-                <p style="marhin-right 80cm">Lomé, le 21 dec 2028</p>
+            <div class="bottom-right">
+                <p style="marhin-right 80cm">Lomé, {{ today()->translatedFormat('d F Y') }}</p>
                 <p>Le Directeur Général de la <br>Société des Postes du Togo</p>
                 <br>
                 <br>

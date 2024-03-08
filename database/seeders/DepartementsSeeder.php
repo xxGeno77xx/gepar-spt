@@ -41,19 +41,19 @@ class DepartementsSeeder extends Seeder
             ['libelle' => 'Division Contrôle des Opérations Financières', 'sigle_division' => 'DCOF', 'direction_id' => 3],
             ['libelle' => 'Division Centre de Chèques Postaux et de l’Epargne', 'sigle_division' => 'DCCPE', 'direction_id' => 3],
             ['libelle' => 'Division des Transferts', 'sigle_division' => 'DT', 'direction_id' => 3],
-            ["libelle" => "Chargé de Mission auprès de la DCF", "sigle_division" => "Chargé DCF", "direction_id" => 3 ],
-            ["libelle" => "Division Cellule des Services Financiers Numériques", "sigle_division" => "DCSFN", "direction_id" => 3 ],
+            ['libelle' => 'Chargé de Mission auprès de la DCF', 'sigle_division' => 'Chargé DCF', 'direction_id' => 3],
+            ['libelle' => 'Division Cellule des Services Financiers Numériques', 'sigle_division' => 'DCSFN', 'direction_id' => 3],
 
             //DCP ok
             // ["libelle" => "Chargé de Mission auprès de la DCP", "sigle_division" => "CI", "direction_id" => 4 ],
             ['libelle' => 'Division Qualité de Service et de la Planification', 'sigle_division' => 'DQSP', 'direction_id' => 4],
             ['libelle' => 'Division Commerciale et Marketing', 'sigle_division' => 'DCM', 'direction_id' => 4],
-            ["libelle" => "Division Régionale des Opérations Golfe", "sigle_division" => "DRO Golfe", "direction_id" => 4 ],
-            ["libelle" => "Division Régionale des Opérations Savanes", "sigle_division" => "DRO Savanes", "direction_id" => 4 ],
-            ["libelle" => "Division Régionale des Opérations Kara", "sigle_division" => "DRO KARA", "direction_id" => 4 ],
-            ["libelle" => "Division Régionale des Opérations Plateaux", "sigle_division" => "DRO Plateaux", "direction_id" => 4 ],
-            ["libelle" => "Division Régionale des Opérations Maritime", "sigle_division" => "DRO Maritime", "direction_id" => 4 ],
-            ["libelle" => "Division Régionale des Opérations Centrale", "sigle_division" => "DRO Centrale", "direction_id" => 4 ],
+            ['libelle' => 'Division Régionale des Opérations Golfe', 'sigle_division' => 'DRO Golfe', 'direction_id' => 4],
+            ['libelle' => 'Division Régionale des Opérations Savanes', 'sigle_division' => 'DRO Savanes', 'direction_id' => 4],
+            ['libelle' => 'Division Régionale des Opérations Kara', 'sigle_division' => 'DRO KARA', 'direction_id' => 4],
+            ['libelle' => 'Division Régionale des Opérations Plateaux', 'sigle_division' => 'DRO Plateaux', 'direction_id' => 4],
+            ['libelle' => 'Division Régionale des Opérations Maritime', 'sigle_division' => 'DRO Maritime', 'direction_id' => 4],
+            ['libelle' => 'Division Régionale des Opérations Centrale', 'sigle_division' => 'DRO Centrale', 'direction_id' => 4],
 
             //DRHP ok
             ['libelle' => 'Division Patrimoine et Logistique', 'sigle_division' => 'DPL', 'direction_id' => 5],
@@ -66,9 +66,9 @@ class DepartementsSeeder extends Seeder
             //DCR ok
             ['libelle' => 'Division Acheminement et Transport', 'sigle_division' => 'DDAT', 'direction_id' => 7],
             ['libelle' => 'Division Centre Nation du Tri Postal', 'sigle_division' => 'CNTP', 'direction_id' => 7],
-            ["libelle" => "Division Courrier d’Entreprise", "sigle_division" => "DCE", "direction_id" => 7 ],
+            ['libelle' => 'Division Courrier d’Entreprise', 'sigle_division' => 'DCE', 'direction_id' => 7],
             ['libelle' => 'Division Express Mail - TOGO', 'sigle_division' => 'DEMS', 'direction_id' => 7],
-            ["libelle" => "Division Recette Principale", "sigle_division" => "DRP", "direction_id" => 7 ],
+            ['libelle' => 'Division Recette Principale', 'sigle_division' => 'DRP', 'direction_id' => 7],
         ]);
 
         foreach ($divisions as $division) {

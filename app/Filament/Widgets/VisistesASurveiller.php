@@ -2,21 +2,21 @@
 
 namespace App\Filament\Widgets;
 
-use Closure;
-use App\Models\Engine;
-use App\Models\Division;
-use App\Models\Direction;
-use App\Models\Parametre;
 use App\Models\Departement;
-use Illuminate\Support\Carbon;
+use App\Models\Direction;
+use App\Models\Division;
+use App\Models\Engine;
+use App\Models\Parametre;
 use App\Support\Database\StatesClass;
-use Filament\Tables\Columns\TextColumn;
+use App\Tables\Columns\DepartementColumn;
+use Closure;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\ImageColumn;
-use App\Tables\Columns\DepartementColumn;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Contracts\Support\Htmlable;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Widgets\TableWidget as BaseWidget;
+use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
 
 class VisistesASurveiller extends BaseWidget
 {
@@ -102,7 +102,7 @@ class VisistesASurveiller extends BaseWidget
             DepartementColumn::make('departement_id')
                 ->searchable()
                 ->label('Département')
-                ->tooltip(fn($record)=>Departement::find($record->departement_id)->libelle),
+                ->tooltip(fn ($record) => Departement::find($record->departement_id)->libelle),
 
             // TextColumn::make('departement_id')
             //     ->label('Division/Direction')

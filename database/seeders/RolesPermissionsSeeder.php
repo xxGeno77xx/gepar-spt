@@ -3,14 +3,14 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Support\Arr;
-use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
-use App\Support\Database\RolesEnum;
-use Illuminate\Support\Facades\Hash;
-use App\Support\Database\StatesClass;
-use Spatie\Permission\Models\Permission;
 use App\Support\Database\PermissionsClass;
+use App\Support\Database\RolesEnum;
+use App\Support\Database\StatesClass;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class RolesPermissionsSeeder extends Seeder
 {
@@ -156,9 +156,6 @@ class RolesPermissionsSeeder extends Seeder
             $createdUser = User::firstOrCreate($user);
             $createdUser->syncRoles(self::User);
         }
-
-
-
 
         $roles = RolesEnum::toValues();
 

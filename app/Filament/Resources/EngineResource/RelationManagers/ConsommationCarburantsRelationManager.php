@@ -198,8 +198,7 @@ class ConsommationCarburantsRelationManager extends RelationManager
                     ->label('Quantité (L)'),
 
                 Tables\Columns\TextColumn::make('quantite')
-                    ->label('Quantité (L)')
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->label('Quantité (L)'),
             ])
             ->filters([
                 Filter::make('date_lancement')
@@ -351,6 +350,27 @@ class ConsommationCarburantsRelationManager extends RelationManager
                         }
 
                         return true;
+                    })->before(function (RelationManager  $livewire, $data, $record) {
+
+
+
+                        $latestConsommation = ConsommationCarburant::orderBy('id', 'desc')
+                        ->where('engine_id', $livewire->ownerRecord->id)
+                        ->first();
+
+                    $forelast = ConsommationCarburant::orderBy('id', 'desc')
+                        ->where('engine_id', $livewire->ownerRecord->id)
+                        ->skip(1)->take(1)
+                        ->first();
+
+                    $currentRemainder = $livewire->ownerRecord->remainder;
+
+                    if ($latestConsommation && $forelast) {
+
+                        $livewire->ownerRecord->update(['remainder' => $currentRemainder - ($latestConsommation->kilometres_a_remplissage - $forelast->kilometres_a_remplissage) + ($data["kilometres_a_remplissage"] - $forelast->kilometres_a_remplissage)]);
+
+                    }
+
                     }),
 
                 // Tables\Actions\Action::make('Supprimer')

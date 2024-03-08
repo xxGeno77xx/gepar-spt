@@ -44,6 +44,7 @@ class ConsommationCarburantCart extends ApexChartWidget
             ->orderBy('date_prise', 'asc')
             ->get();
 
+
         $consommationsMoyennes = ConsommationCarburant::join('engines', 'engines.id', 'consommation_carburants.engine_id')
             ->whereBetween('date_prise', [$dateStart, $dateEnd])
             ->where('engines.id', $engine)
@@ -51,6 +52,28 @@ class ConsommationCarburantCart extends ApexChartWidget
             ->groupBy(DB::raw('EXTRACT(MONTH FROM date_prise)'))
             ->orderBy('month', 'asc')
             ->get();
+
+
+
+    //         $kilometrageMoyen = ConsommationCarburant::join('engines', 'engines.id', 'consommation_carburants.engine_id')
+    // ->whereBetween('date_prise', [$dateStart, $dateEnd])
+    // ->where('engines.id', $engine)
+    // ->selectRaw("TO_CHAR(date_prise, 'MM-YYYY') as mois, MAX(kilometres_a_remplissage) - MIN(kilometres_a_remplissage) as distance_parcourue")
+    // ->groupBy(DB::raw("TO_CHAR(date_prise, 'MM-YYYY')"))
+    // ->orderBy('mois', 'asc')
+    // ->get();
+
+    // dd(  $kilometrageMoyen);
+        //     SELECT
+        //     TO_CHAR(date_prise, 'MM-YYYY') AS mois,
+        //     MAX(consommation_carburant) - MIN(consommation_carburant) AS distance_parcourue
+        // FROM
+        //     votre_table
+        // GROUP BY
+        //     TO_CHAR(date_prise, 'MM-YYYY');
+
+
+
 
         $kiloArray = [];
 
@@ -65,7 +88,7 @@ class ConsommationCarburantCart extends ApexChartWidget
 
                 $currentConsommationMonth = Carbon::parse($consommation->date_prise)->translatedFormat('M y');
 
-                if (! in_array($currentConsommationMonth, $montsArray)) {
+                if (!in_array($currentConsommationMonth, $montsArray)) {
                     $montsArray[] = Carbon::parse($consommation->date_prise)->translatedFormat('M y');
                 }
 
@@ -90,7 +113,7 @@ class ConsommationCarburantCart extends ApexChartWidget
             ],
             'series' => [
                 [
-                    'name' => 'Moyennes mensuelles de carburant',
+                    'name' => 'Moyennes moyenne de carburant',
                     'data' => $averagesArray,
                     'type' => 'column',
                 ],

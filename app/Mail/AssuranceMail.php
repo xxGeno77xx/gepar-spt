@@ -51,8 +51,7 @@ class AssuranceMail extends Mailable
 
         $activated = StatesClass::Activated()->value;
 
-       
-            $this->mailableEngines = Engine::Join('assurances', 'engines.id', '=', 'assurances.engine_id')
+        $this->mailableEngines = Engine::Join('assurances', 'engines.id', '=', 'assurances.engine_id')
             ->whereRaw('assurances.created_at = (SELECT MAX(created_at) FROM assurances WHERE engine_id = engines.id AND assurances.state = ?)', [$activated])
             ->whereRaw('TRUNC(assurances.date_fin) <= TRUNC(SYSDATE + TRUNC(?))', [$limite])
             ->where('assurances.state', $activated)
