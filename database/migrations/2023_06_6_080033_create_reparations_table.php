@@ -51,22 +51,8 @@ return new class extends Migration {
             $table->integer("validation_step");  //   validation roles are stored in array. validation step is the said array key
 
             $table->string("validation_state");  //role in validation circuit
-            // $table->enum('validation_state', [
-            //     ReparationValidationStates::Declaration_initiale()->value,
-            //     ReparationValidationStates::Demande_de_travail_Chef_division()->value,
-            //     ReparationValidationStates::Demande_de_travail_directeur_division()->value,
-            //     ReparationValidationStates::Demande_de_travail_dg()->value,
-            //     ReparationValidationStates::Demande_de_travail_chef_parc()->value,
-            //     ReparationValidationStates::Demande_de_travail_diga()->value,
-            //     ReparationValidationStates::Bon_de_travail_chef_parc()->value,//  mise en place du projet,
-            //     ReparationValidationStates::Bon_de_travail_chef_division()->value,
-            //     ReparationValidationStates::Bon_de_travail_budget()->value,  //bon de travail,
-            //     ReparationValidationStates::Bon_de_travail_Directeur_dvision()->value,
-            //     ReparationValidationStates::Bon_de_travail_Directeur_general()->value,
-            //     ReparationValidationStates::Bon_de_travail_retour_budget()->value,  //bon de commande,
-            //     ReparationValidationStates::Termine()->value,   // par le chef parc,
-            //     ReparationValidationStates::Rejete()->value,
-            // ]);
+           
+            $table->string("bon_commande")->nullable();
 
             $table->string('motif_rejet')->nullable();
 

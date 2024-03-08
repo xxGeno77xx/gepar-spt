@@ -45,54 +45,54 @@ class EditEngine extends EditRecord
                     })
                     ->requiresConfirmation(),
 
-                Actions\Action::make('Retirer_du_patrimoine')
-                    ->color('danger')
-                    ->steps([
-                        Step::make('Motif du déclassment')
-                            ->schema([
-                                Select::make('Motif')
-                                    ->options([
-                                        'Véhicule accidenté',
-                                        'Véhicule volé',
-                                        'Non conformité',
-                                        'Vente aux enchères',
-                                        'Autre',
-                                    ])
-                                    ->searchable()
-                                    ->required()
-                                    ->reactive(),
+                // Actions\Action::make('Retirer_du_patrimoine')
+                //     ->color('danger')
+                //     ->steps([
+                //         Step::make('Motif du déclassment')
+                //             ->schema([
+                //                 Select::make('Motif')
+                //                     ->options([
+                //                         'Véhicule accidenté',
+                //                         'Véhicule volé',
+                //                         'Non conformité',
+                //                         'Vente aux enchères',
+                //                         'Autre',
+                //                     ])
+                //                     ->searchable()
+                //                     ->required()
+                //                     ->reactive(),
 
-                                TextInput::make('Acheteur')
-                                    ->visible(fn ($get): bool => $get('Motif') == 4) //change option value to be the desired select field
-                                ,
+                //                 TextInput::make('Acheteur')
+                //                     ->visible(fn ($get): bool => $get('Motif') == 4) //change option value to be the desired select field
+                //                 ,
 
-                            ])
-                            ->columns(2),
-                        Step::make('Details')
-                            ->schema([
-                                MarkdownEditor::make('description'),
-                            ]),
-                        Step::make('Visibility')
-                            ->description('Control who can view it')
-                            ->schema([
-                                Toggle::make('is_visible')
-                                    ->label('Visible to customers.')
-                                    ->default(true),
-                            ]),
+                //             ])
+                //             ->columns(2),
+                //         Step::make('Details')
+                //             ->schema([
+                //                 MarkdownEditor::make('description'),
+                //             ]),
+                //         Step::make('Visibility')
+                //             ->description('Control who can view it')
+                //             ->schema([
+                //                 Toggle::make('is_visible')
+                //                     ->label('Visible to customers.')
+                //                     ->default(true),
+                //             ]),
 
-                    ])
+                //     ])
 
-                    ->action(function (?Engin $record) {
+                //     ->action(function (?Engin $record) {
 
-                        redirect('/engines');
-                        Notification::make()
-                            ->title('Retrait du patrimoine')
-                            ->iconColor('danger')
-                            ->body('L\'engin immatriculé '.$this->record->plate_number.' ne fait désormais plus partie de votre patrimoine')
-                            ->icon('heroicon-o-shield-exclamation')
-                            ->persistent()
-                            ->send();
-                    }),
+                //         redirect('/engines');
+                //         Notification::make()
+                //             ->title('Retrait du patrimoine')
+                //             ->iconColor('danger')
+                //             ->body('L\'engin immatriculé '.$this->record->plate_number.' ne fait désormais plus partie de votre patrimoine')
+                //             ->icon('heroicon-o-shield-exclamation')
+                //             ->persistent()
+                //             ->send();
+                //     }),
 
                 Actions\Action::make('Réaffecter')
                     ->action(function (array $data): void {
@@ -130,7 +130,8 @@ class EditEngine extends EditRecord
 
                                 DatePicker::make('date_reaffectation')
                                     ->label('Date de réaffectation')
-                                    ->beforeOrEqual(now()->format('d-m-Y')),
+                                    ->beforeOrEqual(now()->format('d-m-Y'))
+                                    ->required(),
 
                                 Select::make('departement_id')
                                     ->label('De')
@@ -141,7 +142,8 @@ class EditEngine extends EditRecord
                                 Select::make('departement_id')
                                     ->label('Vers')
                                     ->options(Departement::where('sigle_centre', '<>', '0')->pluck('sigle_centre', 'code_centre'))
-                                    ->searchable(),
+                                    ->searchable()
+                                    ->required(),
                             ]),
 
                     ])

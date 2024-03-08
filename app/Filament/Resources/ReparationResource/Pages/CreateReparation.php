@@ -114,7 +114,7 @@ class CreateReparation extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $circuit = Circuit::where('id', $this->data["circuit_id"])->get()->value("steps");
+        $circuit = Circuit::where('id', $this->data["circuit_id"])->first()->steps;
 
         foreach ($circuit as $key => $item) {
 

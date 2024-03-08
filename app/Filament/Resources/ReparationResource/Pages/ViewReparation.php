@@ -87,11 +87,11 @@ class ViewReparation extends ViewRecord
                             $roleIds[] = $item['role_id'];
                         }
 
-        
+
 
                         if ($user->hasRole(Role::where("name", RolesEnum::Chef_parc()->value)->first()->name)) {
 
-               
+
                             if (!$this->record->facture || !$this->record->ref_proforma || !$this->record->cout_reparation) {
 
                                 Notification::make()
@@ -106,7 +106,81 @@ class ViewReparation extends ViewRecord
                         }
 
 
+                        //from here  check to oblige budget to set bon de commande before validating
+        
+                        if ($this->record) {
 
+                            $searchedRoleId = (Role::where("name", RolesEnum::Directeur_general()->value)->first())->id;
+
+                            $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
+        
+                            $slicedArray = array_slice($roleIds, $firstOccurenceOfRole + 1);
+
+                            $secondOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $slicedArray)) + $firstOccurenceOfRole + 1;
+
+                            $arrayDivided = array_chunk($roleIds, $secondOccurenceOfRoleInOriginalRolesArray + 1, true); //  cut form second match of dg role
+        
+                            $ArrayToUse = array_flip($arrayDivided[1]);  //flip array to get keys
+                        
+                            if ($user->hasRole(Role::where("name", RolesEnum::Budget()->value)->first()->name) && in_array($this->record->validation_step, $ArrayToUse)) {
+
+                                
+                                if (!$this->record->bon_commande) {
+
+                                    Notification::make()
+                                        ->title('Attention')
+                                        ->warning()
+                                        ->body("Le bon de commande doit être joint avant validation")
+                                        ->send();
+
+                                    $this->halt();
+                                }
+
+                            }
+                        }
+
+                        //to here  check to oblige budget to set bon de commande before validating
+
+
+
+
+                        //from here check to see if date fin is set before validation
+                           if ($this->record) {
+
+                            $searchedRoleId = (Role::where("name", RolesEnum::Chef_parc()->value)->first())->id;
+
+                            $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
+        
+                            $slicedArray = array_slice($roleIds, $firstOccurenceOfRole + 1);
+
+                            $secondOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $slicedArray)) + $firstOccurenceOfRole + 1;
+
+                            $secondSlicedArray = array_slice($roleIds,  $secondOccurenceOfRoleInOriginalRolesArray + 1);
+
+                            $thirdOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $secondSlicedArray )) + $secondOccurenceOfRoleInOriginalRolesArray + 1;
+
+                            $arrayDivided = array_chunk($roleIds,  $thirdOccurenceOfRoleInOriginalRolesArray + 1, true); //  cut form second match of dg role
+                        
+                            if ($user->hasRole(Role::where("name", RolesEnum::Chef_parc()->value)->first()->name) && ($this->record->validation_step == array_key_last($roleIds))) {
+
+                                
+                                if (!$this->record->date_fin) {
+
+                                    Notification::make()
+                                        ->title('Attention')
+                                        ->warning()
+                                        ->body("La date de retour de l'engin doit être renseignée avant validation")
+                                        ->send();
+
+                                    $this->halt();
+                                }
+
+                            }
+                        }
+
+
+//to here check to see if date fin is set before validation
+        
                         $currentKey = $this->record->validation_step; // key in array
         
                         $currentvalue = $roleIds[$this->record->validation_step]; // value of the key array
@@ -122,7 +196,6 @@ class ViewReparation extends ViewRecord
                             }
 
                             $a = next($roleIds);
-
 
                         }
 
@@ -176,7 +249,8 @@ class ViewReparation extends ViewRecord
                     })
                     ->visible(function ($record) {
 
-                        if ($this->record->validation_state != "nextValue") {
+                        if ($this->record->validation_state != "nextValue") { //if reparation is not finished
+        
                             $user = auth()->user();
 
                             $circuit = Circuit::where('id', $this->record->circuit_id)->value("steps");
@@ -206,31 +280,31 @@ class ViewReparation extends ViewRecord
                     }),
 
 
-                Actions\Action::make('Valider (Chef parc Bon de travail)')
-                    ->color('success')
-                    ->icon('heroicon-o-check-circle')
-                    ->action(function (?Reparation $record) {
+                // Actions\Action::make('Valider (Chef parc Bon de travail)')
+                //     ->color('success')
+                //     ->icon('heroicon-o-check-circle')
+                //     ->action(function (?Reparation $record) {
 
 
 
-                        $this->record->update(['validation_state' => ReparationValidationStates::Bon_de_travail_chef_parc()->value]);
-                        Notification::make()
-                            ->title('Validé(e)')
-                            ->success()
-                            ->persistent()
-                            ->send();
-                    })
-                    ->visible(function ($record) {
+                //         $this->record->update(['validation_state' => ReparationValidationStates::Bon_de_travail_chef_parc()->value]);
+                //         Notification::make()
+                //             ->title('Validé(e)')
+                //             ->success()
+                //             ->persistent()
+                //             ->send();
+                //     })
+                //     ->visible(function ($record) {
 
-                        $user = auth()->user();
+                //         $user = auth()->user();
 
-                        $concernedEngine = Engine::where("id", $this->record->engine_id)->first();
+                //         $concernedEngine = Engine::where("id", $this->record->engine_id)->first();
 
-                        if ($user->hasRole(RolesEnum::Chef_parc()->value) && (($this->record->cout_reparation)) && (($this->record->facture)) && (($this->record->ref_proforma) && ($this->record->validation_state == ReparationValidationStates::Demande_de_travail_diga()->value))) {
-                            return true;
-                        } else
-                            return false;
-                    }),
+                //         if ($user->hasRole(RolesEnum::Chef_parc()->value) && (($this->record->cout_reparation)) && (($this->record->facture)) && (($this->record->ref_proforma) && ($this->record->validation_state == ReparationValidationStates::Demande_de_travail_diga()->value))) {
+                //             return true;
+                //         } else
+                //             return false;
+                //     }),
             ];
         }
 
