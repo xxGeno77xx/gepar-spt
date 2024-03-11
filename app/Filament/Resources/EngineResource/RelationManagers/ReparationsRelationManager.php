@@ -2,34 +2,35 @@
 
 namespace App\Filament\Resources\EngineResource\RelationManagers;
 
-use AlperenErsoy\FilamentExport\Actions\FilamentExportHeaderAction;
-use App\Models\Engine;
-use App\Models\Prestataire;
-use App\Models\Reparation;
-use App\Support\Database\CommonInfos;
-use App\Support\Database\PermissionsClass;
-use App\Support\Database\StatesClass;
-use Carbon\Carbon;
 use closure;
-use Filament\Forms\Components\Builder as FilamentBuilder;
-use Filament\Forms\Components\Card;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\MarkdownEditor;
-use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Resources\Form;
-use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Resources\Table;
+use Carbon\Carbon;
 use Filament\Tables;
+use App\Models\Engine;
+use App\Models\Reparation;
+use App\Models\Prestataire;
+use Filament\Resources\Form;
+use Filament\Resources\Table;
+use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Grid;
+use Filament\Tables\Filters\Filter;
+use App\Support\Database\CommonInfos;
+use App\Support\Database\StatesClass;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\TagsColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
+use App\Support\Database\PermissionsClass;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\MarkdownEditor;
+use App\Filament\Resources\ReparationResource;
+use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Forms\Components\Builder as FilamentBuilder;
+use AlperenErsoy\FilamentExport\Actions\FilamentExportHeaderAction;
 
 class ReparationsRelationManager extends RelationManager
 {
@@ -41,122 +42,7 @@ class ReparationsRelationManager extends RelationManager
 
     public static function form(Form $form): Form
     {
-        return $form
-
-            ->schema([
-                Card::make()
-                    ->schema([
-                        Card::make()
-                            ->schema([
-                                Select::make('engine_id')
-                                    ->label('Numéro de plaque')
-                                    ->options(
-                                        Engine::where('engines.state', '<>', StatesClass::Deactivated()->value)
-                                            ->pluck('plate_number', 'id')
-                                    )
-                                    ->searchable()
-                                    ->required(),
-
-                                Select::make('prestataire_id')
-                                    ->label('Prestataire')
-                                    ->options(Prestataire::pluck('raison_social_fr', 'code_fr'))
-                                    ->searchable()
-                                    ->preload(true)
-                                    ->required(),
-
-                                DatePicker::make('date_lancement')
-                                    ->label("Date d'envoi en réparation")
-                                    ->required(),
-
-                                DatePicker::make('date_fin')
-                                    ->label('Date de retour du véhicule')
-                                    ->afterOrEqual('date_lancement'),
-
-                            ])->columns(2),
-
-                        Section::make('Travaux à faire')
-                            ->schema([
-
-                                Select::make('révisions')
-                                    ->label('Type de la réparation')
-                                    ->relationship('typeReparations', 'libelle')
-                                    ->multiple()
-                                    ->searchable()
-                                    ->preload(true)
-                                    ->required(),
-
-                                FilamentBuilder::make('infos')
-                                    ->label('Achats')
-                                    ->blocks([
-                                        FilamentBuilder\Block::make('Achat')
-                                            ->icon('heroicon-o-adjustments')
-                                            ->schema([
-                                                Grid::make(4)
-                                                    ->schema([
-                                                        TextInput::make('Designation'),
-
-                                                        TextInput::make('nombre')
-                                                            ->numeric()
-                                                            ->minValue(1),
-
-                                                        TextInput::make('Prix_unitaire')
-                                                            ->numeric()
-                                                            ->suffix('FCFA')
-                                                            ->minValue(1)
-                                                            ->reactive()
-                                                            ->integer()
-                                                            ->afterStateUpdated(fn ($state, callable $set, $get) => $set('montant', Str::slug($state) * $get('nombre'))),
-
-                                                        TextInput::make('montant')
-                                                            ->suffix('FCFA')
-                                                            ->numeric()
-                                                            ->integer()
-                                                            ->disabled()
-                                                            ->dehydrated(true),
-                                                    ]),
-
-                                            ]),
-
-                                        FilamentBuilder\Block::make('Détails')
-                                            ->icon('heroicon-o-bookmark')
-                                            ->schema([
-                                                MarkdownEditor::make('details')
-                                                    ->disableAllToolbarButtons()
-                                                    ->enableToolbarButtons([
-                                                        'bold',
-                                                        'bulletList',
-                                                        'edit',
-                                                        'italic',
-                                                        'preview',
-                                                        'strike',
-                                                    ])
-                                                    ->placeholder('Détails de la révision (maximum 255 caractères)')
-                                                    ->rules(['max:255']),
-                                            ]),
-
-                                    ])
-                                    ->collapsible(),
-                            ]),
-
-                        TextInput::make('cout_reparation')
-                            ->label('Cout total de la révision')
-                            ->numeric()
-                            ->required(),
-
-                        FileUpload::make('facture')
-                            ->enableDownload()
-                            ->enableOpen(),
-
-                        Hidden::make('user_id')->default(auth()->user()->id),
-
-                        Hidden::make('updated_at_user_id')->default(auth()->user()->id),
-
-                        CommonInfos::PlaceholderCard(),
-
-                    ]),
-
-            ]);
-
+        return ReparationResource::form($form);
     }
 
     public static function table(Table $table): Table
@@ -221,8 +107,8 @@ class ReparationsRelationManager extends RelationManager
 
             ])
             ->actions([
-                Tables\Actions\EditAction::make()
-                    ->hidden(! auth()->user()->hasPermissionTo(PermissionsClass::reparation_update()->value)),
+                // Tables\Actions\EditAction::make()
+                //     ->hidden(! auth()->user()->hasPermissionTo(PermissionsClass::reparation_update()->value)),
                 Tables\Actions\ViewAction::make()
                     ->hidden(! auth()->user()->hasPermissionTo(PermissionsClass::reparation_read()->value)),
                 // Tables\Actions\DeleteAction::make(),
