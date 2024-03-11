@@ -265,7 +265,16 @@ class ViewReparation extends ViewRecord
                                     RolesEnum::Dpl()->value,
                                 ]) && (in_array($requiredRole, $user->getRoleNames()->toArray())) // if required role is within  user's roles
                             ) {
-                                if (
+
+                                if( in_array($requiredRole, [    //roles that don't require being of same department before seeing reject button
+                                    RolesEnum::Chef_parc()->value,
+                                    RolesEnum::Directeur_general()->value,
+                                    RolesEnum::Diga()->value,
+                                    RolesEnum::Budget()->value,
+                                ])){
+                                    return true;
+                                }
+                                elseif (
                                     in_array($requiredRole, [
                                         RolesEnum::Directeur()->value,
                                         RolesEnum::Chef_division()->value,

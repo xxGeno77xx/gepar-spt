@@ -48,8 +48,6 @@ class ReparationResource extends Resource
 
     protected static ?string $navigationGroup = 'Flotte automobile';
 
-    protected static ?string $modelLabel = 'Maintenance';
-
     protected static ?string $navigationIcon = 'heroicon-o-adjustments';
 
     public static function form(Form $form): Form

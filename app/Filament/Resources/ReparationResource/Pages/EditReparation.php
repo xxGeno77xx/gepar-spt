@@ -48,7 +48,6 @@ class EditReparation extends EditRecord
             {
                 abort(403, "Vous ne pouvez plus modifier une réparation déjà achevée");
             } elseif (($this->record->validation_step != 0)) // if is not in starting step
-            
             {
 
 
@@ -94,16 +93,40 @@ class EditReparation extends EditRecord
 
         // update validation state with new circuit data upon change in circuit_id
 
+
+
+
+    }
+
+
+    public function beforeSave()
+    {
+        $reparation = $this->record;
+
+        if ($reparation->validation_step == 0) {
+
             $circuit = Circuit::where('id', $this->data["circuit_id"])->first()->steps;
 
-            foreach ($circuit as $key => $item) {
 
-                $roleIds[] = $item['role_id'];
-            }
 
-            $reparation->update([
-                "validation_state"=> $roleIds[0] 
-            ]);
+            if ($reparation->circuit_id != $this->data["circuit_id"]) {
+
+                foreach ($circuit as $key => $item) {
+
+                    $roleIds[] = $item['role_id'];
+                }
+
+                $reparation->update([
+                    "validation_state" => $roleIds[0]
+                ]);
+            } else {
+
+                Notification::make()
+                    ->title('Attention')
+                    ->warning()->body("Vous ne pouvez pas modifier cette réparation à cette étape de validation")
+                    ->send();
+            } ;
+        }
 
     }
 
