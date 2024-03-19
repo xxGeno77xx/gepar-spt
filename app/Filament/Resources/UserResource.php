@@ -62,12 +62,12 @@ class UserResource extends Resource
                             ->label(strval(__('filament-authentication::filament-authentication.field.user.name')))
                             ->required(),
 
-                        TextInput::make('email')
-                            ->required()
-                            ->email()
-                            ->unique(table: static::$model, ignorable: fn ($record) => $record)
-                            ->regex('/.*@laposte\.tg$/') // field must end with @laposte.tg
-                            ->label(strval(__('filament-authentication::filament-authentication.field.user.email'))),
+                        // TextInput::make('email')
+                        //     ->required()
+                        //     ->email()
+                        //     ->unique(table: static::$model, ignorable: fn ($record) => $record)
+                        //     ->regex('/.*@laposte\.tg$/') // field must end with @laposte.tg
+                        //     ->label(strval(__('filament-authentication::filament-authentication.field.user.email'))),
 
                         // TextInput::make('password')
                         //     ->same('passwordConfirmation')

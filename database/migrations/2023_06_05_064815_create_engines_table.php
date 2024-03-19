@@ -74,7 +74,7 @@ return new class extends Migration
 
             $table->integer('poids_total_roulant')->nullable();
 
-            $table->integer('Charge_utile');
+            $table->integer('charge_utile');
 
             $table->double('largeur', 10, 2);
 

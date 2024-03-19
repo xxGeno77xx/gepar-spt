@@ -28,22 +28,22 @@ class EditEngine extends EditRecord
 
     protected function getActions(): array
     {
-        if (auth()->user()->hasAnyPermission([PermissionsClass::engines_delete()->value])) {
+        if (auth()->user()->hasAnyPermission([PermissionsClass::Engines_update()->value])) {
             return [
                 // Actions\DeleteAction::make(),
-                Actions\Action::make('Supprimer')
-                    ->color('danger')
-                    ->icon('heroicon-o-eye-off')
-                    ->action(function (?Engin $record) {
-                        $this->record->update(['state' => StatesClass::Deactivated()->value]);
-                        redirect('/engines');
-                        Notification::make()
-                            ->title('Supprimé(e)')
-                            ->success()
-                            ->persistent()
-                            ->send();
-                    })
-                    ->requiresConfirmation(),
+                // Actions\Action::make('Supprimer')
+                //     ->color('danger')
+                //     ->icon('heroicon-o-eye-off')
+                //     ->action(function (?Engin $record) {
+                //         $this->record->update(['state' => StatesClass::Deactivated()->value]);
+                //         redirect('/engines');
+                //         Notification::make()
+                //             ->title('Supprimé(e)')
+                //             ->success()
+                //             ->persistent()
+                //             ->send();
+                //     })
+                //     ->requiresConfirmation(),
 
                 // Actions\Action::make('Retirer_du_patrimoine')
                 //     ->color('danger')

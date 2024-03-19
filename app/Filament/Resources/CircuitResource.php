@@ -19,6 +19,7 @@ class CircuitResource extends Resource
     protected static ?string $model = Circuit::class;
 
     protected static ?string $navigationGroup = 'REGLAGES';
+
     protected static ?string $navigationIcon = 'heroicon-o-chevron-double-right';
 
     public static function form(Form $form): Form

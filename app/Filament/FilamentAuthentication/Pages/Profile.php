@@ -101,6 +101,7 @@ class Profile extends Page
                 ->columns(2)
                 ->schema([
                     TextInput::make('name')
+                        ->disabled()
                         ->required()
                         ->label('Nom'),
                     TextInput::make('email')
@@ -108,32 +109,32 @@ class Profile extends Page
                         ->disabled()
                         ->required(),
                 ]),
-            Section::make('Mise à jour de mot de passe')
-                ->columns(2)
-                ->schema([
-                    TextInput::make('current_password')
-                        ->label('Mot de passe actuel')
-                        ->password()
-                        ->rules(['required_with:new_password'])
-                        ->currentPassword()
-                        ->autocomplete('off')
-                        ->columnSpan(1),
-                    Grid::make()
-                        ->schema([
-                            TextInput::make('new_password')
-                                ->label('Nouveau mot de passe')
-                                ->password()
-                                ->rules(['confirmed', Password::defaults()])
-                                ->autocomplete('new-password'),
-                            TextInput::make('new_password_confirmation')
-                                ->label('Confirmation de mot de passe')
-                                ->password()
-                                ->rules([
-                                    'required_with:new_password',
-                                ])
-                                ->autocomplete('new-password'),
-                        ]),
-                ]),
+            // Section::make('Mise à jour de mot de passe')
+            //     ->columns(2)
+            //     ->schema([
+            //         TextInput::make('current_password')
+            //             ->label('Mot de passe actuel')
+            //             ->password()
+            //             ->rules(['required_with:new_password'])
+            //             ->currentPassword()
+            //             ->autocomplete('off')
+            //             ->columnSpan(1),
+            //         Grid::make()
+            //             ->schema([
+            //                 TextInput::make('new_password')
+            //                     ->label('Nouveau mot de passe')
+            //                     ->password()
+            //                     ->rules(['confirmed', Password::defaults()])
+            //                     ->autocomplete('new-password'),
+            //                 TextInput::make('new_password_confirmation')
+            //                     ->label('Confirmation de mot de passe')
+            //                     ->password()
+            //                     ->rules([
+            //                         'required_with:new_password',
+            //                     ])
+            //                     ->autocomplete('new-password'),
+            //             ]),
+            //     ]),
         ];
     }
 }

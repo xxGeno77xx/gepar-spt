@@ -3,20 +3,22 @@
 namespace App\Filament\Resources\ReparationResource\Pages;
 
 use Actions\Action;
-use App\Filament\Resources\ReparationResource;
-use App\Models\Circuit;
-use App\Models\Engine;
-use App\Models\Reparation;
 use App\Models\Role;
-use App\Support\Database\PermissionsClass;
-use App\Support\Database\ReparationValidationStates;
+use App\Models\User;
+use App\Models\Engine;
+use App\Models\Circuit;
+use App\Models\Reparation;
+use Filament\Pages\Actions;
 use App\Support\Database\RolesEnum;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\MarkdownEditor;
-use Filament\Notifications\Notification;
-use Filament\Pages\Actions;
 use Filament\Pages\Actions\EditAction;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
+use App\Support\Database\PermissionsClass;
+use Filament\Forms\Components\MarkdownEditor;
+use App\Filament\Resources\ReparationResource;
+use App\Support\Database\ReparationValidationStates;
+use Filament\Notifications\Actions\Action as NotificationActions;
 
 class ViewReparation extends ViewRecord
 {
@@ -80,6 +82,69 @@ class ViewReparation extends ViewRecord
 
                     })
                     ->icon('heroicon-o-check-circle')
+                    ->after(function () {
+
+                        $currentValidationStep = $this->record->validation_step;
+
+                        $concernedEngine = Engine::where('id', $this->record->engine_id)->first();
+
+                        $circuit = Circuit::where('id', $this->data['circuit_id'])->first()->steps;
+
+                        foreach ($circuit as $key => $item) {
+
+                            $roleIds[] = $item['role_id'];
+                        }
+
+                        if (array_key_exists($currentValidationStep, $roleIds)) {
+                            $NextdestinataireRole = Role::find($roleIds[$currentValidationStep])->name;
+
+                            $destinataire = User::role($NextdestinataireRole)->first();
+
+
+                            if ($destinataire) {
+
+                                if ($NextdestinataireRole) {
+
+                                    if (in_array($NextdestinataireRole, [RolesEnum::Directeur()->value, RolesEnum::Chef_division()->value]) && $destinataire->departement_id == $concernedEngine->departement_id) {
+
+                                        $realDestination = User::role($NextdestinataireRole)->where("departement_id", $concernedEngine->departement_id)->first();
+
+                                        Notification::make()
+                                            ->title('Demande de validation')
+                                            ->body('Réparation pour l\'engin immatriculé ' . $concernedEngine->plate_number . ' en attente de validation')
+                                            ->actions([
+                                                NotificationActions::make('voir')
+                                                    ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
+                                                    ->button()
+                                                    ->color('primary'),
+                                            ])
+                                            ->sendToDatabase($realDestination);
+
+                                    } elseif (
+                                        in_array($NextdestinataireRole, [
+                                            RolesEnum::Directeur_general()->value,
+                                            RolesEnum::Diga()->value,
+                                            RolesEnum::Chef_parc()->value,
+                                            RolesEnum::Budget()->value,
+                                        ])
+                                    ) {
+                                        Notification::make()
+                                            ->title('Nouvelle demande')
+                                            ->body('Réparation pour l\'engin immatriculé ' . $concernedEngine->plate_number . ' en attente de validation')
+                                            ->actions([
+                                                NotificationActions::make('voir')
+                                                    ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
+                                                    ->button()
+                                                    ->color('primary'),
+                                            ])
+                                            ->sendToDatabase($destinataire);
+                                    }
+                                }
+
+                            }
+                        }
+
+                    })
                     ->action(function (?Reparation $record) {
 
                         $user = auth()->user();
@@ -250,7 +315,7 @@ class ViewReparation extends ViewRecord
                                 $roleIds[] = $item['role_id'];
                             }
 
-                            $concernedEngine = Engine::where("id", $this->record->engine_id)->first();
+                            $concernedEngine = Engine::where('id', $this->record->engine_id)->first();
 
                             $requiredRole = Role::find($this->record->validation_state)->name;
 
@@ -266,23 +331,25 @@ class ViewReparation extends ViewRecord
                                 ]) && (in_array($requiredRole, $user->getRoleNames()->toArray())) // if required role is within  user's roles
                             ) {
 
-                                if( in_array($requiredRole, [    //roles that don't require being of same department before seeing reject button
-                                    RolesEnum::Chef_parc()->value,
-                                    RolesEnum::Directeur_general()->value,
-                                    RolesEnum::Diga()->value,
-                                    RolesEnum::Budget()->value,
-                                ])){
+                                if (
+                                    in_array($requiredRole, [    //roles that don't require being of same department before seeing reject button
+                                        RolesEnum::Chef_parc()->value,
+                                        RolesEnum::Directeur_general()->value,
+                                        RolesEnum::Diga()->value,
+                                        RolesEnum::Budget()->value,
+                                    ])
+                                ) {
                                     return true;
-                                }
-                                elseif (
+                                } elseif (
                                     in_array($requiredRole, [
                                         RolesEnum::Directeur()->value,
                                         RolesEnum::Chef_division()->value,
                                     ]) && $user->departement_id == $concernedEngine->departement_id
                                 ) {
                                     return true;
-                                } else
+                                } else {
                                     return false;
+                                }
                             } else {
                                 return false;
                             }

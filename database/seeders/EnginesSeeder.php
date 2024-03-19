@@ -47,7 +47,7 @@ class EnginesSeeder extends Seeder
                 'poids_total_en_charge' => 955,
                 'poids_a_vide' => 950,
                 'poids_total_roulant' => null,
-                'Charge_utile' => 200,
+                'charge_utile' => 200,
                 'largeur' => 120,
                 'surface' => 123,
                 'couleur' => '#852a2a',

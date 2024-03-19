@@ -2,9 +2,10 @@
 
 namespace App\Filament\Resources\OrdreDeMissionResource\Pages;
 
-use App\Filament\Resources\OrdreDeMissionResource;
+use App\Functions\Unaccent;
 use Filament\Pages\Actions;
 use Filament\Resources\Pages\EditRecord;
+use App\Filament\Resources\OrdreDeMissionResource;
 
 class EditOrdreDeMission extends EditRecord
 {
@@ -13,21 +14,16 @@ class EditOrdreDeMission extends EditRecord
     protected function getActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
-
-            Actions\Action::make('printC')
-                ->label('PDF (couleur)')
-                ->color('success')
-                ->icon('heroicon-o-document-download')
-                ->url(fn () => route('couleur', $this->record)) //this to orders
-                ->openUrlInNewTab(),
-
-            Actions\Action::make('printNB')
-                ->label('PDF (Noir & Blanc)')
-                ->color('success')
-                ->icon('heroicon-o-document-download')
-                ->url(fn ($record) => route('pdfNoirBlanc', $this->record)) //this to orders
-                ->openUrlInNewTab(),
+            // Actions\DeleteAction::make(),
         ];
+    }
+
+    public function mutateFormDataBeforeSave(array $data): array
+    {
+        foreach ($data["lieu"] as $lieu) {
+            $temp[] = strtoupper(Unaccent::unaccent($lieu));
+        }
+
+        return $data;
     }
 }

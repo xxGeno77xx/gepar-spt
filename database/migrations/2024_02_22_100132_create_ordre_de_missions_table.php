@@ -30,6 +30,8 @@ return new class extends Migration
 
             $table->string('objet_mission');
 
+            $table->string('departement_id');
+
             $table->date('date_de_depart');
 
             $table->date('date_de_retour');

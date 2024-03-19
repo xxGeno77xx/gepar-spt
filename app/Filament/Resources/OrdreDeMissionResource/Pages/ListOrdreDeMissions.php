@@ -21,7 +21,8 @@ class ListOrdreDeMissions extends ListRecords
     public function getTableQuery(): Builder
     {
         return static::getResource()::getEloquentQuery()
+            ->join('engines', 'engines.id', 'ordre_de_missions.engine_id')
             ->join('chauffeurs', 'chauffeurs.id', 'ordre_de_missions.chauffeur_id')
-            ->select('ordre_de_missions.*', 'chauffeurs.fullname as chauffeur');
+            ->select('ordre_de_missions.*', 'chauffeurs.fullname as chauffeur', 'plate_number');
     }
 }

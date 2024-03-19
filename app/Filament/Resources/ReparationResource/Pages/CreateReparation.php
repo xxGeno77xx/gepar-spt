@@ -2,20 +2,22 @@
 
 namespace App\Filament\Resources\ReparationResource\Pages;
 
-use App\Filament\Resources\ReparationResource;
-use App\Models\Circuit;
+use App\Models\Role;
+use App\Models\User;
 use App\Models\Engine;
+use App\Models\Circuit;
 use App\Models\Reparation;
 use App\Models\TypeReparation;
-use App\Models\User;
-use App\Support\Database\PermissionsClass;
+use Filament\Pages\Actions\Action;
 use App\Support\Database\RolesEnum;
 use App\Support\Database\StatesClass;
-use App\Support\Database\TypesReparation;
-use Filament\Notifications\Actions\Action as NotificationActions;
 use Filament\Notifications\Notification;
-use Filament\Pages\Actions\Action;
+use App\Support\Database\TypesReparation;
+use App\Support\Database\PermissionsClass;
 use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Resources\ReparationResource;
+use App\Support\Database\ReparationValidationStates;
+use Filament\Notifications\Actions\Action as NotificationActions;
 
 class CreateReparation extends CreateRecord
 {
@@ -29,7 +31,7 @@ class CreateReparation extends CreateRecord
 
         $userPermission = $user->hasAnyPermission([PermissionsClass::reparation_create()->value]);
 
-        abort_if(! $userPermission, 403, __("Vous n'avez pas access à cette page"));
+        abort_if(!$userPermission, 403, __("Vous n'avez pas access à cette page"));
     }
 
     protected function getRedirectUrl(): string
@@ -54,10 +56,11 @@ class CreateReparation extends CreateRecord
             ->orderbydesc('created_at')
             ->where('engine_id', $newRaparation['engine_id'])
             ->where('state', StatesClass::Activated()->value)
+            ->where('validation_state', '<>', ReparationValidationStates::Rejete()->value)
             ->first();
 
         if ($latestReparation) {
-            if (! $latestReparation->date_fin) {
+            if (!$latestReparation->date_fin) {
                 Notification::make()
                     ->warning()
                     ->title('Attention!')
@@ -69,7 +72,7 @@ class CreateReparation extends CreateRecord
             }
         }
 
-        if (! is_null($newRaparation['date_fin'])) {
+        if (!is_null($newRaparation['date_fin'])) {
 
         }
     }
@@ -96,18 +99,45 @@ class CreateReparation extends CreateRecord
             ->where('departement_id', $concernedEngine->departement_id) //division_id
             ->first();
 
-        if ($chefDivision) {
-            Notification::make()
-                ->title('Nouvelle demande')
-                ->body('Demande de réparation pour l\'engin immatriculé '.$concernedEngine->plate_number.'')
-                ->actions([
-                    NotificationActions::make('voir')
-                        ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
-                        ->button()
-                        ->color('primary'),
-                ])
-                ->send()
-                ->sendToDatabase($chefDivision);
+        $circuit = Circuit::where('id', $this->data['circuit_id'])->first()->steps;
+
+        foreach ($circuit as $key => $item) {
+
+            $roleIds[] = $item['role_id'];
+        }
+
+        $destinataireRole = Role::find($roleIds[0])->name;
+
+        $destinataire = User::role($destinataireRole)->first();
+
+        if ($destinataire) {
+
+            if (in_array($destinataireRole, [RolesEnum::Directeur()->value, RolesEnum::Chef_division()->value]) && $destinataire->departement_id == $concernedEngine->departement_id) {
+                $realDestination = User::role($destinataireRole)->where("departement_id", $concernedEngine->departement_id)->first();
+
+                Notification::make()
+                    ->title('Nouvelle demande')
+                    ->body('Demande de réparation pour l\'engin immatriculé ' . $concernedEngine->plate_number . '')
+                    ->actions([
+                            NotificationActions::make('voir')
+                                ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
+                                ->button()
+                                ->color('primary'),
+                        ])
+                    ->sendToDatabase($realDestination);
+
+            } elseif($destinataireRole == RolesEnum::Directeur_general()->value) {
+                Notification::make()
+                    ->title('Nouvelle demande')
+                    ->body('Demande de réparation pour l\'engin immatriculé ' . $concernedEngine->plate_number . '')
+                    ->actions([
+                            NotificationActions::make('voir')
+                                ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
+                                ->button()
+                                ->color('primary'),
+                        ])
+                    ->sendToDatabase($destinataire);
+            }
         }
 
     }

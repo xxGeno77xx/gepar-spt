@@ -111,8 +111,16 @@ class EngineResource extends Resource
 
                         Select::make('activite_id')
                             ->label('Activité')
-                            ->options(Modele::where('state', StatesClass::Activated()->value)->pluck('nom_modele', 'id')) // activité de l'engin:  mixte/financière/postale
+                            ->options(
+                                [
+                                    'Activité postale' => 'Activité postale',
+                                    'Activité  financière' => 'Activité financière',
+                                    'Activité mixte' => 'Activité mixte',
+
+                                ]
+                            ) // activité de l'engin:  mixte/financière/postale
                             ->searchable()
+                            ->dehydrated(false)
                             ->required()
                             ->columnSpanFull(),
 
@@ -173,7 +181,7 @@ class EngineResource extends Resource
                                     ->label('Poids total roulant')
                                     ->numeric(),
 
-                                TextInput::make('Charge_utile')
+                                TextInput::make('charge_utile')
                                     ->label('Charge à vide')
                                     ->numeric()
                                     ->required(),

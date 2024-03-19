@@ -89,7 +89,7 @@ class AssurancesASurveiller extends BaseWidget
                 'engines.poids_total_en_charge',
                 'engines.poids_a_vide',
                 'engines.poids_total_roulant',
-                'engines.Charge_utile',
+                'engines.charge_utile',
                 'engines.largeur',
                 'engines.surface',
                 'engines.couleur',

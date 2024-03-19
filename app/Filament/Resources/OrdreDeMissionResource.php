@@ -2,25 +2,31 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\OrdreDeMissionResource\Pages;
-use App\Models\Chauffeur;
+use Carbon\Carbon;
+use Filament\Tables;
 use App\Models\Engine;
+use App\Models\Chauffeur;
+use App\Models\Departement;
+use Filament\Resources\Form;
+use Filament\Resources\Table;
 use App\Models\OrdreDeMission;
-use App\Support\Database\StatesClass;
+use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
-use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
+use Filament\Tables\Filters\Filter;
+use App\Support\Database\StatesClass;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\Repeater;
+use Filament\Tables\Columns\TagsColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
-use Filament\Resources\Form;
-use Filament\Resources\Resource;
-use Filament\Resources\Table;
-use Filament\Tables;
 use Filament\Tables\Columns\BadgeColumn;
-use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\DatePicker;
+use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\OrdreDeMissionResource\Pages;
 
 class OrdreDeMissionResource extends Resource
 {
@@ -75,28 +81,38 @@ class OrdreDeMissionResource extends Resource
                                     ->createItemButtonLabel('Ajouter un agent')
                                     ->columnSpanFull(),
 
-                                Select::make('engine_id')
-                                    ->label('Moyen de transport')
-                                    ->options(
-                                        Engine::select(['plate_number', 'id'])
-                                            ->where('engines.state', StatesClass::Activated()->value)
-                                            ->get()
-                                            ->pluck('plate_number', 'id')
-                                    )
-                                    ->searchable()
-                                    ->required()
-                                    ->columnSpanFull(),
+                                Grid::make(2)
+                                    ->schema([
+                                        Select::make('engine_id')
+                                            ->label('Moyen de transport')
+                                            ->options(
+                                                Engine::select(['plate_number', 'id'])
+                                                    ->where('engines.state', StatesClass::Activated()->value)
+                                                    ->get()
+                                                    ->pluck('plate_number', 'id')
+                                            )
+                                            ->searchable()
+                                            ->required(),
 
-                                TagsInput::make('lieu')
-                                    ->label('Destination(s)')
-                                    ->required()
-                                    ->placeholder('Nouvelle destination')
-                                    ->columnSpanFull(),
+                                        Select::make('departement_id')
+                                            ->label('Département')
+                                            ->options(
+                                                Departement::select(['sigle_centre', 'code_centre'])
+                                                    ->get()
+                                                    ->pluck('sigle_centre', 'code_centre')
+                                            )
+                                            ->searchable()
+                                            ->required(),
 
-                                TextInput::make('objet_mission')
-                                    ->label('Objet de la mission')
-                                    ->required()
-                                    ->columnSpanFull(),
+                                        TagsInput::make('lieu')
+                                            ->label('Destination(s)')
+                                            ->required()
+                                            ->placeholder('Nouvelle destination'),
+
+                                        TextInput::make('objet_mission')
+                                            ->label('Objet de la mission')
+                                            ->required(),
+                                    ]),
 
                                 Hidden::make('numero_ordre')
                                     ->default(fn () => OrdreDeMission::orderBy('id', 'desc')->first() ? OrdreDeMission::orderBy('id', 'desc')->first()->id + 1 : 1), //generate the number
@@ -111,7 +127,8 @@ class OrdreDeMissionResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('numero_ordre')
-                    ->label("Numéro d'ordre"),
+                    ->label("Numéro d'ordre")
+                    ->searchable(isIndividual: true),
 
                 TextColumn::make('chauffeur')
                     ->label('Chauffeur'),
@@ -125,20 +142,153 @@ class OrdreDeMissionResource extends Resource
                     ->color('danger'),
 
                 BadgeColumn::make('objet_mission')
-                    ->limit(25)
+                    ->limit(20)
+                    ->tooltip(fn ($record) => $record->objet_mission)
                     ->color('success')
                     ->label('Objet de la mission'),
 
-                BadgeColumn::make('lieu')
+                    TagsColumn::make('lieu')
+                    ->label('Destination(s)')
+                    ->searchable(isIndividual: true, query: function (Builder $query, string $search): Builder {
+
+                        return $query->selectRaw('ordre_de_missions.lieu')->whereRaw('LOWER(lieu) LIKE ?', ['%'.strtolower($search).'%']);
+
+                    }),
+
+                BadgeColumn::make('plate_number')
+                    ->label('Moyen de transport')
+                    ->color('success'),
+
+                BadgeColumn::make('departement_id')
+                    ->label('Département')
+                    ->formatStateUsing(fn ($state) => Departement::where('code_centre', $state)->first()->sigle_centre)
                     ->color('success'),
             ])
             ->filters([
-                //
+                Filter::make('Departement')
+                    ->indicateUsing(function (array $data): ?string {
+                        if (! $data['departement_id']) {
+                            return null;
+                        }
+
+                        return 'Département: '.Departement::where('code_centre', $data['departement_id'])->value('sigle_centre');
+                    })
+                    ->form([
+                        Select::make('departement_id')
+                            ->searchable()
+                            ->label('Département')
+                            ->options(Departement::pluck('sigle_centre', 'code_centre')),
+
+                    ])->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['departement_id'],
+                                function (Builder $query, $status) {
+                                    $search = Departement::where('code_centre', $status)->value('code_centre');
+
+                                    return $query->where('ordre_de_missions.departement_id', $search);
+                                }
+                            );
+                    }),
+
+                Filter::make('Chauffeur')
+                    ->form([
+                            Select::make('chauffeur_id')
+                                ->searchable()
+                                ->label('Chauffeur')
+                                ->options(Chauffeur::pluck('fullname', 'id')),
+
+                        ])->query(function (Builder $query, array $data): Builder {
+                            return $query
+                                ->when(
+                                    $data['chauffeur_id'],
+                                    fn (Builder $query, $status): Builder => $query->where('ordre_de_missions.chauffeur_id', $status),
+                                );
+                        })
+                    ->indicateUsing(function (array $data): ?string {
+                        if (! $data['chauffeur_id']) {
+                            return null;
+                        }
+
+                        return 'Chauffeur: '.Chauffeur::where('id', $data['chauffeur_id'])->first()->fullname;
+                    }),
+
+                Filter::make('date_de_depart')
+                    ->label('Date de départ')
+                    ->form([
+
+                        Fieldset::make('Date de départ')
+                            ->schema([
+
+                                Grid::make(2)
+                                    ->schema([
+                                        DatePicker::make('date_from')
+                                            ->label('Du')
+                                            ->columnSpanFull(),
+                                        DatePicker::make('date_to')
+                                            ->label('Au')
+                                            ->columnSpanFull(),
+
+                                    ]),
+                            ]),
+
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['date_from'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('date_de_depart', '>=', $date),
+                            )
+                            ->when(
+                                $data['date_to'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('date_de_depart', '<=', $date),
+                            );
+                    })
+                    ->indicateUsing(function (array $data): ?string {
+                        if (($data['date_from']) && ($data['date_from'])) {
+                            return 'Date de départ:  '.Carbon::parse($data['date_from'])->format('d-m-Y').' au '.Carbon::parse($data['date_to'])->format('d-m-Y');
+                        }
+
+                        return null;
+                    }),
+
+                Filter::make('engine_id')
+                    ->label('Moyen de transport')
+                    ->form([
+                        Grid::make(2)
+                            ->schema([
+
+                                Select::make('engine_id')
+                                    ->label('Moyen de transport')
+                                    ->options(Engine::pluck('plate_number', 'id'))
+                                    ->searchable(),
+
+                            ])->columns(1),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['engine_id'],
+                                fn (Builder $query, $date): Builder => $query->where('engine_id', '=', $date),
+                            );
+                    })
+                    ->indicateUsing(function (array $data): ?string {
+                        if ($data['engine_id']) {
+                            return 'Moyen de transport:  '.Engine::where('id', ($data['engine_id']))->first()->plate_number;
+                        }
+
+                        return null;
+                    }),
+
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
 
                 Tables\Actions\ActionGroup::make([
+
+                    Tables\Actions\ViewAction::make(),
+
+                    Tables\Actions\EditAction::make(),
+
                     Tables\Actions\Action::make('printC')
                         ->label('PDF (couleur)')
                         ->color('success')
@@ -172,7 +322,9 @@ class OrdreDeMissionResource extends Resource
         return [
             'index' => Pages\ListOrdreDeMissions::route('/'),
             'create' => Pages\CreateOrdreDeMission::route('/create'),
+            'view' => Pages\ViewOrdreDeMission::route('/{record}'),
             'edit' => Pages\EditOrdreDeMission::route('/{record}/edit'),
+
         ];
     }
 }

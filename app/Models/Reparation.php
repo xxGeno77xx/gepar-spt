@@ -19,6 +19,8 @@ class Reparation extends Model
         'infos' => 'array',
     ];
 
+    protected $fillable = ['validation_state'];
+
     public function engine()
     {
         return $this->belongsTo(Engine::class);

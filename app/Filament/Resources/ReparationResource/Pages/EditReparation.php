@@ -43,8 +43,12 @@ class EditReparation extends EditRecord
 
         if ($userPermission) {
 
+            if($this->record->validation_state == ReparationValidationStates::Rejete()->value)
+            {
+                abort(403, "Vous ne pouvez plus modifier une réparation rejetée");
+            }
 
-            if ($this->record->validation_state == "nextValue" || $this->record->validation_step == 100)  // if reparation is finished
+            elseif ($this->record->validation_state == "nextValue" || $this->record->validation_step == 100)  // if reparation is finished
             {
                 abort(403, "Vous ne pouvez plus modifier une réparation déjà achevée");
             } elseif (($this->record->validation_step != 0)) // if is not in starting step
@@ -62,9 +66,9 @@ class EditReparation extends EditRecord
 
                 abort_unless(
                     $user->hasAnyRole([
-                        Role::where("name", RolesEnum::Chef_parc()->value)->first()->name,
-                        Role::where("name", RolesEnum::Dpl()->value)->first()->name,
-                        Role::where("name", RolesEnum::Budget()->value)->first()->name,
+                        RolesEnum::Chef_parc()->value,
+                        RolesEnum::Dpl()->value,
+                        RolesEnum::Budget()->value,
                     ]) && (in_array($this->record->validation_step, $indicesDesired)),
                     403,
                     "Vous n'avez pas les permissions pour modifier une demande en cours de validation"
@@ -91,11 +95,24 @@ class EditReparation extends EditRecord
             ]);
         }
 
-        // update validation state with new circuit data upon change in circuit_id
 
+ // systematically update circuit upon change if step is at start
+        if($reparation->validation_step == 0)
 
+        {
+            $circuit = Circuit::where('id', $reparation->circuit_id )->first()->steps;
 
+                foreach ($circuit as $key => $item) {
 
+                    $roleIds[] = $item['role_id'];
+                }
+
+                $reparation->update([
+                    "validation_state" => $roleIds[0]
+                ]);
+            
+        }
+       
     }
 
 
