@@ -2,24 +2,24 @@
 
 namespace App\Filament\Resources\EngineResource\RelationManagers;
 
-use Closure;
-use Carbon\Carbon;
-use Filament\Tables;
 use App\Models\Chauffeur;
 use App\Models\Departement;
-use Filament\Resources\Form;
-use Filament\Resources\Table;
 use App\Models\OrdreDeMission;
-use Filament\Forms\Components\Grid;
-use Filament\Tables\Filters\Filter;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Fieldset;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Tables\Columns\BadgeColumn;
+use Carbon\Carbon;
+use Closure;
 use Filament\Forms\Components\DatePicker;
-use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Select;
+use Filament\Resources\Form;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Resources\Table;
+use Filament\Tables;
+use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class OrdreDeMissionsRelationManager extends RelationManager
 {
@@ -66,7 +66,7 @@ class OrdreDeMissionsRelationManager extends RelationManager
                     ->color('success')
                     ->searchable(),
 
-                    BadgeColumn::make('departement_id')
+                BadgeColumn::make('departement_id')
                     ->label('Département')
                     ->formatStateUsing(fn ($state) => Departement::where('code_centre', $state)->first()->sigle_centre)
                     ->color('success'),
@@ -100,18 +100,18 @@ class OrdreDeMissionsRelationManager extends RelationManager
 
                 Filter::make('Chauffeur')
                     ->form([
-                            Select::make('chauffeur_id')
-                                ->searchable()
-                                ->label('Chauffeur')
-                                ->options(Chauffeur::pluck('fullname', 'id')),
+                        Select::make('chauffeur_id')
+                            ->searchable()
+                            ->label('Chauffeur')
+                            ->options(Chauffeur::pluck('fullname', 'id')),
 
-                        ])->query(function (Builder $query, array $data): Builder {
-                            return $query
-                                ->when(
-                                    $data['chauffeur_id'],
-                                    fn (Builder $query, $status): Builder => $query->where('ordre_de_missions.chauffeur_id', $status),
-                                );
-                        })
+                    ])->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['chauffeur_id'],
+                                fn (Builder $query, $status): Builder => $query->where('ordre_de_missions.chauffeur_id', $status),
+                            );
+                    })
                     ->indicateUsing(function (array $data): ?string {
                         if (! $data['chauffeur_id']) {
                             return null;
@@ -158,8 +158,6 @@ class OrdreDeMissionsRelationManager extends RelationManager
 
                         return null;
                     }),
-
-               
 
             ])
             ->headerActions([

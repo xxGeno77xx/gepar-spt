@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\CircuitResource\Pages;
 use App\Models\Circuit;
 use App\Models\Role;
+use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -26,14 +27,25 @@ class CircuitResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('name'),
-                Repeater::make('steps')
+                Card::make()
+                    ->schema([
+                        TextInput::make('name')
+                            ->label('Nom du circuit'),
+                    ]),
+
+                Card::make()
                     ->schema([
 
-                        Select::make('role_id')
-                            ->searchable()
-                            ->label('roles')
-                            ->options(Role::pluck('name', 'id')),
+                        Repeater::make('steps')
+                            ->label('Etapes')
+                            ->schema([
+
+                                Select::make('role_id')
+                                    ->searchable()
+                                    ->label('roles')
+                                    ->options(Role::pluck('name', 'id')),
+                            ])->grid(2),
+
                     ]),
             ]);
     }

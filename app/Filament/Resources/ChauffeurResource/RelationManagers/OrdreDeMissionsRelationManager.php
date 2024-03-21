@@ -2,24 +2,24 @@
 
 namespace App\Filament\Resources\ChauffeurResource\RelationManagers;
 
-use Closure;
-use Carbon\Carbon;
-use Filament\Tables;
-use App\Models\Engine;
 use App\Models\Departement;
-use Filament\Resources\Form;
-use Filament\Resources\Table;
+use App\Models\Engine;
 use App\Models\OrdreDeMission;
-use Filament\Forms\Components\Grid;
-use Filament\Tables\Filters\Filter;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Fieldset;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Tables\Columns\BadgeColumn;
+use Carbon\Carbon;
+use Closure;
 use Filament\Forms\Components\DatePicker;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Select;
+use Filament\Resources\Form;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Resources\Table;
+use Filament\Tables;
+use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class OrdreDeMissionsRelationManager extends RelationManager
 {
@@ -57,7 +57,7 @@ class OrdreDeMissionsRelationManager extends RelationManager
 
                 BadgeColumn::make('engine_id')
                     ->label('Moyen de transport')
-                    ->formatStateUsing(fn($state): string => Engine::find($state)->plate_number)
+                    ->formatStateUsing(fn ($state): string => Engine::find($state)->plate_number)
                     ->color('success'),
 
                 BadgeColumn::make('lieu')
@@ -66,7 +66,7 @@ class OrdreDeMissionsRelationManager extends RelationManager
 
                 BadgeColumn::make('departement_id')
                     ->label('Département')
-                    ->formatStateUsing(fn($state) => Departement::where('code_centre', $state)->first()->sigle_centre)
+                    ->formatStateUsing(fn ($state) => Departement::where('code_centre', $state)->first()->sigle_centre)
                     ->color('success'),
             ])
             ->filters([
@@ -96,7 +96,6 @@ class OrdreDeMissionsRelationManager extends RelationManager
                             );
                     }),
 
-               
                 Filter::make('date_de_depart')
                     ->label('Date de départ')
                     ->form([
@@ -135,7 +134,7 @@ class OrdreDeMissionsRelationManager extends RelationManager
 
                         return null;
                     }),
-                    Filter::make('engine_id')
+                Filter::make('engine_id')
                     ->label('Moyen de transport')
                     ->form([
                         Grid::make(2)
@@ -163,8 +162,6 @@ class OrdreDeMissionsRelationManager extends RelationManager
                         return null;
                     }),
 
-               
-
             ])
             ->headerActions([
                 // Tables\Actions\CreateAction::make(),
@@ -175,14 +172,14 @@ class OrdreDeMissionsRelationManager extends RelationManager
                         ->label('PDF (couleur)')
                         ->color('success')
                         ->icon('heroicon-o-document-download')
-                        ->url(fn(OrdreDeMission $record) => route('couleur', $record)) //this to orders
+                        ->url(fn (OrdreDeMission $record) => route('couleur', $record)) //this to orders
                         ->openUrlInNewTab(),
 
                     Tables\Actions\Action::make('printNB')
                         ->label('PDF (Noir & Blanc)')
                         ->color('success')
                         ->icon('heroicon-o-document-download')
-                        ->url(fn(OrdreDeMission $record) => route('pdfNoirBlanc', $record)) //this to orders
+                        ->url(fn (OrdreDeMission $record) => route('pdfNoirBlanc', $record)) //this to orders
                         ->openUrlInNewTab(),
                 ]),
             ])
@@ -193,6 +190,6 @@ class OrdreDeMissionsRelationManager extends RelationManager
 
     protected function getTableRecordUrlUsing(): ?Closure
     {
-        return fn(Model $record): string => route('filament.resources.ordre-de-missions.view', ['record' => $record]);
+        return fn (Model $record): string => route('filament.resources.ordre-de-missions.view', ['record' => $record]);
     }
 }

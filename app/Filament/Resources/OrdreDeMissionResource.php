@@ -2,31 +2,31 @@
 
 namespace App\Filament\Resources;
 
-use Carbon\Carbon;
-use Filament\Tables;
-use App\Models\Engine;
+use App\Filament\Resources\OrdreDeMissionResource\Pages;
 use App\Models\Chauffeur;
 use App\Models\Departement;
-use Filament\Resources\Form;
-use Filament\Resources\Table;
+use App\Models\Engine;
 use App\Models\OrdreDeMission;
-use Filament\Resources\Resource;
-use Filament\Forms\Components\Card;
-use Filament\Forms\Components\Grid;
-use Filament\Tables\Filters\Filter;
 use App\Support\Database\StatesClass;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Select;
+use Carbon\Carbon;
+use Filament\Forms\Components\Card;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
-use Filament\Tables\Columns\TagsColumn;
-use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
+use Filament\Resources\Form;
+use Filament\Resources\Resource;
+use Filament\Resources\Table;
+use Filament\Tables;
 use Filament\Tables\Columns\BadgeColumn;
-use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Columns\TagsColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\OrdreDeMissionResource\Pages;
 
 class OrdreDeMissionResource extends Resource
 {
@@ -147,7 +147,7 @@ class OrdreDeMissionResource extends Resource
                     ->color('success')
                     ->label('Objet de la mission'),
 
-                    TagsColumn::make('lieu')
+                TagsColumn::make('lieu')
                     ->label('Destination(s)')
                     ->searchable(isIndividual: true, query: function (Builder $query, string $search): Builder {
 
@@ -193,18 +193,18 @@ class OrdreDeMissionResource extends Resource
 
                 Filter::make('Chauffeur')
                     ->form([
-                            Select::make('chauffeur_id')
-                                ->searchable()
-                                ->label('Chauffeur')
-                                ->options(Chauffeur::pluck('fullname', 'id')),
+                        Select::make('chauffeur_id')
+                            ->searchable()
+                            ->label('Chauffeur')
+                            ->options(Chauffeur::pluck('fullname', 'id')),
 
-                        ])->query(function (Builder $query, array $data): Builder {
-                            return $query
-                                ->when(
-                                    $data['chauffeur_id'],
-                                    fn (Builder $query, $status): Builder => $query->where('ordre_de_missions.chauffeur_id', $status),
-                                );
-                        })
+                    ])->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['chauffeur_id'],
+                                fn (Builder $query, $status): Builder => $query->where('ordre_de_missions.chauffeur_id', $status),
+                            );
+                    })
                     ->indicateUsing(function (array $data): ?string {
                         if (! $data['chauffeur_id']) {
                             return null;

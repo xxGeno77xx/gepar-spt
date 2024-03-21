@@ -97,21 +97,21 @@ class EditReparation extends EditRecord
 
 
  // systematically update circuit upon change if step is at start
-        if($reparation->validation_step == 0)
+        // if($reparation->validation_step == 0)
 
-        {
-            $circuit = Circuit::where('id', $reparation->circuit_id )->first()->steps;
+        // {
+        //     $circuit = Circuit::where('id', $reparation->circuit_id )->first()->steps;
 
-                foreach ($circuit as $key => $item) {
+        //         foreach ($circuit as $key => $item) {
 
-                    $roleIds[] = $item['role_id'];
-                }
+        //             $roleIds[] = $item['role_id'];
+        //         }
 
-                $reparation->update([
-                    "validation_state" => $roleIds[0]
-                ]);
+        //         $reparation->update([
+        //             "validation_state" => $roleIds[0]
+        //         ]);
             
-        }
+        // }
        
     }
 
@@ -120,30 +120,28 @@ class EditReparation extends EditRecord
     {
         $reparation = $this->record;
 
-        if ($reparation->validation_step == 0) {
+        // if ($reparation->validation_step == 0) {
 
-            $circuit = Circuit::where('id', $this->data["circuit_id"])->first()->steps;
+        //     $circuit = Circuit::where('id', $this->data["circuit_id"])->first()->steps;
 
+        //     if ($reparation->circuit_id != $this->data["circuit_id"]) {
 
+        //         foreach ($circuit as $key => $item) {
 
-            if ($reparation->circuit_id != $this->data["circuit_id"]) {
+        //             $roleIds[] = $item['role_id'];
+        //         }
 
-                foreach ($circuit as $key => $item) {
+        //         $reparation->update([
+        //             "validation_state" => $roleIds[0]
+        //         ]);
+        //     } else {
 
-                    $roleIds[] = $item['role_id'];
-                }
-
-                $reparation->update([
-                    "validation_state" => $roleIds[0]
-                ]);
-            } else {
-
-                Notification::make()
-                    ->title('Attention')
-                    ->warning()->body("Vous ne pouvez pas modifier cette réparation à cette étape de validation")
-                    ->send();
-            } ;
-        }
+        //         Notification::make()
+        //             ->title('Attention')
+        //             ->warning()->body("Vous ne pouvez pas modifier cette réparation à cette étape de validation")
+        //             ->send();
+        //     } ;
+        // }
 
     }
 

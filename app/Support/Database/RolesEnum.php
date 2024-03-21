@@ -16,6 +16,9 @@ use Spatie\Enum\Enum;
  * @method static self Secretaire()
  * @method static self Secretaire_DG()
  * @method static self Diga()
+ * @method static self Delegue_Direction()
+ * @method static self Delegue_Division()
+ * @method static self Delegue_Direction_Generale()
  */
 class RolesEnum extends Enum
 {
@@ -27,8 +30,10 @@ class RolesEnum extends Enum
             'Chef_division' => 'Chef division',
             'Chef_parc' => 'Chef parc ',
             'Directeur_general' => 'Directeur général',
-            'Secretaire' => 'Sécrétaire',
-
+            // 'Secretaire' => 'Sécrétaire',
+            'Delegue_Division' => 'Délégué de division',
+            'Delegue_Direction' => 'Délégué de direction',
+            'Delegue_Direction_Generale' => 'Délégué de direction générale',
         ];
 
     }

@@ -6,7 +6,6 @@ use App\Filament\Resources\UserResource\Pages\CreateUser;
 use App\Filament\Resources\UserResource\Pages\EditUser;
 use App\Filament\Resources\UserResource\Pages\ListUsers;
 use App\Filament\Resources\UserResource\Pages\ViewUser;
-use App\Models\Departement;
 use App\Support\Database\PermissionsClass;
 use App\Support\Database\StatesClass;
 use Database\Seeders\RolesPermissionsSeeder;
@@ -95,12 +94,13 @@ class UserResource extends Resource
                         TextInput::make('username')
                             ->label("Nom d'utilisateur"),
 
-                        Select::make('departement_id')
+                        Select::make('departement')
                             ->label('Centre')
-                            ->options(Departement::pluck('sigle_centre', 'code_centre'))
+                            ->multiple()
+                            ->relationship('departements', 'sigle_centre')
                             ->searchable()
                             ->required()
-                            ->reactive(),
+                            ->preload(),
 
                     ])->columns(2),
                 Toggle::make('notification')

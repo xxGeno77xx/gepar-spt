@@ -2,10 +2,10 @@
 
 namespace App\Filament\Resources\OrdreDeMissionResource\Pages;
 
+use App\Filament\Resources\OrdreDeMissionResource;
 use App\Functions\Unaccent;
 use Filament\Pages\Actions;
 use Filament\Resources\Pages\EditRecord;
-use App\Filament\Resources\OrdreDeMissionResource;
 
 class EditOrdreDeMission extends EditRecord
 {
@@ -20,7 +20,7 @@ class EditOrdreDeMission extends EditRecord
 
     public function mutateFormDataBeforeSave(array $data): array
     {
-        foreach ($data["lieu"] as $lieu) {
+        foreach ($data['lieu'] as $lieu) {
             $temp[] = strtoupper(Unaccent::unaccent($lieu));
         }
 
