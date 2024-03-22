@@ -22,6 +22,10 @@ return new class extends Migration
 
             $table->string('fullname');
 
+            $table->unsignedBigInteger('engine_id')->nullable();
+            // $table->foreign('engine_id')->references('id')->on('engines');
+
+
             // $table->string('prenom');
 
             // $table->string('age');

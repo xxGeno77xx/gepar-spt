@@ -430,7 +430,7 @@
     </style>
 
     @if (isset($releve))
-        </head>
+</head>
 <header style="background-color: #60D0E4">
     <div class="headerSection">
         <!-- As a logo we take an SVG element and add the name in an standard H1 element behind it. -->
@@ -476,11 +476,11 @@
         <div>
             <h3>Période</h3>
             <p>
-                <b>Du {{$debutPeriode}} au {{$finPeriode}}</b>
+                <b>Du {{ $debutPeriode }} au {{ $finPeriode }}</b>
             </p>
             <h3>Service utilisateur</h3>
             <p>
-                <b>{{$departement}}</b>
+                <b>{{ $departement }}</b>
             </p>
         </div>
     </div>
@@ -523,7 +523,10 @@
                 </td>
             </tr>
         </table>
-        <b>Consommation moyenne pour la période: {{$consoMoyenne}} litres.</b>
+        <b>Consommation moyenne pour la période : {{ $consoMoyenne }} litres.</b>
+        <br>
+        <br>
+        <b>Consommation au 100 : {{ $consoAuCent }} litres.</b>
     </main>
     <hr />
     <div>
@@ -537,6 +540,6 @@
 <footer>
     <p><b>NB: Le présent état doit être transmis à la division des Affaires Générales à la fin de chaque mois</b></p>
 </footer>
-    @endif
+@endif
 
 </html>

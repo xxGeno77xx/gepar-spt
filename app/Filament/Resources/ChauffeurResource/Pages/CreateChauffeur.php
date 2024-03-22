@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\ChauffeurResource\Pages;
 
 use App\Filament\Resources\ChauffeurResource;
+use App\Models\Chauffeur;
 use App\Support\Database\PermissionsClass;
 use Filament\Pages\Actions\Action;
 use Filament\Resources\Pages\CreateRecord;
@@ -32,4 +33,6 @@ class CreateChauffeur extends CreateRecord
             ->submit('create')
             ->keyBindings(['mod+s']);
     }
+
+
 }

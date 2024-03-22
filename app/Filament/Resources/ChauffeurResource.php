@@ -2,21 +2,25 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ChauffeurResource\Pages;
-use App\Filament\Resources\ChauffeurResource\RelationManagers\OrdreDeMissionsRelationManager;
+use Filament\Tables;
+use App\Models\Engine;
 use App\Models\Chauffeur;
 use App\Models\Departement;
-use App\Support\Database\PermissionsClass;
+use Filament\Resources\Form;
+use Filament\Resources\Table;
+use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Placeholder;
+use App\Support\Database\StatesClass;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Resources\Form;
-use Filament\Resources\Resource;
-use Filament\Resources\Table;
-use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\BadgeColumn;
+use Illuminate\Database\Eloquent\Builder;
+use App\Support\Database\PermissionsClass;
+use Filament\Forms\Components\Placeholder;
+use App\Filament\Resources\ChauffeurResource\Pages;
+use App\Filament\Resources\ChauffeurResource\RelationManagers\OrdreDeMissionsRelationManager;
 
 class ChauffeurResource extends Resource
 {
@@ -45,15 +49,41 @@ class ChauffeurResource extends Resource
                                     ->unique(ignoreRecord: true)
                                     ->required(),
 
-                                // Select::make('departement_id')
-                                //     ->label('Département')
-                                //     ->options(
-                                //         Departement::select(['sigle_centre', 'code_centre'])
-                                //             ->where('sigle_centre', '<>', '0')
-                                //             ->pluck('sigle_centre', 'code_centre')
-                                //     )
-                                //     ->searchable()
-                                //     ->required(),
+                                Select::make('engine_id')
+                                    ->label('Engin')
+                                    ->options(
+
+                                        function ($record) {
+
+                                            //check engines that are already linked to chauffeurs
+
+                                            $linkedChauffeurs = Chauffeur::whereNotNull("engine_id")->get();
+
+                                            foreach ($linkedChauffeurs as $chauffeur) {
+
+                                                $linkedEnginesIds[] = $chauffeur->engine_id;
+                                            }
+
+                                            if ($record) {
+                
+                                                return     Engine::where(function(Builder $query) use($record, $linkedEnginesIds ){
+                                                    return $query->whereNotIn("id", $linkedEnginesIds)
+                                                    ->orWhere("id", $record->engine_id);
+
+                                                })->get()->pluck('plate_number', 'id');
+                                                
+                                            } else {
+
+                                                return Engine::whereNotIn("id", $linkedEnginesIds)
+                                                    ->where('state', StatesClass::Activated()->value)
+                                                    ->pluck('plate_number', 'id');
+                                            }
+
+
+                                        }
+
+                                    )
+                                    ->searchable(),
                             ]),
                     ]),
 
@@ -61,15 +91,15 @@ class ChauffeurResource extends Resource
                     ->schema([
                         Placeholder::make('created_at')
                             ->label('Ajouté')
-                            ->content(fn (Chauffeur $record): ?string => $record->created_at),
+                            ->content(fn(Chauffeur $record): ?string => $record->created_at),
 
                         Placeholder::make('updated_at')
                             ->label('Mise à jour')
-                            ->content(fn (Chauffeur $record): ?string => $record->updated_at),
+                            ->content(fn(Chauffeur $record): ?string => $record->updated_at),
 
                     ])
                     ->columnSpan(['lg' => 1])
-                    ->hidden(fn (?Chauffeur $record) => $record === null),
+                    ->hidden(fn(?Chauffeur $record) => $record === null),
             ]);
     }
 
@@ -82,13 +112,15 @@ class ChauffeurResource extends Resource
                     ->label('Nom complet')
                     ->placeholder('-'),
 
-                // TextColumn::make('nom_departement')
-                //     ->label('Département')
-                //     ->placeholder('-'),
+                BadgeColumn::make('sigle_centre')
+                    ->label('Centre')
+                    ->color("primary")
+                    ->placeholder('-'),
 
-                // TextColumn::make('plate_number')
-                //     ->label('Engin')
-                //     ->placeholder('-'),
+                BadgeColumn::make('plate_number')
+                    ->label('Engin')
+                    ->color("success")
+                    ->placeholder('-'),
             ])
             ->filters([
                 //

@@ -93,6 +93,8 @@
             </tr>
         </table>
         <b>Consommation moyenne pour la période: {{$consoMoyenne}} litres.</b>
+
+        <b>Consommation moyenne pour la période: {{$consoMoyenne}} litres.</b>
     </main>
     <hr />
     <div>

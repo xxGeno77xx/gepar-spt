@@ -2,10 +2,11 @@
 
 namespace App\Filament\Resources\EngineResource\Pages;
 
-use App\Filament\Resources\EngineResource;
-use App\Support\Database\PermissionsClass;
 use Filament\Pages\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
+use App\Filament\Resources\EngineResource;
+use App\Support\Database\PermissionsClass;
+use App\Filament\Resources\EngineResource\Widgets\FraisReparationOveview;
 
 class ViewEngines extends ViewRecord
 {
@@ -31,4 +32,12 @@ class ViewEngines extends ViewRecord
             return [];
         }
     }
+
+    protected function getHeaderWidgets(): array{
+        return [
+            FraisReparationOveview::class
+        ];
+        
+    }
+
 }

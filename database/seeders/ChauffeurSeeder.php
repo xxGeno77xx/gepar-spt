@@ -19,6 +19,7 @@ class ChauffeurSeeder extends Seeder
             // 'carte_identite' => 'cni1',
             // 'num_permis' => '123456789',
             // 'permmis' => '/',
+            'engine_id' => 1
         ]);
 
         Chauffeur::create([
@@ -28,7 +29,7 @@ class ChauffeurSeeder extends Seeder
             // 'carte_identite' => 'cni2',
             // 'num_permis' => '123456789',
             // 'permmis' => '/',
-
+            'engine_id' => 2
         ]);
 
         Chauffeur::create([
@@ -38,6 +39,7 @@ class ChauffeurSeeder extends Seeder
             // 'carte_identite' => 'cni25',
             // 'num_permis' => '123456712289',
             // 'permmis' => '/',
+            'engine_id' => 3
         ]);
     }
 }

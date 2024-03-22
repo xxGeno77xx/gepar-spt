@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('circuit_role', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('role_id');
-            // $table->foreign('role_id')->references('id')->on('roles');
+            $table->foreign('role_id')->references('id')->on('roles');
 
             $table->unsignedBigInteger('circuit_id');
-            // $table->foreign('circuit_id')->references('id')->on('circuits');
+            $table->foreign('circuit_id')->references('id')->on('circuits');
             $table->timestamps();
         });
     }

@@ -86,7 +86,7 @@ class ConsommationCarburantsRelationManager extends RelationManager
                                             ->first();
 
                                         // dd($forelast,  $latestConsommation , $state ,  $latestConsommation->kilometres_a_remplissage >= $state);
-
+                        
                                         if ($latestConsommation) {
 
                                             if ($record) {
@@ -94,13 +94,13 @@ class ConsommationCarburantsRelationManager extends RelationManager
                                                 if ($forelast) {
                                                     if ($forelast->kilometres_a_remplissage >= $state) {
 
-                                                        $fail('Le  kilométrage précédent était de '.$forelast->kilometres_a_remplissage.' km');
+                                                        $fail('Le  kilométrage précédent était de ' . $forelast->kilometres_a_remplissage . ' km');
                                                     }
                                                 } else {
 
                                                     if ($livewire->ownerRecord->kilometrage_achat >= $state) {
 
-                                                        $fail('Le kilométrage à l\'achat était de '.$livewire->ownerRecord->kilometrage_achat.' km');
+                                                        $fail('Le kilométrage à l\'achat était de ' . $livewire->ownerRecord->kilometrage_achat . ' km');
                                                     }
 
                                                 }
@@ -109,13 +109,13 @@ class ConsommationCarburantsRelationManager extends RelationManager
 
                                                 if ($latestConsommation->kilometres_a_remplissage >= $state) {
 
-                                                    $fail('Le dernier kilométrage  était de '.$latestConsommation->kilometres_a_remplissage.' km');
+                                                    $fail('Le dernier kilométrage  était de ' . $latestConsommation->kilometres_a_remplissage . ' km');
                                                 }
                                             }
                                         } else {
                                             if ($livewire->ownerRecord->kilometrage_achat >= $state) {
 
-                                                $fail('Le kilométrage à l\'achat était de '.$livewire->ownerRecord->kilometrage_achat.' km');
+                                                $fail('Le kilométrage à l\'achat était de ' . $livewire->ownerRecord->kilometrage_achat . ' km');
                                             }
                                         }
 
@@ -195,16 +195,16 @@ class ConsommationCarburantsRelationManager extends RelationManager
                         return $query
                             ->when(
                                 $data['date_from'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('date_prise', '>=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('date_prise', '>=', $date),
                             )
                             ->when(
                                 $data['date_to'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('date_prise', '<=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('date_prise', '<=', $date),
                             );
                     })
                     ->indicateUsing(function (array $data): ?string {
                         if (($data['date_from']) && ($data['date_from'])) {
-                            return 'Date: du  '.Carbon::parse($data['date_from'])->format('d-m-Y').' au '.Carbon::parse($data['date_to'])->format('d-m-Y');
+                            return 'Date: du  ' . Carbon::parse($data['date_from'])->format('d-m-Y') . ' au ' . Carbon::parse($data['date_to'])->format('d-m-Y');
                         }
 
                         return null;
@@ -229,11 +229,11 @@ class ConsommationCarburantsRelationManager extends RelationManager
                                 }
                             );
                     })->indicateUsing(function (array $data): ?string {
-                        if (! $data['chauffeur_id']) {
+                        if (!$data['chauffeur_id']) {
                             return null;
                         }
 
-                        return 'Chauffeur: '.Chauffeur::where('chauffeurs.id', $data['chauffeur_id'])->value('fullname');
+                        return 'Chauffeur: ' . Chauffeur::where('chauffeurs.id', $data['chauffeur_id'])->value('fullname');
                     }),
             ])
             ->headerActions([
@@ -267,7 +267,7 @@ class ConsommationCarburantsRelationManager extends RelationManager
 
                 FilamentExportHeaderAction::make('export')
                     ->label('Exporter')
-                    ->hidden(fn (RelationManager $livewire, $action) => count(ConsommationCarburant::where('engine_id', '=', $livewire->ownerRecord->id)->get()) >= 1 ? false : true)
+                    ->hidden(fn(RelationManager $livewire, $action) => count(ConsommationCarburant::where('engine_id', '=', $livewire->ownerRecord->id)->get()) >= 1 ? false : true)
                     ->disablePdf()
                     ->extraViewData(function (RelationManager $livewire, $action) {
 
@@ -295,7 +295,13 @@ class ConsommationCarburantsRelationManager extends RelationManager
 
                         $consoMoyenne = number_format((float) (($action->getRecords()->sum('quantite')) / ($action->getRecords()->count())), 2, '.', '');
 
+                        $premierIndice = ConsommationCarburant::where("id", $action->getRecords()->min('id'))->first()->kilometres_a_remplissage;
+
+                        $dernierIndice = ConsommationCarburant::where("id", $action->getRecords()->max('id'))->first()->kilometres_a_remplissage;
+
                         $total = $action->getRecords()->sum('quantite');
+
+                        $consoAuCent = round((($dernierIndice - $premierIndice) / $total),2);
 
                         return [
 
@@ -310,6 +316,7 @@ class ConsommationCarburantsRelationManager extends RelationManager
                             'finPeriode' => $periodeFin,
                             'consoMoyenne' => $consoMoyenne,
                             'releve' => $releve,
+                            'consoAuCent' =>  $consoAuCent,
                         ];
                     }),
 
