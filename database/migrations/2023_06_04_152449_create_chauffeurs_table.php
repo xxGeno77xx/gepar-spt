@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Database\ChauffeursStatesClass;
 use App\Support\Database\StatesClass;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -25,7 +26,6 @@ return new class extends Migration
             $table->unsignedBigInteger('engine_id')->nullable();
             // $table->foreign('engine_id')->references('id')->on('engines');
 
-
             // $table->string('prenom');
 
             // $table->string('age');
@@ -41,6 +41,14 @@ return new class extends Migration
                 StatesClass::Deactivated()->value,
                 StatesClass::Suspended()->value,
             ])->default(StatesClass::Activated()->value);
+
+            $table->enum('mission_state', [
+
+                ChauffeursStatesClass::Disponible()->value,
+                ChauffeursStatesClass::En_mission()->value,
+                ChauffeursStatesClass::Programme()->value,
+
+            ]);
 
             // $table->unsignedBigInteger('departement_id');
 

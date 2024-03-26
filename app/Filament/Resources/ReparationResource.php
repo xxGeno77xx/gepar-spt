@@ -83,13 +83,6 @@ class ReparationResource extends Resource
                                 Select::make('engine_id')
 
                                     ->label('Numéro de plaque')
-                                    ->formatStateUsing(function ($record, $state) {
-                                        if ($record) {
-
-                                            return Engine::where('id', $state)->first()->plate_number;
-                                        }
-                                    })
-                                    ->dehydrated(fn ($record) => $record ? false : true)
                                     ->disabled(function ($record) {
                                         if ($record) {
                                             if ($record->validation_step == 0) {
@@ -104,116 +97,51 @@ class ReparationResource extends Resource
                                         // Engine::where('engines.state', '<>', StatesClass::Deactivated()->value)
                                         //                 ->pluck('plate_number', 'id')
 
-                                        function () {
+                                        function ($record) {
                                             $loggedUser = auth()->user();
 
-                                            if ($loggedUser->hasAnyRole([RolesEnum::Directeur()->value, RolesEnum::Delegue_Direction()->value])) {
+                                            if ($record) {
+                                                if (
+                                                    $loggedUser->hasAnyRole([
+                                                        RolesEnum::Directeur_general()->value,
+                                                        RolesEnum::Chef_parc()->value,
+                                                        RolesEnum::Diga()->value,
+                                                        RolesEnum::Dpl()->value,
+                                                        RolesEnum::Budget()->value,
+                                                    ])
+                                                ) {
+                                                    return Engine::pluck('plate_number', 'id');
+                                                } elseif (
+                                                    $loggedUser->hasAnyRole([
+                                                        RolesEnum::Directeur()->value,
+                                                        RolesEnum::Delegue_Direction()->value,
+                                                        RolesEnum::Directeur_general()->value,
+                                                        RolesEnum::Delegue_Direction_Generale()->value,
+                                                        RolesEnum::Chef_division()->value,
+                                                        RolesEnum::Delegue_Division()->value,
+                                                    ])
 
-                                                $delegues = User::Role(RolesEnum::Delegue_Direction()->value)->get(); // get all delegues de direction
-
-                                                $centesDeTousLesDelegues = [];
-
-                                                $centesDuDirecteur = [];
-
-                                                foreach ($delegues as $delegue) {
-                                                    $intermediateArray = DepartementUser::where('user_id', $delegue->id)->get();
-
-                                                    foreach ($intermediateArray as $collection) {
-                                                        $centesDeTousLesDelegues[] = $collection->departement_code_centre;
-                                                    }
+                                                ) {
+                                                    return Engine::where('engines.departement_id', $loggedUser->departement_id)->pluck('plate_number', 'id');
                                                 }
+                                            } else {
 
-                                                // find directors departement number
+                                                if (
+                                                    $loggedUser->hasAnyRole([
+                                                        RolesEnum::Directeur()->value,
+                                                        RolesEnum::Delegue_Direction()->value,
+                                                        RolesEnum::Directeur_general()->value,
+                                                        RolesEnum::Delegue_Direction_Generale()->value,
+                                                        RolesEnum::Chef_division()->value,
+                                                        RolesEnum::Delegue_Division()->value,
+                                                    ])
+                                                ) {
 
-                                                $centresDuDirecteur = DepartementUser::where('user_id', auth()->user()->id)->get();
+                                                    return Engine::where('engines.departement_id', $loggedUser->departement_id)->pluck('plate_number', 'id');
 
-                                                foreach ($centresDuDirecteur as $centre) {
-                                                    $centesDuDirecteur[] = $centre->departement_code_centre;
-                                                }
-
-                                                $intersection = array_intersect($centesDuDirecteur, $centesDeTousLesDelegues);
-
-                                                if ($intersection) {
-                                                    $query = Engine::where('departement_id', $intersection[0])
-                                                        ->where('engines.state', '<>', StatesClass::Deactivated()->value)
-                                                        ->pluck('plate_number', 'id');
                                                 } else {
-                                                    $query = null;
+                                                    return Engine::pluck('plate_number', 'id');
                                                 }
-
-                                                return $query;
-
-                                            } elseif ($loggedUser->hasAnyRole([RolesEnum::Directeur_general()->value, RolesEnum::Delegue_Direction_Generale()->value])) {
-                                                $delegues = User::Role(RolesEnum::Delegue_Direction_Generale()->value)->get(); // get all delegues de direction
-
-                                                $centesDeTousLesDelegues = [];
-
-                                                $centesDuDirecteur = [];
-
-                                                foreach ($delegues as $delegue) {
-                                                    $intermediateArray = DepartementUser::where('user_id', $delegue->id)->get();
-
-                                                    foreach ($intermediateArray as $collection) {
-                                                        $centesDeTousLesDelegues[] = $collection->departement_code_centre;
-                                                    }
-                                                }
-
-                                                // find directors departement number
-
-                                                $centresDuDirecteur = DepartementUser::where('user_id', auth()->user()->id)->get();
-
-                                                foreach ($centresDuDirecteur as $centre) {
-                                                    $centesDuDirecteur[] = $centre->departement_code_centre;
-                                                }
-
-                                                $intersection = array_intersect($centesDuDirecteur, $centesDeTousLesDelegues);
-
-                                                if ($intersection) {
-                                                    $query = Engine::where('departement_id', $intersection[0])
-                                                        ->where('engines.state', '<>', StatesClass::Deactivated()->value)
-                                                        ->pluck('plate_number', 'id');
-                                                } else {
-                                                    $query = null;
-                                                }
-
-                                                return $query;
-
-                                            } elseif ($loggedUser->hasAnyRole([RolesEnum::Chef_division()->value, RolesEnum::Delegue_Division()->value])) {
-
-                                                $delegues = User::Role(RolesEnum::Delegue_Division()->value)->get(); // get all delegues de direction
-
-                                                $centesDeTousLesDelegues = [];
-
-                                                $centesDuDirecteur = []; // centre du chef division in this case
-
-                                                foreach ($delegues as $delegue) {
-                                                    $intermediateArray = DepartementUser::where('user_id', $delegue->id)->get();
-
-                                                    foreach ($intermediateArray as $collection) {
-                                                        $centesDeTousLesDelegues[] = $collection->departement_code_centre;
-                                                    }
-                                                }
-
-                                                // find chef div departement number
-
-                                                $centresDuDirecteur = DepartementUser::where('user_id', auth()->user()->id)->get();
-
-                                                foreach ($centresDuDirecteur as $centre) {
-                                                    $centesDuDirecteur[] = $centre->departement_code_centre;
-                                                }
-
-                                                $intersection = array_intersect($centesDuDirecteur, $centesDeTousLesDelegues);
-
-                                                if ($intersection) {
-                                                    $query = Engine::where('departement_id', $intersection[0])
-                                                        ->where('engines.state', '<>', StatesClass::Deactivated()->value)
-                                                        ->pluck('plate_number', 'id');
-                                                } else {
-                                                    $query = null;
-                                                }
-
-                                                return $query;
-
                                             }
 
                                         }
@@ -445,108 +373,108 @@ class ReparationResource extends Resource
                                             ->content(fn ($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('numero_compte') : '-'),
                                     ]),
 
-                                    Section::make('Devis')
+                                Section::make('Devis')
                                     ->schema([
                                         FileUpload::make('facture')
                                             ->required(function ($record) {
                                                 if ($record) {
-                
+
                                                     if ($record->validation_state == 'nextValue') {
                                                         return true;
                                                     } else {
-                
+
                                                         $circuit = Circuit::find($record->circuit_id)->steps;
-                
+
                                                         foreach ($circuit as $key => $item) {
-                
+
                                                             $roleIds[] = $item['role_id'];
                                                         }
-                
+
                                                         $searchedRoleId = (Role::where('name', RolesEnum::Directeur_general()->value)->first())->id;
-                
+
                                                         $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
-                
+
                                                         $arrayKeys = array_keys($roleIds);
-                
+
                                                         $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole + 1); //remaiing indices
-                
+
                                                         if (in_array($record->validation_step, $indicesDesired)) {
                                                             return true;
                                                         } else {
                                                             return false;
                                                         }
                                                     }
-                
+
                                                 } else {
                                                     return false;
                                                 }
-                
+
                                             })
                                             ->visible(function ($record) {
                                                 if ($record) {
-                
+
                                                     if ($record->validation_state == 'nextValue') {
                                                         return true;
                                                     } else {
-                
+
                                                         $circuit = Circuit::find($record->circuit_id)->steps;
-                
+
                                                         foreach ($circuit as $key => $item) {
-                
+
                                                             $roleIds[] = $item['role_id'];
                                                         }
-                
+
                                                         $searchedRoleId = (Role::where('name', RolesEnum::Directeur_general()->value)->first())->id;
-                
+
                                                         $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
-                
+
                                                         $arrayKeys = array_keys($roleIds);
-                
+
                                                         $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole + 1); //remaiing indices
-                
+
                                                         if (in_array($record->validation_step, $indicesDesired)) {
                                                             return true;
                                                         } else {
                                                             return false;
                                                         }
                                                     }
-                
+
                                                 } else {
                                                     return false;
                                                 }
-                
+
                                             })->label('Proforma')
                                             ->enableDownload()
                                             ->enableOpen(),
-                
+
                                         FileUpload::make('bon_commande')
                                             ->label('Bon de commande')
                                             ->required(function ($record) {
                                                 if ($record) {
-                
+
                                                     if ($record->validation_state == 'nextValue') {
                                                         return true;
                                                     } else {
-                
+
                                                         $circuit = Circuit::find($record->circuit_id)->steps;
-                
+
                                                         foreach ($circuit as $key => $item) {
-                
+
                                                             $roleIds[] = $item['role_id'];
                                                         }
-                
+
                                                         $searchedRoleId = (Role::where('name', RolesEnum::Directeur_general()->value)->first())->id;
-                
+
                                                         $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
-                
+
                                                         $slicedArray = array_slice($roleIds, $firstOccurenceOfRole + 1);
-                
+
                                                         $secondOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $slicedArray)) + $firstOccurenceOfRole + 1;
-                
+
                                                         $arrayDivided = array_chunk($roleIds, $secondOccurenceOfRoleInOriginalRolesArray + 1, true); //  cut form second match of dg role
-                
+
                                                         $ArrayToUse = array_flip($arrayDivided[1]);  //flip array to get keys
-                
+
                                                         if (in_array($record->validation_step, $ArrayToUse)) {
                                                             return true;
                                                         } else {
@@ -556,44 +484,44 @@ class ReparationResource extends Resource
                                                 } else {
                                                     return false;
                                                 }
-                
+
                                             })
                                             ->visible(function ($record) {
                                                 if ($record) {
-                
+
                                                     if ($record->validation_state == 'nextValue') {
                                                         return true;
                                                     } else {
-                
+
                                                         $circuit = Circuit::find($record->circuit_id)->steps;
-                
+
                                                         foreach ($circuit as $key => $item) {
-                
+
                                                             $roleIds[] = $item['role_id'];
                                                         }
-                
+
                                                         $searchedRoleId = (Role::where('name', RolesEnum::Directeur_general()->value)->first())->id;
-                
+
                                                         $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
-                
+
                                                         $slicedArray = array_slice($roleIds, $firstOccurenceOfRole + 1);
-                
+
                                                         $secondOccurenceOfRole = array_search($searchedRoleId, $slicedArray);
-                
+
                                                         $secondOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $slicedArray)) + $firstOccurenceOfRole + 1;
-                
+
                                                         // $remainingKeys = array_slice($roleIds, $secondOccurenceOfRoleInOriginalRolesArray);
-                
+
                                                         // $arrayKeys = array_keys($slicedArray);
                                                         //
                                                         // $indicesDesired = array_slice($slicedArray, $secondOccurenceOfRole ); // key to slice array from
-                
+
                                                         // $originalRolesIdsKeys = array_keys($roleIds);
-                
+
                                                         $arrayDivided = array_chunk($roleIds, $secondOccurenceOfRoleInOriginalRolesArray + 1, true); //  cut form second match of dg role
-                
+
                                                         $ArrayToUse = array_flip($arrayDivided[1]);  //flip array to get keys
-                
+
                                                         if (in_array($record->validation_step, $ArrayToUse)) {
                                                             return true;
                                                         } else {
@@ -603,11 +531,11 @@ class ReparationResource extends Resource
                                                 } else {
                                                     return false;
                                                 }
-                
+
                                             })
                                             ->enableDownload()
                                             ->enableOpen(),
-                
+
                                         Grid::make(2)
                                             ->schema([
                                                 TextInput::make('cout_reparation')
@@ -615,149 +543,146 @@ class ReparationResource extends Resource
                                                     ->numeric()
                                                     ->minValue(0)->required(function ($record) {
                                                         if ($record) {
-                
+
                                                             if ($record->validation_state == 'nextValue') {
                                                                 return true;
                                                             } else {
-                
+
                                                                 $circuit = Circuit::find($record->circuit_id)->steps;
-                
+
                                                                 foreach ($circuit as $key => $item) {
-                
+
                                                                     $roleIds[] = $item['role_id'];
                                                                 }
-                
+
                                                                 $searchedRoleId = (Role::where('name', RolesEnum::Directeur_general()->value)->first())->id;
-                
+
                                                                 $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
-                
+
                                                                 $arrayKeys = array_keys($roleIds);
-                
+
                                                                 $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole + 1); //remaiing indices
-                
+
                                                                 if (in_array($record->validation_step, $indicesDesired)) {
                                                                     return true;
                                                                 } else {
                                                                     return false;
                                                                 }
                                                             }
-                
+
                                                         } else {
                                                             return false;
                                                         }
-                
+
                                                     })
                                                     ->visible(function ($record) {
                                                         if ($record) {
-                
+
                                                             if ($record->validation_state == 'nextValue') {
                                                                 return true;
                                                             } else {
-                
+
                                                                 $circuit = Circuit::find($record->circuit_id)->steps;
-                
+
                                                                 foreach ($circuit as $key => $item) {
-                
+
                                                                     $roleIds[] = $item['role_id'];
                                                                 }
-                
+
                                                                 $searchedRoleId = (Role::where('name', RolesEnum::Directeur_general()->value)->first())->id;
-                
+
                                                                 $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
-                
+
                                                                 $arrayKeys = array_keys($roleIds);
-                
+
                                                                 $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole + 1); //remaiing indices
-                
+
                                                                 if (in_array($record->validation_step, $indicesDesired)) {
                                                                     return true;
                                                                 } else {
                                                                     return false;
                                                                 }
                                                             }
-                
+
                                                         } else {
                                                             return false;
                                                         }
-                
+
                                                     }),
-                                                    
-                
+
                                                 TextInput::make('ref_proforma')
                                                     ->label('Référence du devis')
                                                     ->required(function ($record) {
                                                         if ($record) {
-                
+
                                                             if ($record->validation_state == 'nextValue') {
                                                                 return true;
                                                             } else {
-                
+
                                                                 $circuit = Circuit::find($record->circuit_id)->steps;
-                
+
                                                                 foreach ($circuit as $key => $item) {
-                
+
                                                                     $roleIds[] = $item['role_id'];
                                                                 }
-                
+
                                                                 $searchedRoleId = (Role::where('name', RolesEnum::Directeur_general()->value)->first())->id;
-                
+
                                                                 $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
-                
+
                                                                 $arrayKeys = array_keys($roleIds);
-                
+
                                                                 $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole + 1); //remaiing indices
-                
+
                                                                 if (in_array($record->validation_step, $indicesDesired)) {
                                                                     return true;
                                                                 } else {
                                                                     return false;
                                                                 }
                                                             }
-                
+
                                                         } else {
                                                             return false;
                                                         }
-                
+
                                                     })
                                                     ->visible(function ($record) {
                                                         if ($record) {
-                
+
                                                             if ($record->validation_state == 'nextValue') {
                                                                 return true;
                                                             } else {
-                
+
                                                                 $circuit = Circuit::find($record->circuit_id)->steps;
-                
+
                                                                 foreach ($circuit as $key => $item) {
-                
+
                                                                     $roleIds[] = $item['role_id'];
                                                                 }
-                
+
                                                                 $searchedRoleId = (Role::where('name', RolesEnum::Directeur_general()->value)->first())->id;
-                
+
                                                                 $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
-                
+
                                                                 $arrayKeys = array_keys($roleIds);
-                
+
                                                                 $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole + 1); //remaiing indices
-                
+
                                                                 if (in_array($record->validation_step, $indicesDesired)) {
                                                                     return true;
                                                                 } else {
                                                                     return false;
                                                                 }
                                                             }
-                
+
                                                         } else {
                                                             return false;
                                                         }
-                
+
                                                     }),
                                             ]),
-                
-                                    ])
-                                    
-                                    
+
+                                    ]),
 
                             ])
                             ->visible(function ($record) {

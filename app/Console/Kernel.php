@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\checkChauffeurStatus;
 use App\Console\Commands\sendAssurancesMailsCommand;
 use App\Console\Commands\sendVisitesMailsCommand;
 use Illuminate\Console\Scheduling\Schedule;
@@ -16,6 +17,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command(sendVisitesMailsCommand::class)->dailyAt('13:00');
         $schedule->command(sendAssurancesMailsCommand::class)->dailyAt('13:00');
+        $schedule->command(checkChauffeurStatus::class)->dailyAt('13:00');
     }
 
     /**

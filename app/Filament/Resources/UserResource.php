@@ -6,10 +6,12 @@ use App\Filament\Resources\UserResource\Pages\CreateUser;
 use App\Filament\Resources\UserResource\Pages\EditUser;
 use App\Filament\Resources\UserResource\Pages\ListUsers;
 use App\Filament\Resources\UserResource\Pages\ViewUser;
+use App\Models\Departement;
 use App\Support\Database\PermissionsClass;
 use App\Support\Database\StatesClass;
 use Database\Seeders\RolesPermissionsSeeder;
 use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -23,6 +25,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TernaryFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\HtmlString;
 use Phpsa\FilamentAuthentication\Actions\ImpersonateLink;
 
 class UserResource extends Resource
@@ -109,9 +112,22 @@ class UserResource extends Resource
                     ->inline()
                     ->label('Notifications'),
 
-                // Toggle::make('state')
-                // ->label('Etat')
-                // ->default(true),
+                Select::make('departement_id')
+                    ->label('Appartenance')
+                    ->options(Departement::pluck('sigle_centre', 'code_centre'))
+                    ->searchable()
+                    ->preload(),
+
+                Card::make()
+                    ->schema([
+                        Placeholder::make('Aide')
+                            ->content(new HtmlString('<p> Pour les directeurs, le centre regroupe la direction et les divisions affiliées. Il est utilisé pour  définir  les correspondances  dans les circuits de validation.
+    </br></br>
+    Exemple:  pour le courrier et réseau (DCR)  Celui qui a le role de Directeur, doit  appartenir aux centres DCR, EMS, DAT et tout ce qui va avec
+    </br></br>
+    L\'appartenance est utilisée pour définir la relation pour filtrer les engins suivant le département de  l\'utilisateur connecté.
+    </p>')),
+                    ]),
 
             ]);
     }

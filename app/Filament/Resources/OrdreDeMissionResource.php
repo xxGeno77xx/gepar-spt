@@ -7,6 +7,7 @@ use App\Models\Chauffeur;
 use App\Models\Departement;
 use App\Models\Engine;
 use App\Models\OrdreDeMission;
+use App\Support\Database\ChauffeursStatesClass;
 use App\Support\Database\StatesClass;
 use Carbon\Carbon;
 use Filament\Forms\Components\Card;
@@ -52,6 +53,7 @@ class OrdreDeMissionResource extends Resource
                                     ->options(
                                         Chauffeur::select(['fullname', 'id'])
                                             ->where('Chauffeurs.state', StatesClass::Activated()->value)
+                                            ->where('Chauffeurs.mission_state', ChauffeursStatesClass::Disponible()->value)
                                             ->get()
                                             ->pluck('fullname', 'id')
                                     )
@@ -59,15 +61,15 @@ class OrdreDeMissionResource extends Resource
                                     ->reactive()
                                     ->afterStateUpdated(function ($state, $get, $set) {
 
-                                        $chauffeur = Chauffeur::where("id", $state)->first();
+                                        $chauffeur = Chauffeur::where('id', $state)->first();
 
-                                        $linkedEngine = Engine::where("id", $chauffeur->engine_id)->first();
+                                        $linkedEngine = Engine::where('id', $chauffeur->engine_id)->first();
 
-                                        $linkedDepartement = Departement::where("code_centre", $linkedEngine->departement_id)->first();
+                                        $linkedDepartement = Departement::where('code_centre', $linkedEngine->departement_id)->first();
 
-                                        $set("engine_id", $linkedEngine->id);
+                                        $set('engine_id', $linkedEngine->id);
 
-                                        $set("departement_id", $linkedDepartement->code_centre);
+                                        $set('departement_id', $linkedDepartement->code_centre);
 
                                     })
                                     ->searchable(),
@@ -112,11 +114,11 @@ class OrdreDeMissionResource extends Resource
                                             ->reactive()
                                             ->afterStateUpdated(function ($state, $get, $set) {
 
-                                                $linkedEngine = Engine::where("id", $state)->first();
+                                                $linkedEngine = Engine::where('id', $state)->first();
 
-                                                $linkedDepartement = Departement::where("code_centre", $linkedEngine->departement_id)->first();
+                                                $linkedDepartement = Departement::where('code_centre', $linkedEngine->departement_id)->first();
 
-                                                $set("departement_id", $linkedDepartement->code_centre);
+                                                $set('departement_id', $linkedDepartement->code_centre);
 
                                             }),
 
@@ -141,7 +143,7 @@ class OrdreDeMissionResource extends Resource
                                     ]),
 
                                 Hidden::make('numero_ordre')
-                                    ->default(fn() => OrdreDeMission::orderBy('id', 'desc')->first() ? OrdreDeMission::orderBy('id', 'desc')->first()->id + 1 : 1), //generate the number
+                                    ->default(fn () => OrdreDeMission::orderBy('id', 'desc')->first() ? OrdreDeMission::orderBy('id', 'desc')->first()->id + 1 : 1), //generate the number
                             ]),
                     ]),
 
@@ -169,7 +171,7 @@ class OrdreDeMissionResource extends Resource
 
                 BadgeColumn::make('objet_mission')
                     ->limit(20)
-                    ->tooltip(fn($record) => $record->objet_mission)
+                    ->tooltip(fn ($record) => $record->objet_mission)
                     ->color('success')
                     ->label('Objet de la mission'),
 
@@ -177,7 +179,7 @@ class OrdreDeMissionResource extends Resource
                     ->label('Destination(s)')
                     ->searchable(isIndividual: true, query: function (Builder $query, string $search): Builder {
 
-                        return $query->selectRaw('ordre_de_missions.lieu')->whereRaw('LOWER(lieu) LIKE ?', ['%' . strtolower($search) . '%']);
+                        return $query->selectRaw('ordre_de_missions.lieu')->whereRaw('LOWER(lieu) LIKE ?', ['%'.strtolower($search).'%']);
 
                     }),
 
@@ -187,17 +189,17 @@ class OrdreDeMissionResource extends Resource
 
                 BadgeColumn::make('departement_id')
                     ->label('Département')
-                    ->formatStateUsing(fn($state) => Departement::where('code_centre', $state)->first()->sigle_centre)
+                    ->formatStateUsing(fn ($state) => Departement::where('code_centre', $state)->first()->sigle_centre)
                     ->color('success'),
             ])
             ->filters([
                 Filter::make('Departement')
                     ->indicateUsing(function (array $data): ?string {
-                        if (!$data['departement_id']) {
+                        if (! $data['departement_id']) {
                             return null;
                         }
 
-                        return 'Département: ' . Departement::where('code_centre', $data['departement_id'])->value('sigle_centre');
+                        return 'Département: '.Departement::where('code_centre', $data['departement_id'])->value('sigle_centre');
                     })
                     ->form([
                         Select::make('departement_id')
@@ -228,15 +230,15 @@ class OrdreDeMissionResource extends Resource
                         return $query
                             ->when(
                                 $data['chauffeur_id'],
-                                fn(Builder $query, $status): Builder => $query->where('ordre_de_missions.chauffeur_id', $status),
+                                fn (Builder $query, $status): Builder => $query->where('ordre_de_missions.chauffeur_id', $status),
                             );
                     })
                     ->indicateUsing(function (array $data): ?string {
-                        if (!$data['chauffeur_id']) {
+                        if (! $data['chauffeur_id']) {
                             return null;
                         }
 
-                        return 'Chauffeur: ' . Chauffeur::where('id', $data['chauffeur_id'])->first()->fullname;
+                        return 'Chauffeur: '.Chauffeur::where('id', $data['chauffeur_id'])->first()->fullname;
                     }),
 
                 Filter::make('date_de_depart')
@@ -263,16 +265,16 @@ class OrdreDeMissionResource extends Resource
                         return $query
                             ->when(
                                 $data['date_from'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('date_de_depart', '>=', $date),
+                                fn (Builder $query, $date): Builder => $query->whereDate('date_de_depart', '>=', $date),
                             )
                             ->when(
                                 $data['date_to'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('date_de_depart', '<=', $date),
+                                fn (Builder $query, $date): Builder => $query->whereDate('date_de_depart', '<=', $date),
                             );
                     })
                     ->indicateUsing(function (array $data): ?string {
                         if (($data['date_from']) && ($data['date_from'])) {
-                            return 'Date de départ:  ' . Carbon::parse($data['date_from'])->format('d-m-Y') . ' au ' . Carbon::parse($data['date_to'])->format('d-m-Y');
+                            return 'Date de départ:  '.Carbon::parse($data['date_from'])->format('d-m-Y').' au '.Carbon::parse($data['date_to'])->format('d-m-Y');
                         }
 
                         return null;
@@ -295,12 +297,12 @@ class OrdreDeMissionResource extends Resource
                         return $query
                             ->when(
                                 $data['engine_id'],
-                                fn(Builder $query, $date): Builder => $query->where('engine_id', '=', $date),
+                                fn (Builder $query, $date): Builder => $query->where('engine_id', '=', $date),
                             );
                     })
                     ->indicateUsing(function (array $data): ?string {
                         if ($data['engine_id']) {
-                            return 'Moyen de transport:  ' . Engine::where('id', ($data['engine_id']))->first()->plate_number;
+                            return 'Moyen de transport:  '.Engine::where('id', ($data['engine_id']))->first()->plate_number;
                         }
 
                         return null;
@@ -319,14 +321,14 @@ class OrdreDeMissionResource extends Resource
                         ->label('PDF (couleur)')
                         ->color('success')
                         ->icon('heroicon-o-document-download')
-                        ->url(fn(OrdreDeMission $record) => route('couleur', $record)) //this to orders
+                        ->url(fn (OrdreDeMission $record) => route('couleur', $record)) //this to orders
                         ->openUrlInNewTab(),
 
                     Tables\Actions\Action::make('printNB')
                         ->label('PDF (Noir & Blanc)')
                         ->color('success')
                         ->icon('heroicon-o-document-download')
-                        ->url(fn(OrdreDeMission $record) => route('pdfNoirBlanc', $record)) //this to orders
+                        ->url(fn (OrdreDeMission $record) => route('pdfNoirBlanc', $record)) //this to orders
                         ->openUrlInNewTab(),
                 ]),
 

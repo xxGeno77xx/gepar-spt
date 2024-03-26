@@ -32,10 +32,11 @@ class ListChauffeurs extends ListRecords
 
     protected function getTableQuery(): Builder
     {
+
         return static::getResource()::getEloquentQuery()
             ->leftjoin('engines', 'engines.id', 'chauffeurs.engine_id')
             ->leftjoin('centre', 'engines.departement_id', 'centre.code_centre')
-            ->select( 'centre.sigle_centre','chauffeurs.*', 'centre.code_centre as Departement_id', 'engines.plate_number')
+            ->select('centre.sigle_centre', 'chauffeurs.*', 'centre.code_centre as Departement_id', 'engines.plate_number')
             ->where('chauffeurs.state', StatesClass::Activated()->value);
     }
 }

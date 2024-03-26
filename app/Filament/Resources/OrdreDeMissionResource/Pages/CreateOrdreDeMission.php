@@ -4,6 +4,8 @@ namespace App\Filament\Resources\OrdreDeMissionResource\Pages;
 
 use App\Filament\Resources\OrdreDeMissionResource;
 use App\Functions\Unaccent;
+use App\Models\Chauffeur;
+use App\Support\Database\ChauffeursStatesClass;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateOrdreDeMission extends CreateRecord
@@ -19,5 +21,12 @@ class CreateOrdreDeMission extends CreateRecord
         $data['lieu'] = $temp;
 
         return $data;
+    }
+
+    public function beforeCreate()
+    {
+        $concernedChauffeur = Chauffeur::find($this->data['chauffeur_id']);
+
+        $concernedChauffeur->update(['mission_state' => ChauffeursStatesClass::Programme()->value]);
     }
 }

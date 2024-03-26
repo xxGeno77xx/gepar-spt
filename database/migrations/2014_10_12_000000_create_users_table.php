@@ -33,9 +33,7 @@ return new class extends Migration
 
             $table->unsignedBigInteger('departement_id')->nullable();  //is actually direction_id
 
-
             // $table->unsignedBigInteger('division_id');  //is actually division_id
-
 
             $table->integer('login_attempts')->default(1)->comment('number of times a user can attempt login before account is blocked');
 

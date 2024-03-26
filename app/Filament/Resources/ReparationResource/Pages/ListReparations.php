@@ -4,7 +4,9 @@ namespace App\Filament\Resources\ReparationResource\Pages;
 
 use App\Filament\Resources\ReparationResource;
 use App\Support\Database\PermissionsClass;
+use App\Support\Database\RolesEnum;
 use App\Support\Database\StatesClass;
+use Database\Seeders\RolesPermissionsSeeder;
 use Filament\Pages\Actions;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Tables\Filters\Layout;
@@ -28,12 +30,39 @@ class ListReparations extends ListRecords
 
     protected function getTableQuery(): Builder
     {
-        return static::getResource()::getEloquentQuery()
-            ->join('engines', 'reparations.engine_id', 'engines.id')
-            // ->leftJoin('users', 'reparations.user_id', 'users.id')
-            ->leftjoin('fournisseur', 'fournisseur.code_fr', 'reparations.prestataire_id')
-            ->select('engines.plate_number', 'reparations.*'/*'users.name'/*'prestataires.nom as prestataire'*/)
-            ->where('reparations.state', StatesClass::Activated()->value);
+        $loggedUser = auth()->user();
+
+        if (
+            $loggedUser->hasAnyRole([
+                RolesEnum::Chef_parc()->value,
+                RolesEnum::Dpl()->value,
+            ]) || $loggedUser->hasRole(RolesPermissionsSeeder::SuperAdmin)
+        ) {
+            return static::getResource()::getEloquentQuery()
+                ->join('engines', 'reparations.engine_id', 'engines.id')
+                ->leftjoin('fournisseur', 'fournisseur.code_fr', 'reparations.prestataire_id')
+                ->select('engines.plate_number', 'reparations.*')
+                ->where('reparations.state', StatesClass::Activated()->value);
+        } elseif (
+            $loggedUser->hasAnyRole([
+                RolesEnum::Directeur()->value,
+                RolesEnum::Delegue_Direction()->value,
+                RolesEnum::Directeur_general()->value,
+                RolesEnum::Delegue_Direction_Generale()->value,
+                RolesEnum::Delegue_Division()->value,
+                RolesEnum::Chef_division()->value,
+            ])
+        ) {
+
+            return static::getResource()::getEloquentQuery()
+                ->join('engines', 'reparations.engine_id', 'engines.id')
+                ->leftjoin('fournisseur', 'fournisseur.code_fr', 'reparations.prestataire_id')
+                ->where("engines.deparement_id", $loggedUser->departement_id)
+                ->select('engines.plate_number', 'reparations.*')
+                ->where('reparations.state', StatesClass::Activated()->value);
+        }
+return static::getResource()::getEloquentQuery()::query()->whereRaw('1 = 0');
+
     }
 
     protected function authorizeAccess(): void
@@ -42,13 +71,9 @@ class ListReparations extends ListRecords
 
         $userPermission = $user->hasAnyPermission([PermissionsClass::reparation_read()->value]);
 
-        abort_if(! $userPermission, 403, __("Vous n'avez pas access à cette page"));
+        abort_if(!$userPermission, 403, __("Vous n'avez pas access à cette page"));
     }
 
-    // protected function getTableFiltersLayout(): ?string
-    // {
-    //     return Layout::AboveContent;
-    // }
 
     protected function shouldPersistTableFiltersInSession(): bool
     {

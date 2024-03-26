@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Chauffeur;
+use App\Support\Database\ChauffeursStatesClass;
 use Illuminate\Database\Seeder;
 
 class ChauffeurSeeder extends Seeder
@@ -12,34 +13,28 @@ class ChauffeurSeeder extends Seeder
      */
     public function run(): void
     {
-        Chauffeur::create([
-            'fullname' => 'John Doe',
-            // 'prenom' => 'Antoine',
-            // 'age' => 22,
-            // 'carte_identite' => 'cni1',
-            // 'num_permis' => '123456789',
-            // 'permmis' => '/',
-            'engine_id' => 1
-        ]);
 
-        Chauffeur::create([
-            'fullname' => 'Jane Doe',
-            // 'prenom' => 'Prenom_chauffeur2',
-            // 'age' => 22,
-            // 'carte_identite' => 'cni2',
-            // 'num_permis' => '123456789',
-            // 'permmis' => '/',
-            'engine_id' => 2
-        ]);
+        $chauffeursNames = [
+            'KOUYENE Abalo Dovene',
+            'PATABOU Ndjandema Kouberabalo',
+            'NADIO Amadou',
+            'MOROU Abdel-Rachidou',
+            'GALLEY Komla',
+            'AFFO Kidom Alaï',
+            'NAPO Waké',
+            'BASSA Kodjovi',
+            'GUENOU Yao',
+            'DANHOUI Kossi',
+            'TOSSIM Essodom',
+        ];
 
-        Chauffeur::create([
-            'fullname' => 'Tristan Trane',
-            // 'prenom' => 'Prenom_chauffeur3',
-            // 'age' => 55,
-            // 'carte_identite' => 'cni25',
-            // 'num_permis' => '123456712289',
-            // 'permmis' => '/',
-            'engine_id' => 3
-        ]);
+        foreach ($chauffeursNames as $name) {
+            Chauffeur::create([
+                'fullname' => $name,
+                'engine_id' => mt_rand(1, 7),
+                'mission_state' => ChauffeursStatesClass::Disponible()->value,
+            ]);
+        }
+
     }
 }

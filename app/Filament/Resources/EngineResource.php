@@ -2,42 +2,41 @@
 
 namespace App\Filament\Resources;
 
-use Closure;
-use App\Models\Type;
-use Filament\Tables;
-use App\Models\Engine;
-use App\Models\Modele;
-use App\Models\Division;
-use App\Models\Carburant;
-use App\Models\Direction;
-use App\Models\Departement;
-use Filament\Resources\Form;
-use Filament\Resources\Table;
-use App\Models\Engine as Engin;
-use Filament\Resources\Resource;
-use Filament\Forms\Components\Card;
-use Filament\Forms\Components\Grid;
-use Filament\Tables\Filters\Filter;
-use App\Support\Database\CommonInfos;
-use App\Support\Database\StatesClass;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Select;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Columns\BadgeColumn;
-use Filament\Tables\Columns\ImageColumn;
-use App\Tables\Columns\DepartementColumn;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
-use Illuminate\Database\Eloquent\Builder;
-use App\Support\Database\PermissionsClass;
-use Filament\Forms\Components\ColorPicker;
 use App\Filament\Resources\EngineResource\Pages;
 use App\Filament\Resources\EngineResource\RelationManagers;
-use App\Filament\Resources\EngineResource\Widgets\FraisReparationOveview;
 use App\Filament\Resources\EngineResource\RelationManagers\AffectationsRelationManager;
-use App\Filament\Resources\EngineResource\RelationManagers\OrdreDeMissionsRelationManager;
 use App\Filament\Resources\EngineResource\RelationManagers\ConsommationCarburantsRelationManager;
+use App\Filament\Resources\EngineResource\RelationManagers\OrdreDeMissionsRelationManager;
+use App\Models\Carburant;
+use App\Models\Departement;
+use App\Models\Direction;
+use App\Models\Division;
+use App\Models\Engine;
+use App\Models\Engine as Engin;
+use App\Models\Modele;
+use App\Models\Type;
+use App\Support\Database\CommonInfos;
+use App\Support\Database\PermissionsClass;
+use App\Support\Database\StatesClass;
+use App\Tables\Columns\DepartementColumn;
+use Closure;
+use Filament\Forms\Components\Card;
+use Filament\Forms\Components\ColorPicker;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Resources\Form;
+use Filament\Resources\Resource;
+use Filament\Resources\Table;
+use Filament\Tables;
+use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Illuminate\Database\Eloquent\Builder;
 
 class EngineResource extends Resource
 {
@@ -104,26 +103,29 @@ class EngineResource extends Resource
                         TextInput::make('price')
                             ->label("Prix d'achat")
                             ->suffix('FCFA')
-                            ->numeric(),
+                            ->numeric()
+                            ->required(),
 
                         TextInput::make('kilometrage_achat')
                             ->label("Kilométrage à l'achat")
+                            ->minValue(0)
+                            ->required()
                             ->numeric(),
 
-                        Select::make('activite_id')
-                            ->label('Activité')
-                            ->options(
-                                [
-                                    'Activité postale' => 'Activité postale',
-                                    'Activité  financière' => 'Activité financière',
-                                    'Activité mixte' => 'Activité mixte',
+                        // Select::make('activite_id')
+                        //     ->label('Activité')
+                        //     ->options(
+                        //         [
+                        //             'Activité postale' => 'Activité postale',
+                        //             'Activité  financière' => 'Activité financière',
+                        //             'Activité mixte' => 'Activité mixte',
 
-                                ]
-                            ) // activité de l'engin:  mixte/financière/postale
-                            ->searchable()
-                            ->dehydrated(false)
-                            ->required()
-                            ->columnSpanFull(),
+                        //         ]
+                        //     ) // activité de l'engin:  mixte/financière/postale
+                        //     ->searchable()
+                        //     ->dehydrated(false)
+                        //     ->required()
+                        //     ->columnSpanFull(),
 
                         Grid::make(6)
                             ->schema([
@@ -404,13 +406,13 @@ class EngineResource extends Resource
                             return null;
                         }
 
-                        return 'Division: '.Division::where('id', $data['departement_id'])->value('sigle_division');
+                        return 'Département: '.Departement::where('code_centre', $data['departement_id'])->value('sigle_centre');
                     })
                     ->form([
                         Select::make('departement_id')
                             ->searchable()
                             ->label('Département')
-                            ->options(Division::pluck('sigle_division', 'id')),
+                            ->options(Departement::pluck('sigle_centre', 'code_centre')),
 
                     ])->query(function (Builder $query, array $data): Builder {
                         return $query
@@ -483,5 +485,4 @@ class EngineResource extends Resource
             PermissionsClass::engines_create()->value,
         ]);
     }
-
 }

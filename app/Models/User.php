@@ -47,11 +47,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'password' => 'hashed',
     ];
 
-    // public function departement()
-    // {
-    //     return $this->belongsTo(Departement::class);
-    // }
-
     public function roles()
     {
         return $this->belongsToMany(Role::class, 'role_user');

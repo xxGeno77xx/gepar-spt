@@ -10,6 +10,7 @@ use App\Models\Engine;
 use App\Models\Reparation;
 use App\Models\Role;
 use App\Models\User;
+use App\Support\Database\CircuitsEnums;
 use App\Support\Database\PermissionsClass;
 use App\Support\Database\ReparationValidationStates;
 use App\Support\Database\RolesEnum;
@@ -32,6 +33,308 @@ class ViewReparation extends ViewRecord
 
                 EditAction::make('edit')
                     ->visible(fn ($record) => ($record->validation_state == 'nextValue' || $record->validation_step == 100 || $record->validation_state == ReparationValidationStates::Rejete()->value) ? false : true),
+
+                Actions\Action::make('tranfert')
+                    ->label('Transférer vers la DIGA')
+                    ->icon('heroicon-o-arrow-circle-right')
+                    ->visible(function () {
+
+                        if ($this->record) {
+                            if (
+                                in_array($this->record->circuit_id, [
+                                    Circuit::where('name', CircuitsEnums::circuit_de_division_diga_dir()->value)->first()->id,
+                                    Circuit::where('name', CircuitsEnums::circuit_de_division_diga_dg()->value)->first()->id,
+                                    Circuit::where('name', CircuitsEnums::circuit_de_direction_diga_dir()->value)->first()->id,
+                                    Circuit::where('name', CircuitsEnums::circuit_de_direction_diga_dg()->value)->first()->id,
+                                    Circuit::where('name', CircuitsEnums::circuit_de_la_direction_generale_diga()->value)->first()->id,
+                                    Circuit::where('name', CircuitsEnums::circuit_particulier_diga()->value)->first()->id,
+
+                                ])
+                            ) {
+                                return false;
+                            } elseif (in_array($this->record->validation_state, [ReparationValidationStates::Rejete()->value, ReparationValidationStates::Termine()->value])) {
+
+                                return false;
+
+                            } else {
+                                $user = auth()->user();
+
+                                $circuit = Circuit::where('id', $this->record->circuit_id)->value('steps');
+
+                                foreach ($circuit as $key => $item) {
+
+                                    $roleIds[] = $item['role_id'];
+                                }
+
+                                if (array_key_exists($this->record->validation_step, $roleIds)) {
+
+                                    $searchedRoleId = (Role::where('name', RolesEnum::Directeur()->value)->first())->id;
+
+                                    $directeurGeneralId = (Role::where('name', RolesEnum::Directeur_general()->value)->first())->id;
+
+                                    $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
+
+                                    $slicedArray = array_slice($roleIds, $firstOccurenceOfRole + 1);
+
+                                    $secondOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $slicedArray)) + $firstOccurenceOfRole + 1; //second array key where role occurs
+
+                                    $firstOccurenceOfDirecteurGeneral = array_search($directeurGeneralId, $roleIds); // first array key where role occurs
+
+                                    $sliceForSecondDgRole = array_slice($roleIds, $firstOccurenceOfDirecteurGeneral + 1);
+
+                                    $secondOccurenceOfDgInOriginalRolesArray = (array_search($directeurGeneralId, $sliceForSecondDgRole)) + $firstOccurenceOfDirecteurGeneral + 1;
+
+                                    if (in_array($this->record->validation_step, [$secondOccurenceOfRoleInOriginalRolesArray, $secondOccurenceOfDgInOriginalRolesArray])) {
+
+                                        $concernedEngine = Engine::where('id', $this->record->engine_id)->first();
+
+                                        $indice = $roleIds[$this->record->validation_step];
+
+                                        $userCentresCollection = DepartementUser::where('user_id', auth()->user()->id)->get();
+
+                                        foreach ($userCentresCollection as $userCentre) {
+                                            $userCentresIds[] = $userCentre->departement_code_centre;
+                                        }
+
+                                        if ($user->hasRole(RolesEnum::Directeur_general()->value)) {
+                                            return true;
+
+                                        } elseif ($user->hasRole(Role::where('id', $indice)->value('id')) && (in_array(intval($concernedEngine->departement_id), $userCentresIds))) {
+
+                                            return true;
+
+                                        } else {
+                                            return false;
+                                        }
+
+                                    } else {
+
+                                        return false;
+                                    }
+                                } else {
+                                    return false;
+                                }
+
+                            }
+                        }
+                    })
+                    ->action(function () {
+
+                        $user = auth()->user();
+
+                        if ($user->hasRole(RolesEnum::Directeur()->value)) {
+
+                            if ($this->record->circuit_id == Circuit::where('name', CircuitsEnums::circuit_de_direction()->value)->first()->id) {
+
+                                //get diga version of the circuit
+                                $circuit = Circuit::where('name', CircuitsEnums::circuit_de_direction_diga_dir()->value)->value('steps');
+
+                                $circuitID = Circuit::where('name', CircuitsEnums::circuit_de_direction_diga_dir()->value)->first()->id;
+
+                                $digaRoleID = Role::where('name', RolesEnum::Diga()->value)->first()->id;
+
+                                foreach ($circuit as $key => $item) {
+
+                                    $roleIds[] = $item['role_id'];
+                                }
+
+                                //find key in roleIds where role is  diga role
+                                $digaKey = array_search($digaRoleID, $roleIds);
+
+                                $this->record->update([
+                                    'circuit_id' => $circuitID,
+                                    'validation_step' => $digaKey,
+                                    'validation_state' => $digaRoleID,
+
+                                ]);
+                            } elseif ($this->record->circuit_id == Circuit::where('name', Circuit::where('name', CircuitsEnums::circuit_de_division()->value))->first()->id) {
+
+                                //get diga version of the circuit
+                                $circuit = Circuit::where('name', CircuitsEnums::circuit_de_division_diga_dir()->value)->value('steps');
+
+                                $circuitID = Circuit::where('name', CircuitsEnums::circuit_de_division_diga_dir()->value)->first()->id;
+
+                                $digaRoleID = Role::where('name', RolesEnum::Diga()->value)->first()->id;
+
+                                foreach ($circuit as $key => $item) {
+
+                                    $roleIds[] = $item['role_id'];
+                                }
+
+                                //find key in roleIds where role is  diga role
+                                $digaKey = array_search($digaRoleID, $roleIds);
+
+                                $this->record->update([
+                                    'circuit_id' => $circuitID,
+                                    'validation_step' => $digaKey,
+                                    'validation_state' => $digaRoleID,
+
+                                ]);
+                            }
+
+                        } elseif ($user->hasRole(RolesEnum::Directeur_general()->value)) {
+
+                            if ($this->record->circuit_id == Circuit::where('name', CircuitsEnums::circuit_de_direction()->value)->first()->id) {
+
+                                //get diga version of the circuit
+                                $circuit = Circuit::where('name', CircuitsEnums::circuit_de_direction_diga_dg()->value)->value('steps');
+
+                                $circuitID = Circuit::where('name', CircuitsEnums::circuit_de_direction_diga_dg()->value)->first()->id;
+
+                                $digaRoleID = Role::where('name', RolesEnum::Diga()->value)->first()->id;
+
+                                foreach ($circuit as $key => $item) {
+
+                                    $roleIds[] = $item['role_id'];
+                                }
+
+                                //find key in roleIds where role is  diga role
+                                $digaKey = array_search($digaRoleID, $roleIds);
+
+                                $this->record->update([
+                                    'circuit_id' => $circuitID,
+                                    'validation_step' => $digaKey,
+                                    'validation_state' => $digaRoleID,
+
+                                ]);
+                            } elseif ($this->record->circuit_id == Circuit::where('name', CircuitsEnums::circuit_de_division()->value)->first()->id) {
+
+                                //get diga version of the circuit
+                                $circuit = Circuit::where('name', CircuitsEnums::circuit_de_division_diga_dg()->value)->value('steps');
+
+                                $circuitID = Circuit::where('name', CircuitsEnums::circuit_de_division_diga_dg()->value)->first()->id;
+
+                                $digaRoleID = Role::where('name', RolesEnum::Diga()->value)->first()->id;
+
+                                foreach ($circuit as $key => $item) {
+
+                                    $roleIds[] = $item['role_id'];
+                                }
+
+                                //find key in roleIds where role is  diga role
+                                $digaKey = array_search($digaRoleID, $roleIds);
+
+                                $this->record->update([
+                                    'circuit_id' => $circuitID,
+                                    'validation_step' => $digaKey,
+                                    'validation_state' => $digaRoleID,
+
+                                ]);
+                            } elseif ($this->record->circuit_id == Circuit::where('name', CircuitsEnums::circuit_de_la_direction_generale()->value)->first()->id) {
+
+                                //get diga version of the circuit
+                                $circuit = Circuit::where('name', CircuitsEnums::circuit_de_la_direction_generale_diga()->value)->value('steps');
+
+                                $circuitID = Circuit::where('name', CircuitsEnums::circuit_de_la_direction_generale_diga()->value)->first()->id;
+
+                                $digaRoleID = Role::where('name', RolesEnum::Diga()->value)->first()->id;
+
+                                foreach ($circuit as $key => $item) {
+
+                                    $roleIds[] = $item['role_id'];
+                                }
+
+                                //find key in roleIds where role is  diga role
+                                $digaKey = array_search($digaRoleID, $roleIds);
+
+                                $this->record->update([
+                                    'circuit_id' => $circuitID,
+                                    'validation_step' => $digaKey,
+                                    'validation_state' => $digaRoleID,
+
+                                ]);
+                            } elseif ($this->record->circuit_id == Circuit::where('name', CircuitsEnums::circuit_particulier()->value)->first()->id) {
+
+                                //get diga version of the circuit
+                                $circuit = Circuit::where('name', CircuitsEnums::circuit_particulier_diga()->value)->value('steps');
+
+                                $circuitID = Circuit::where('name', CircuitsEnums::circuit_particulier_diga()->value)->first()->id;
+
+                                $digaRoleID = Role::where('name', RolesEnum::Diga()->value)->first()->id;
+
+                                foreach ($circuit as $key => $item) {
+
+                                    $roleIds[] = $item['role_id'];
+                                }
+
+                                //find key in roleIds where role is  diga role
+                                $digaKey = array_search($digaRoleID, $roleIds);
+
+                                $this->record->update([
+                                    'circuit_id' => $circuitID,
+                                    'validation_step' => $digaKey,
+                                    'validation_state' => $digaRoleID,
+
+                                ]);
+                            }
+                        }
+
+                        Notification::make('alerte')
+                            ->title('Transmission de demande')
+                            ->icon('heroicon-o-information-circle')
+                            ->iconColor('danger')
+                            ->body('Votre demande a été transmise à la DIGA');
+
+                    })
+                // ->visible(function ($record) {
+
+                //     if(!in_array($this->record->circuit_id, [/*get circuit IDS for circuits with diga in them*/ ]))  //  create circuits in seeder first
+                //     {
+                //        return false;
+                //     }
+                //     elseif ($this->record->validation_state == ReparationValidationStates::Rejete()->value) {
+
+                //         return false;
+
+                //     } else {
+
+                //         $circuit = Circuit::where('id', $this->record->circuit_id)->value('steps');
+
+                //         foreach ($circuit as $key => $item) {
+
+                //             $roleIds[] = $item['role_id'];
+                //         }
+
+                //         $concernedEngine = Engine::where('id', $this->record->engine_id)->first();
+
+                //         $user = auth()->user();
+
+                //         if (array_key_exists($this->record->validation_step, $roleIds)) {    // ensure array key is not off limits
+
+                //             $indice = $roleIds[$this->record->validation_step];
+
+                //             $requiredRole = Role::where('id', $indice)->first();
+
+                //             $userCentresCollection = DepartementUser::where('user_id', auth()->user()->id)->get();
+
+                //             foreach ($userCentresCollection as $userCentre) {
+                //                 $userCentresIds[] = $userCentre->departement_code_centre;
+                //             }
+
+                //             if (
+                //                 in_array($requiredRole, [
+
+                //                    RolesEnum::Directeur_general()->value,
+                //                    RolesEnum::Directeur()->value,
+
+                //                 ]) && $user->hasRole(Role::where('id', $indice)->value('id'))
+                //             ) {   // if require role is in list (array) and user has the role
+
+                //                 return true;
+                //             } elseif ($user->hasRole(Role::where('id', $indice)->value('id')) && (in_array(intval($concernedEngine->departement_id), $userCentresIds)) ) { // add third condition here :  must be in remaining steps following proforma step
+                //                 return true;
+                //             } else {
+                //                 return false;
+                //             }
+
+                //         } else {
+                //             return false;
+                //         }
+                //     }
+
+                // })
+
+                ,
 
                 Actions\Action::make('Valider')
                     ->color('success')
@@ -92,64 +395,64 @@ class ViewReparation extends ViewRecord
                     ->icon('heroicon-o-check-circle')
                     ->after(function () {
 
-                        $currentValidationStep = $this->record->validation_step;
+                        // $currentValidationStep = $this->record->validation_step;
 
-                        $concernedEngine = Engine::where('id', $this->record->engine_id)->first();
+                        // $concernedEngine = Engine::where('id', $this->record->engine_id)->first();
 
-                        $circuit = Circuit::where('id', $this->data['circuit_id'])->first()->steps;
+                        // $circuit = Circuit::where('id', $this->data['circuit_id'])->first()->steps;
 
-                        foreach ($circuit as $key => $item) {
+                        // foreach ($circuit as $key => $item) {
 
-                            $roleIds[] = $item['role_id'];
-                        }
+                        //     $roleIds[] = $item['role_id'];
+                        // }
 
-                        if (array_key_exists($currentValidationStep, $roleIds)) {
-                            $NextdestinataireRole = Role::find($roleIds[$currentValidationStep])->name;
+                        // if (array_key_exists($currentValidationStep, $roleIds)) {
+                        //     $NextdestinataireRole = Role::find($roleIds[$currentValidationStep])->name;
 
-                            $destinataire = User::role($NextdestinataireRole)->first();
+                        //     $destinataire = User::role($NextdestinataireRole)->first();
 
-                            if ($destinataire) {
+                        //     if ($destinataire) {
 
-                                if ($NextdestinataireRole) {
+                        //         if ($NextdestinataireRole) {
 
-                                    if (in_array($NextdestinataireRole, [RolesEnum::Directeur()->value, RolesEnum::Chef_division()->value]) && $destinataire->departement_id == $concernedEngine->departement_id) {
+                        //             if (in_array($NextdestinataireRole, [RolesEnum::Directeur()->value, RolesEnum::Chef_division()->value]) && $destinataire->departement_id == $concernedEngine->departement_id) {
 
-                                        $realDestination = User::role($NextdestinataireRole)->where('departement_id', $concernedEngine->departement_id)->first();
+                        //                 $realDestination = User::role($NextdestinataireRole)->where('departement_id', $concernedEngine->departement_id)->first();
 
-                                        Notification::make()
-                                            ->title('Demande de validation')
-                                            ->body('Réparation pour l\'engin immatriculé '.$concernedEngine->plate_number.' en attente de validation')
-                                            ->actions([
-                                                NotificationActions::make('voir')
-                                                    ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
-                                                    ->button()
-                                                    ->color('primary'),
-                                            ])
-                                            ->sendToDatabase($realDestination);
+                        //                 Notification::make()
+                        //                     ->title('Demande de validation')
+                        //                     ->body('Réparation pour l\'engin immatriculé '.$concernedEngine->plate_number.' en attente de validation')
+                        //                     ->actions([
+                        //                         NotificationActions::make('voir')
+                        //                             ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
+                        //                             ->button()
+                        //                             ->color('primary'),
+                        //                     ])
+                        //                     ->sendToDatabase($realDestination);
 
-                                    } elseif (
-                                        in_array($NextdestinataireRole, [
-                                            RolesEnum::Directeur_general()->value,
-                                            RolesEnum::Diga()->value,
-                                            RolesEnum::Chef_parc()->value,
-                                            RolesEnum::Budget()->value,
-                                        ])
-                                    ) {
-                                        Notification::make()
-                                            ->title('Nouvelle demande')
-                                            ->body('Réparation pour l\'engin immatriculé '.$concernedEngine->plate_number.' en attente de validation')
-                                            ->actions([
-                                                NotificationActions::make('voir')
-                                                    ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
-                                                    ->button()
-                                                    ->color('primary'),
-                                            ])
-                                            ->sendToDatabase($destinataire);
-                                    }
-                                }
+                        //             } elseif (
+                        //                 in_array($NextdestinataireRole, [
+                        //                     RolesEnum::Directeur_general()->value,
+                        //                     RolesEnum::Diga()->value,
+                        //                     RolesEnum::Chef_parc()->value,
+                        //                     RolesEnum::Budget()->value,
+                        //                 ])
+                        //             ) {
+                        //                 Notification::make()
+                        //                     ->title('Nouvelle demande')
+                        //                     ->body('Réparation pour l\'engin immatriculé '.$concernedEngine->plate_number.' en attente de validation')
+                        //                     ->actions([
+                        //                         NotificationActions::make('voir')
+                        //                             ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
+                        //                             ->button()
+                        //                             ->color('primary'),
+                        //                     ])
+                        //                     ->sendToDatabase($destinataire);
+                        //             }
+                        //         }
 
-                            }
-                        }
+                        //     }
+                        // }
 
                     })
                     ->action(function (?Reparation $record) {
