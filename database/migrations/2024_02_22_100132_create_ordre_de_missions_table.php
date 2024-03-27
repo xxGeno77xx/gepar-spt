@@ -32,6 +32,8 @@ return new class extends Migration
 
             $table->string('departement_id');
 
+            $table->boolean('is_ordre_de_route');
+
             $table->date('date_de_depart');
 
             $table->date('date_de_retour');

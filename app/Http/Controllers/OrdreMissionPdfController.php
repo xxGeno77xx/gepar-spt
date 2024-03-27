@@ -28,4 +28,19 @@ class OrdreMissionPdfController extends Controller
         return Pdf::loadView('planningVoyage', ['planning' => $planning])
             ->stream('Ordre N '.$planning->id.'.pdf');
     }
+
+
+    public function ordreDeRouteCouleur(OrdreDeMission $order)
+    {
+
+        return Pdf::loadView('ordreDeRouteCouleur', ['order' => $order])
+            ->stream('Ordre-de-route N° '.$order->id.'.pdf');
+    }
+
+    public function ordreDeRouteBn(OrdreDeMission $order)
+    {
+
+        return Pdf::loadView('ordreDeRouteBn', ['order' => $order])
+            ->stream('Ordre-de-route N° '.$order->id.'.pdf');
+    }
 }

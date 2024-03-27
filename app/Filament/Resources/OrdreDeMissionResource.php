@@ -2,32 +2,33 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\OrdreDeMissionResource\Pages;
+use Carbon\Carbon;
+use Filament\Tables;
+use App\Models\Engine;
 use App\Models\Chauffeur;
 use App\Models\Departement;
-use App\Models\Engine;
-use App\Models\OrdreDeMission;
-use App\Support\Database\ChauffeursStatesClass;
-use App\Support\Database\StatesClass;
-use Carbon\Carbon;
-use Filament\Forms\Components\Card;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Fieldset;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TagsInput;
-use Filament\Forms\Components\TextInput;
 use Filament\Resources\Form;
-use Filament\Resources\Resource;
 use Filament\Resources\Table;
-use Filament\Tables;
-use Filament\Tables\Columns\BadgeColumn;
+use App\Models\OrdreDeMission;
+use Filament\Resources\Resource;
+use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Grid;
+use Filament\Tables\Filters\Filter;
+use App\Support\Database\StatesClass;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\Repeater;
 use Filament\Tables\Columns\TagsColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\TagsInput;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\BadgeColumn;
+use Filament\Forms\Components\DatePicker;
 use Illuminate\Database\Eloquent\Builder;
+use App\Support\Database\ChauffeursStatesClass;
+use App\Filament\Resources\OrdreDeMissionResource\Pages;
 
 class OrdreDeMissionResource extends Resource
 {
@@ -42,6 +43,13 @@ class OrdreDeMissionResource extends Resource
         return $form
             ->schema([
 
+                Toggle::make("is_ordre_de_route")
+                    ->onIcon("heroicon-o-check-circle")
+                    ->onColor("success")
+                    ->offColor("danger")
+                    ->reactive()
+                    ->offIcon("heroicon-o-ban"),
+
                 Card::make()
                     ->schema([
 
@@ -53,7 +61,7 @@ class OrdreDeMissionResource extends Resource
                                     ->options(
                                         Chauffeur::select(['fullname', 'id'])
                                             ->where('Chauffeurs.state', StatesClass::Activated()->value)
-                                            ->where('Chauffeurs.mission_state', ChauffeursStatesClass::Disponible()->value)
+                                            // ->where('Chauffeurs.mission_state', ChauffeursStatesClass::Disponible()->value)
                                             ->get()
                                             ->pluck('fullname', 'id')
                                     )
@@ -75,11 +83,21 @@ class OrdreDeMissionResource extends Resource
                                     ->searchable(),
 
                                 DatePicker::make('date_de_depart')
-                                    ->required(),
+                                    ->required()
+                                    ->reactive()
+                                    ->afterStateUpdated(function($set, $get) {
+
+                                        if($get("is_ordre_de_route") == 1)
+                                        {
+                                            $set("date_de_retour",  $get("date_de_depart"));
+                                        }
+                                    }),
 
                                 DatePicker::make('date_de_retour')
                                     ->afterOrEqual('date_de_depart')
-                                    ->required(),
+                                    ->required()
+                                    ->disabled(fn($get) => $get("is_ordre_de_route") == 1? true : false )
+                                    ->dehydrated(fn($get) => $get("is_ordre_de_route") == 1? true : false ),
 
                                 Repeater::make('agents')
                                     ->schema([

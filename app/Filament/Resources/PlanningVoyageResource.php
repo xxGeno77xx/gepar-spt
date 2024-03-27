@@ -2,24 +2,25 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\PlanningVoyageResource\Pages;
+use App\Models\Pays;
+use Filament\Tables;
 use App\Models\Chauffeur;
 use App\Models\Departement;
-use App\Models\Pays;
+use Filament\Resources\Form;
+use Filament\Resources\Table;
 use App\Models\PlanningVoyage;
-use App\Support\Database\StatesClass;
+use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
-use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Repeater;
+use Filament\Tables\Actions\Action;
+use App\Support\Database\StatesClass;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
-use Filament\Resources\Form;
-use Filament\Resources\Resource;
-use Filament\Resources\Table;
-use Filament\Tables;
-use Filament\Tables\Actions\Action;
+use Filament\Forms\Components\Repeater;
 use Filament\Tables\Columns\BadgeColumn;
+use Filament\Forms\Components\DatePicker;
+use App\Support\Database\PermissionsClass;
+use App\Filament\Resources\PlanningVoyageResource\Pages;
 
 class PlanningVoyageResource extends Resource
 {
@@ -147,5 +148,16 @@ class PlanningVoyageResource extends Resource
             'create' => Pages\CreatePlanningVoyage::route('/create'),
             'edit' => Pages\EditPlanningVoyage::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->hasAnyPermission([
+
+            PermissionsClass::Planning_read()->value,
+            PermissionsClass::Planning_update()->value,
+            PermissionsClass::Planning_create()->value,
+
+        ]);
     }
 }

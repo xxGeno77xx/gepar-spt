@@ -103,11 +103,12 @@ class Profile extends Page
                     TextInput::make('name')
                         ->disabled()
                         ->required()
+                        ->columnSpanFull()
                         ->label('Nom'),
-                    TextInput::make('email')
-                        ->label(' Addresse email')
-                        ->disabled()
-                        ->required(),
+                    // TextInput::make('email')
+                    //     ->label(' Addresse email')
+                    //     ->disabled()
+                    //     ->required(),
                 ]),
             // Section::make('Mise à jour de mot de passe')
             //     ->columns(2)

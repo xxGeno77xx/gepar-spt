@@ -2,47 +2,49 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ReparationResource\Pages;
-use App\Models\Circuit;
-use App\Models\Departement;
-use App\Models\DepartementUser;
-use App\Models\Direction;
-use App\Models\Division;
-use App\Models\Engine;
-use App\Models\Prestataire;
-use App\Models\Reparation;
+use Carbon\Carbon;
 use App\Models\Role;
 use App\Models\User;
-use App\Support\Database\CommonInfos;
-use App\Support\Database\PermissionsClass;
-use App\Support\Database\ReparationValidationStates;
-use App\Support\Database\RolesEnum;
-use App\Support\Database\StatesClass;
-use App\Tables\Columns\PrestataireColumn;
-use Carbon\Carbon;
-use Filament\Forms\Components\Builder as FilamentBuilder;
-use Filament\Forms\Components\Card;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Fieldset;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\MarkdownEditor;
-use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\Radio;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Resources\Form;
-use Filament\Resources\Resource;
-use Filament\Resources\Table;
 use Filament\Tables;
+use App\Models\Engine;
+use App\Models\Circuit;
+use App\Models\Division;
+use App\Models\Direction;
+use App\Models\Reparation;
+use App\Models\Departement;
+use App\Models\Prestataire;
+use Filament\Resources\Form;
+use Filament\Resources\Table;
+use App\Models\DepartementUser;
+use Filament\Resources\Resource;
+use Illuminate\Support\HtmlString;
+use App\Support\Database\RolesEnum;
+use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Grid;
+use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\Radio;
+use App\Support\Database\CommonInfos;
+use App\Support\Database\StatesClass;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Section;
+use App\Support\Database\CircuitsEnums;
+use Filament\Forms\Components\Fieldset;
 use Filament\Tables\Columns\TagsColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\TextInput;
+use App\Tables\Columns\PrestataireColumn;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\RichEditor;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\HtmlString;
+use App\Support\Database\PermissionsClass;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\MarkdownEditor;
+use App\Filament\Resources\ReparationResource\Pages;
+use App\Support\Database\ReparationValidationStates;
+use Filament\Forms\Components\Builder as FilamentBuilder;
 
 class ReparationResource extends Resource
 {
@@ -66,14 +68,14 @@ class ReparationResource extends Resource
 
                                 Placeholder::make('motif_rejet')
                                     ->label(new HtmlString('<p style="color: red; font-size: 1.2rem;">Motif du rejet</p>'))
-                                    ->content(fn ($record) => $record->motif_rejet ? $record->motif_rejet : ''),
+                                    ->content(fn($record) => $record->motif_rejet ? $record->motif_rejet : ''),
 
                                 Placeholder::make('rejete_par')
                                     ->label(new HtmlString('<p style="color: red; font-size: 1.2rem;">Rejeté par</p>'))
-                                    ->content(fn ($record) => $record->rejete_par ? User::find($record->rejete_par)->name : ''),
+                                    ->content(fn($record) => $record->rejete_par ? User::find($record->rejete_par)->name : ''),
                             ]),
                     ])
-                    ->visible(fn ($record) => $record && $record->motif_rejet ? true : false),
+                    ->visible(fn($record) => $record && $record->motif_rejet ? true : false),
 
                 Card::make()
                     ->schema([
@@ -173,11 +175,11 @@ class ReparationResource extends Resource
                                                 $searchedRoleId = (Role::where('name', RolesEnum::Directeur_general()->value)->first())->id;
 
                                                 $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
-
+                            
                                                 $arrayKeys = array_keys($roleIds);
 
                                                 $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole + 1); //remaiing indices
-
+                            
                                                 if (in_array($record->validation_step, $indicesDesired)) {
                                                     return true;
                                                 } else {
@@ -207,11 +209,11 @@ class ReparationResource extends Resource
                                                 $searchedRoleId = (Role::where('name', RolesEnum::Directeur_general()->value)->first())->id;
 
                                                 $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
-
+                            
                                                 $arrayKeys = array_keys($roleIds);
 
                                                 $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole + 1); //remaiing indices
-
+                            
                                                 if (in_array($record->validation_step, $indicesDesired)) {
                                                     return true;
                                                 } else {
@@ -248,7 +250,7 @@ class ReparationResource extends Resource
                                             $searchedRoleId = (Role::where('name', RolesEnum::Chef_parc()->value)->first())->id;
 
                                             $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
-
+                            
                                             $slicedArray = array_slice($roleIds, $firstOccurenceOfRole + 1);
 
                                             $secondOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $slicedArray)) + $firstOccurenceOfRole + 1;
@@ -258,7 +260,7 @@ class ReparationResource extends Resource
                                             $thirdOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $secondSlicedArray)) + $secondOccurenceOfRoleInOriginalRolesArray + 1;
 
                                             $arrayDivided = array_chunk($roleIds, $thirdOccurenceOfRoleInOriginalRolesArray + 1, true); //  cut form second match of dg role
-
+                            
                                             if (in_array($record->validation_step, [array_key_last($roleIds), 100])) {
 
                                                 return true;
@@ -285,7 +287,7 @@ class ReparationResource extends Resource
                                             $searchedRoleId = (Role::where('name', RolesEnum::Chef_parc()->value)->first())->id;
 
                                             $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
-
+                            
                                             $slicedArray = array_slice($roleIds, $firstOccurenceOfRole + 1);
 
                                             $secondOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $slicedArray)) + $firstOccurenceOfRole + 1;
@@ -295,7 +297,7 @@ class ReparationResource extends Resource
                                             $thirdOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $secondSlicedArray)) + $secondOccurenceOfRoleInOriginalRolesArray + 1;
 
                                             $arrayDivided = array_chunk($roleIds, $thirdOccurenceOfRoleInOriginalRolesArray + 1, true); //  cut form second match of dg role
-
+                            
                                             if (in_array($record->validation_step, [array_key_last($roleIds), 100])) {
 
                                                 return true;
@@ -323,14 +325,14 @@ class ReparationResource extends Resource
                                     if ((auth()->user()->hasAnyRole([RolesEnum::Chef_Division()->value, RolesEnum::Delegue_Division()->value])) && (array_intersect($userCentresIds, $dirGeneDivisions))) {
 
                                         return 4; // circuit particulier
-
+                        
                                     } elseif (auth()->user()->hasAnyRole([RolesEnum::Directeur_general()->value, RolesEnum::Delegue_Direction_Generale()->value])) {
 
                                         return 3; // circuit de  Direction Générale
                                     } elseif (auth()->user()->hasAnyRole([RolesEnum::Directeur()->value, RolesEnum::Delegue_Direction()->value])) {
 
                                         return 2; // circuit de Direction
-
+                        
                                     } elseif (auth()->user()->hasAnyRole([RolesEnum::Chef_Division()->value, RolesEnum::Delegue_Division()->value])) {
 
                                         return 1; // circuit de Division
@@ -346,31 +348,31 @@ class ReparationResource extends Resource
                             ])->columns(2),
 
                         Section::make('Informations du prestataire')
-                            ->description(fn ($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('raison_social_fr') : '')
+                            ->description(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('raison_social_fr') : '')
                             ->collapsible()
                             ->schema([
                                 Grid::make(2)
                                     ->schema([
                                         Placeholder::make('Raison sociale')
-                                            ->content(fn ($get) => $get('prestataire_id') && (Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('nom_fr')) ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('nom_fr') : '-'),
+                                            ->content(fn($get) => $get('prestataire_id') && (Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('nom_fr')) ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('nom_fr') : '-'),
 
                                         Placeholder::make('Adresse')
-                                            ->content(fn ($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('adr_fr') : '-'),
+                                            ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('adr_fr') : '-'),
 
                                         Placeholder::make('Contact_1')
-                                            ->content(fn ($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('tel_fr') : '-'),
+                                            ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('tel_fr') : '-'),
 
                                         Placeholder::make('Contact_2')
-                                            ->content(fn ($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('tel2_frs') : '-'),
+                                            ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('tel2_frs') : '-'),
 
                                         Placeholder::make('Secteur d\'activité')
-                                            ->content(fn ($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('sect_activ') : '-'),
+                                            ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('sect_activ') : '-'),
 
                                         Placeholder::make('Ville')
-                                            ->content(fn ($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('ville_fr') : '-'),
+                                            ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('ville_fr') : '-'),
 
                                         Placeholder::make('Numéro de compte')
-                                            ->content(fn ($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('numero_compte') : '-'),
+                                            ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('numero_compte') : '-'),
                                     ]),
 
                                 Section::make('Devis')
@@ -393,11 +395,11 @@ class ReparationResource extends Resource
                                                         $searchedRoleId = (Role::where('name', RolesEnum::Directeur_general()->value)->first())->id;
 
                                                         $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
-
+                                    
                                                         $arrayKeys = array_keys($roleIds);
 
                                                         $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole + 1); //remaiing indices
-
+                                    
                                                         if (in_array($record->validation_step, $indicesDesired)) {
                                                             return true;
                                                         } else {
@@ -427,11 +429,11 @@ class ReparationResource extends Resource
                                                         $searchedRoleId = (Role::where('name', RolesEnum::Directeur_general()->value)->first())->id;
 
                                                         $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
-
+                                    
                                                         $arrayKeys = array_keys($roleIds);
 
                                                         $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole + 1); //remaiing indices
-
+                                    
                                                         if (in_array($record->validation_step, $indicesDesired)) {
                                                             return true;
                                                         } else {
@@ -466,15 +468,15 @@ class ReparationResource extends Resource
                                                         $searchedRoleId = (Role::where('name', RolesEnum::Directeur_general()->value)->first())->id;
 
                                                         $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
-
+                                    
                                                         $slicedArray = array_slice($roleIds, $firstOccurenceOfRole + 1);
 
                                                         $secondOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $slicedArray)) + $firstOccurenceOfRole + 1;
 
                                                         $arrayDivided = array_chunk($roleIds, $secondOccurenceOfRoleInOriginalRolesArray + 1, true); //  cut form second match of dg role
-
+                                    
                                                         $ArrayToUse = array_flip($arrayDivided[1]);  //flip array to get keys
-
+                                    
                                                         if (in_array($record->validation_step, $ArrayToUse)) {
                                                             return true;
                                                         } else {
@@ -503,7 +505,7 @@ class ReparationResource extends Resource
                                                         $searchedRoleId = (Role::where('name', RolesEnum::Directeur_general()->value)->first())->id;
 
                                                         $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
-
+                                    
                                                         $slicedArray = array_slice($roleIds, $firstOccurenceOfRole + 1);
 
                                                         $secondOccurenceOfRole = array_search($searchedRoleId, $slicedArray);
@@ -511,17 +513,17 @@ class ReparationResource extends Resource
                                                         $secondOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $slicedArray)) + $firstOccurenceOfRole + 1;
 
                                                         // $remainingKeys = array_slice($roleIds, $secondOccurenceOfRoleInOriginalRolesArray);
-
+                                    
                                                         // $arrayKeys = array_keys($slicedArray);
                                                         //
                                                         // $indicesDesired = array_slice($slicedArray, $secondOccurenceOfRole ); // key to slice array from
-
+                                    
                                                         // $originalRolesIdsKeys = array_keys($roleIds);
-
+                                    
                                                         $arrayDivided = array_chunk($roleIds, $secondOccurenceOfRoleInOriginalRolesArray + 1, true); //  cut form second match of dg role
-
+                                    
                                                         $ArrayToUse = array_flip($arrayDivided[1]);  //flip array to get keys
-
+                                    
                                                         if (in_array($record->validation_step, $ArrayToUse)) {
                                                             return true;
                                                         } else {
@@ -558,11 +560,11 @@ class ReparationResource extends Resource
                                                                 $searchedRoleId = (Role::where('name', RolesEnum::Directeur_general()->value)->first())->id;
 
                                                                 $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
-
+                                            
                                                                 $arrayKeys = array_keys($roleIds);
 
                                                                 $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole + 1); //remaiing indices
-
+                                            
                                                                 if (in_array($record->validation_step, $indicesDesired)) {
                                                                     return true;
                                                                 } else {
@@ -592,11 +594,11 @@ class ReparationResource extends Resource
                                                                 $searchedRoleId = (Role::where('name', RolesEnum::Directeur_general()->value)->first())->id;
 
                                                                 $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
-
+                                            
                                                                 $arrayKeys = array_keys($roleIds);
 
                                                                 $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole + 1); //remaiing indices
-
+                                            
                                                                 if (in_array($record->validation_step, $indicesDesired)) {
                                                                     return true;
                                                                 } else {
@@ -629,11 +631,11 @@ class ReparationResource extends Resource
                                                                 $searchedRoleId = (Role::where('name', RolesEnum::Directeur_general()->value)->first())->id;
 
                                                                 $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
-
+                                            
                                                                 $arrayKeys = array_keys($roleIds);
 
                                                                 $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole + 1); //remaiing indices
-
+                                            
                                                                 if (in_array($record->validation_step, $indicesDesired)) {
                                                                     return true;
                                                                 } else {
@@ -663,11 +665,11 @@ class ReparationResource extends Resource
                                                                 $searchedRoleId = (Role::where('name', RolesEnum::Directeur_general()->value)->first())->id;
 
                                                                 $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
-
+                                            
                                                                 $arrayKeys = array_keys($roleIds);
 
                                                                 $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole + 1); //remaiing indices
-
+                                            
                                                                 if (in_array($record->validation_step, $indicesDesired)) {
                                                                     return true;
                                                                 } else {
@@ -702,11 +704,11 @@ class ReparationResource extends Resource
                                         $searchedRoleId = (Role::where('name', RolesEnum::Directeur_general()->value)->first())->id;
 
                                         $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
-
+                    
                                         $arrayKeys = array_keys($roleIds);
 
                                         $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole + 1); //remaiing indices
-
+                    
                                         if (in_array($record->validation_step, $indicesDesired)) {
                                             return true;
                                         } else {
@@ -724,7 +726,7 @@ class ReparationResource extends Resource
 
                                 Select::make('révisions')
                                     ->label('Type de la réparation')
-                                    ->relationship('typeReparations', 'libelle', fn (Builder $query) => $query->where('state', StatesClass::Activated()->value))
+                                    ->relationship('typeReparations', 'libelle', fn(Builder $query) => $query->where('state', StatesClass::Activated()->value))
                                     ->multiple()
                                     ->searchable()
                                     ->preload(true)
@@ -744,7 +746,7 @@ class ReparationResource extends Resource
                                                             ->numeric()
                                                             ->minValue(1)
                                                             ->reactive()
-                                                            ->afterStateUpdated(fn ($state, callable $set, $get) => $set('montant', $state * $get('Prix_unitaire'))),
+                                                            ->afterStateUpdated(fn($state, callable $set, $get) => $set('montant', $state * $get('Prix_unitaire'))),
 
                                                         TextInput::make('Prix_unitaire')
                                                             ->numeric()
@@ -752,7 +754,7 @@ class ReparationResource extends Resource
                                                             ->minValue(1)
                                                             ->reactive()
                                                             ->integer()
-                                                            ->afterStateUpdated(fn ($state, callable $set, $get) => $set('montant', $state * $get('nombre'))),
+                                                            ->afterStateUpdated(fn($state, callable $set, $get) => $set('montant', $state * $get('nombre'))),
 
                                                         TextInput::make('montant')
                                                             ->suffix('FCFA')
@@ -1294,16 +1296,157 @@ class ReparationResource extends Resource
                 //         }
 
                 //     }),
-                MarkdownEditor::make('details')
+                Grid::make(2)->schema([
+
+
+                    RichEditor::make('avis_diga')
+                        ->label('Avis de la DIGA')
+                        ->disableAllToolbarButtons()
+                        ->placeholder('Observations de la DIGA')
+                        ->visible(function ($record) {
+                           
+                            if ($record) {
+
+                                if (
+                                    in_array($record->circuit_id, [
+                                        Circuit::where('name', CircuitsEnums::circuit_de_division_diga_dir()->value)->first()->id,
+                                        Circuit::where('name', CircuitsEnums::circuit_de_division_diga_dg()->value)->first()->id,
+                                        Circuit::where('name', CircuitsEnums::circuit_de_direction_diga_dir()->value)->first()->id,
+                                        Circuit::where('name', CircuitsEnums::circuit_de_direction_diga_dg()->value)->first()->id,
+                                        Circuit::where('name', CircuitsEnums::circuit_de_la_direction_generale_diga()->value)->first()->id,
+                                        Circuit::where('name', CircuitsEnums::circuit_particulier_diga()->value)->first()->id,
+    
+                                    ])
+                                )
+
+                                { 
+                                    if ($record->validation_state == 'nextValue') {
+                                        return true;
+                                    } 
+                                    
+                                    else {
+    
+                                        $circuit = Circuit::find($record->circuit_id)->steps;
+    
+                                        foreach ($circuit as $key => $item) {
+    
+                                            $roleIds[] = $item['role_id'];
+                                        }
+    
+                                        $searchedRoleId = (Role::where('name', RolesEnum::Diga()->value)->first())->id;
+    
+                                        $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
+                    
+                                        $arrayKeys = array_keys($roleIds);
+    
+                                        $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole ); //remaiing indices
+
+                                        if (in_array($record->validation_step, $indicesDesired)) {
+                                            return true;
+                                        } else {
+                                            return false;
+                                        }
+                                    }
+                                }
+
+                               
+
+                            } else {
+                                return false;
+                            }
+
+                        }),
+
+                    RichEditor::make('avis_dg')
+                        ->label('Avis de la DIGA')
+                        ->disableAllToolbarButtons()
+                        ->placeholder('Observations du Directeur général')
+                        ->visible(function ($record) {
+
+                            if ($record) {
+
+                                $user = auth()->user();
+
+                                $circuit = Circuit::where('id', $record->circuit_id)->value('steps');
+
+                                foreach ($circuit as $key => $item) {
+
+                                    $roleIds[] = $item['role_id'];
+                                }
+
+                                $searchedRoleId = (Role::where('name', RolesEnum::Directeur_general()->value)->first())->id;
+
+                                $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
+                
+                                $slicedArray = array_slice($roleIds, $firstOccurenceOfRole + 1);
+
+                                $secondOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $slicedArray)) + $firstOccurenceOfRole + 1;
+
+                                $secondSlicedArray = array_slice($roleIds, $secondOccurenceOfRoleInOriginalRolesArray + 1);
+
+                                $thirdOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $secondSlicedArray)) + $secondOccurenceOfRoleInOriginalRolesArray + 1;
+
+                                $arrayDivided = array_chunk($roleIds, $thirdOccurenceOfRoleInOriginalRolesArray , true); //  cut form second match of dg role
+                
+                                $ArrayToUse = array_flip($arrayDivided[1]); 
+
+                                if (in_array($record->validation_step,  $ArrayToUse) || $record->validation_step == 100) {
+
+                                    return true;
+
+                                } else {
+
+                                    return false;
+                                }
+                            }
+
+                        })
+                        ->required(function ($record) {
+
+                            if ($record) {
+
+                                $user = auth()->user();
+
+                                $circuit = Circuit::where('id', $record->circuit_id)->value('steps');
+
+                                foreach ($circuit as $key => $item) {
+
+                                    $roleIds[] = $item['role_id'];
+                                }
+
+                                $searchedRoleId = (Role::where('name', RolesEnum::Directeur_general()->value)->first())->id;
+
+                                $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
+                
+                                $slicedArray = array_slice($roleIds, $firstOccurenceOfRole + 1);
+
+                                $secondOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $slicedArray)) + $firstOccurenceOfRole + 1;
+
+                                $secondSlicedArray = array_slice($roleIds, $secondOccurenceOfRoleInOriginalRolesArray + 1);
+
+                                $thirdOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $secondSlicedArray)) + $secondOccurenceOfRoleInOriginalRolesArray + 1;
+
+                                $arrayDivided = array_chunk($roleIds, $thirdOccurenceOfRoleInOriginalRolesArray , true); //  cut form second match of dg role
+                
+                                $ArrayToUse = array_flip($arrayDivided[1]); 
+
+                                if (in_array($record->validation_step,  $ArrayToUse)) {
+
+                                    return true;
+
+                                } else {
+
+                                    return false;
+                                }
+                            }
+
+                        })
+                ]),
+
+                RichEditor::make('details')
                     ->label('Détails')
                     ->disableAllToolbarButtons()
                     ->enableToolbarButtons([
-                        // 'bold',
-                        // 'bulletList',
-                        // 'edit',
-                        // 'italic',
-                        // 'preview',
-                        // 'strike',
                     ])
                     ->columnSpanFull()
                     ->placeholder('Détails de la révision'),
@@ -1355,7 +1498,7 @@ class ReparationResource extends Resource
                         } else {
                             $validator = (Role::find($state))->name;
 
-                            return 'En attente de validation de: '.$validator;
+                            return 'En attente de validation de: ' . $validator;
                         }
 
                     })
@@ -1459,16 +1602,16 @@ class ReparationResource extends Resource
                         return $query
                             ->when(
                                 $data['date_from'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('date_lancement', '>=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('date_lancement', '>=', $date),
                             )
                             ->when(
                                 $data['date_to'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('date_lancement', '<=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('date_lancement', '<=', $date),
                             );
                     })
                     ->indicateUsing(function (array $data): ?string {
                         if (($data['date_from']) && ($data['date_from'])) {
-                            return 'Date d\'envoi en réparation:  '.Carbon::parse($data['date_from'])->format('d-m-Y').' au '.Carbon::parse($data['date_to'])->format('d-m-Y');
+                            return 'Date d\'envoi en réparation:  ' . Carbon::parse($data['date_from'])->format('d-m-Y') . ' au ' . Carbon::parse($data['date_to'])->format('d-m-Y');
                         }
 
                         return null;
@@ -1496,11 +1639,11 @@ class ReparationResource extends Resource
                                 }
                             );
                     })->indicateUsing(function (array $data): ?string {
-                        if (! $data['prestataire_id']) {
+                        if (!$data['prestataire_id']) {
                             return null;
                         }
 
-                        return 'Prestataire: '.Prestataire::where('code_fr', $data['prestataire_id'])->value('raison_social_fr');
+                        return 'Prestataire: ' . Prestataire::where('code_fr', $data['prestataire_id'])->value('raison_social_fr');
                     }),
 
                 SelectFilter::make('Type de la réparation')
