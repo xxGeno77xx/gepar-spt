@@ -64,26 +64,26 @@ class UserResource extends Resource
                             ->label(strval(__('filament-authentication::filament-authentication.field.user.name')))
                             ->required(),
 
-                        // TextInput::make('email')
-                        //     ->required()
-                        //     ->email()
-                        //     ->unique(table: static::$model, ignorable: fn ($record) => $record)
-                        //     ->regex('/.*@laposte\.tg$/') // field must end with @laposte.tg
-                        //     ->label(strval(__('filament-authentication::filament-authentication.field.user.email'))),
+                        TextInput::make('email')
+                            ->required()
+                            ->email()
+                            ->unique(table: static::$model, ignorable: fn ($record) => $record)
+                            ->regex('/.*@laposte\.tg$/') // field must end with @laposte.tg
+                            ->label(strval(__('filament-authentication::filament-authentication.field.user.email'))),
 
-                        // TextInput::make('password')
-                        //     ->same('passwordConfirmation')
-                        //     ->password()
-                        //     ->maxLength(255)
-                        //     ->required(fn ($component, $get, $livewire, $model, $record, $set, $state) => $record === null)
-                        //     ->dehydrateStateUsing(fn ($state) => ! empty($state) ? Hash::make($state) : '')
-                        //     ->label(strval(__('filament-authentication::filament-authentication.field.user.password'))),
+                        TextInput::make('password')
+                            ->same('passwordConfirmation')
+                            ->password()
+                            ->maxLength(255)
+                            ->required(fn ($component, $get, $livewire, $model, $record, $set, $state) => $record === null)
+                            ->dehydrateStateUsing(fn ($state) => ! empty($state) ? Hash::make($state) : '')
+                            ->label(strval(__('filament-authentication::filament-authentication.field.user.password'))),
 
-                        // TextInput::make('passwordConfirmation')
-                        //     ->password()
-                        //     ->dehydrated(false)
-                        //     ->maxLength(255)
-                        //     ->label(strval(__('filament-authentication::filament-authentication.field.user.confirm_password'))),
+                        TextInput::make('passwordConfirmation')
+                            ->password()
+                            ->dehydrated(false)
+                            ->maxLength(255)
+                            ->label(strval(__('filament-authentication::filament-authentication.field.user.confirm_password'))),
 
                         //removed super admin from roles list here
                         Select::make('roles')
@@ -141,25 +141,30 @@ class UserResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->label(strval(__('filament-authentication::filament-authentication.field.user.name'))),
-                TextColumn::make('email')
+
+                    TextColumn::make('poste')
+                    ->label("Poste occupé")
                     ->searchable()
-                    ->sortable()
-                    ->label(strval(__('filament-authentication::filament-authentication.field.user.email'))),
+                    ->sortable(),
+                // TextColumn::make('email')
+                //     ->searchable()
+                //     ->sortable()
+                //     ->label(strval(__('filament-authentication::filament-authentication.field.user.email'))),
 
-                SelectColumn::make('state')
-                    ->label('Etat')
-                    ->disablePlaceholderSelection()
-                    ->options([
-                        StatesClass::Activated()->value,
-                        StatesClass::Suspended()->value,
-                        StatesClass::Deactivated()->value,
-                    ]),
+                // SelectColumn::make('state')
+                //     ->label('Etat')
+                //     ->disablePlaceholderSelection()
+                //     ->options([
+                //         StatesClass::Activated()->value,
+                //         StatesClass::Suspended()->value,
+                //         StatesClass::Deactivated()->value,
+                //     ]),
 
-                IconColumn::make('notification')
-                    ->trueIcon('heroicon-o-badge-check')
-                    ->falseIcon('heroicon-o-x-circle')
-                    ->label('Notifications')
-                    ->alignment('center'),
+                // IconColumn::make('notification')
+                //     ->trueIcon('heroicon-o-badge-check')
+                //     ->falseIcon('heroicon-o-x-circle')
+                //     ->label('Notifications')
+                //     ->alignment('center'),
 
                 TagsColumn::make('roles.name')
                     ->label(strval(__('filament-authentication::filament-authentication.field.user.roles'))),

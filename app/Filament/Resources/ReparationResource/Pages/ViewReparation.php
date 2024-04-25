@@ -37,10 +37,13 @@ class ViewReparation extends ViewRecord
                 Actions\Action::make('tranfert')
                     ->label('Transférer vers la DIGA')
                     ->icon('heroicon-o-arrow-circle-right')
+                    ->requiresConfirmation()
                     ->visible(function () {
 
                         if ($this->record) {
                             if (
+
+                                //if in  any diga circuit
                                 in_array($this->record->circuit_id, [
                                     Circuit::where('name', CircuitsEnums::circuit_de_division_diga_dir()->value)->first()->id,
                                     Circuit::where('name', CircuitsEnums::circuit_de_division_diga_dg()->value)->first()->id,
@@ -48,7 +51,6 @@ class ViewReparation extends ViewRecord
                                     Circuit::where('name', CircuitsEnums::circuit_de_direction_diga_dg()->value)->first()->id,
                                     Circuit::where('name', CircuitsEnums::circuit_de_la_direction_generale_diga()->value)->first()->id,
                                     Circuit::where('name', CircuitsEnums::circuit_particulier_diga()->value)->first()->id,
-
                                 ])
                             ) {
                                 return false;
@@ -96,10 +98,10 @@ class ViewReparation extends ViewRecord
                                             $userCentresIds[] = $userCentre->departement_code_centre;
                                         }
 
-                                        if ($user->hasRole(RolesEnum::Directeur_general()->value)) {
+                                        if ($user->hasAnyRole([RolesEnum::Directeur_general()->value,  RolesEnum::Interimaire_DG()->value]) ) {
                                             return true;
 
-                                        } elseif ($user->hasRole(Role::where('id', $indice)->value('id')) && (in_array(intval($concernedEngine->departement_id), $userCentresIds))) {
+                                        } elseif (($user->hasRole(Role::where('id', $indice)->value('id')) ||  $user->hasRole(RolesEnum::Interimaire_Directeur()->value)) && (in_array(intval($concernedEngine->departement_id), $userCentresIds))) {
 
                                             return true;
 
@@ -147,7 +149,7 @@ class ViewReparation extends ViewRecord
                                     'validation_state' => $digaRoleID,
 
                                 ]);
-                            } elseif ($this->record->circuit_id == Circuit::where('name', Circuit::where('name', CircuitsEnums::circuit_de_division()->value))->first()->id) {
+                            } elseif ($this->record->circuit_id == Circuit::where('name', Circuit::where('name', CircuitsEnums::circuit_de_division()->value)->first()->name)->first()->id) {
 
                                 //get diga version of the circuit
                                 $circuit = Circuit::where('name', CircuitsEnums::circuit_de_division_diga_dir()->value)->value('steps');
@@ -273,7 +275,8 @@ class ViewReparation extends ViewRecord
                             ->title('Transmission de demande')
                             ->icon('heroicon-o-information-circle')
                             ->iconColor('danger')
-                            ->body('Votre demande a été transmise à la DIGA');
+                            ->body('Votre demande a été transmise à la DIGA')
+                            ->send();
 
                     })
                 // ->visible(function ($record) {
@@ -338,6 +341,7 @@ class ViewReparation extends ViewRecord
 
                 Actions\Action::make('Valider')
                     ->color('success')
+                    ->requiresConfirmation()
                     ->visible(function ($record) {
 
                         if ($this->record->validation_state == ReparationValidationStates::Rejete()->value) {
@@ -368,6 +372,7 @@ class ViewReparation extends ViewRecord
                                     $userCentresIds[] = $userCentre->departement_code_centre;
                                 }
 
+
                                 if (
                                     in_array($requiredRole, [
                                         Role::where('name', RolesEnum::Chef_parc()->value)->first(),
@@ -376,10 +381,52 @@ class ViewReparation extends ViewRecord
                                         Role::where('name', RolesEnum::Budget()->value)->first(),
                                         Role::where('name', RolesEnum::Dpl()->value)->first(),
 
-                                    ]) && $user->hasRole(Role::where('id', $indice)->value('id'))
+                                    ])
                                 ) {   // if require role is in list (array) and user has the role
+                                     
+                                    if($requiredRole == Role::where('name', RolesEnum::Directeur_general()->value)->first() )
+                                    {
+                                      
+                                        if (($user->hasRole(RolesEnum::Directeur_general()->value)) || ($user->hasRole(RolesEnum::Interimaire_DG()->value))){
+                                            return true;
+                                        }
 
+                                    } 
+
+                                    elseif($requiredRole == Role::where('name', RolesEnum::Directeur()->value)->first())
+                                    {
+                                      
+                                        if ($user->hasRole(RolesEnum::Directeur()->value && (in_array(intval($concernedEngine->departement_id), $userCentresIds)) || $user->hasRole(RolesEnum::Interimaire_Directeur()->value ))){
+                                            return true;
+                                        }
+
+                                    } 
+
+                                    elseif($requiredRole == Role::where('name', RolesEnum::Chef_division()->value)->first() )
+                                    {
+                                    
+                                        if ($user->hasRole(RolesEnum::Chef_division()->value   && (in_array(intval($concernedEngine->departement_id), $userCentresIds))|| $user->hasRole(RolesEnum::Interimaire_Chef_division()->value))){
+                                            return true;
+                                        }
+
+                                    } 
+
+                                    elseif($requiredRole == Role::where('name', RolesEnum::Chef_parc()->value)->first() )
+                                    {
+                                    
+                                        if (($user->hasRole(RolesEnum::Chef_parc()->value) || ($user->hasRole(RolesEnum::Interimaire_Chef_parc()->value)))){
+                                            return true;
+                                        }
+
+                                    } 
+ 
+                                   elseif($user->hasRole(Role::where('id', $indice)->value('id')))   
+                                   {
                                     return true;
+                                   }
+                                   
+
+                                  
                                 } elseif ($user->hasRole(Role::where('id', $indice)->value('id')) && (in_array(intval($concernedEngine->departement_id), $userCentresIds))) {
                                     return true;
                                 } else {
@@ -592,7 +639,7 @@ class ViewReparation extends ViewRecord
                     }),
 
                 Actions\Action::make('Rejeter')
-                    ->label('Rejeter')
+                    ->label('Rejeter') 
                     ->color('danger')
                     ->icon('heroicon-o-x')
                     ->form([
@@ -614,9 +661,7 @@ class ViewReparation extends ViewRecord
                         if ($this->record->validation_state == ReparationValidationStates::Rejete()->value) {
 
                             return false;
-                        } elseif ($this->record->validation_state != 'nextValue') { //if reparation is not finished
-
-                            $user = auth()->user();
+                        } else {
 
                             $circuit = Circuit::where('id', $this->record->circuit_id)->value('steps');
 
@@ -627,51 +672,84 @@ class ViewReparation extends ViewRecord
 
                             $concernedEngine = Engine::where('id', $this->record->engine_id)->first();
 
-                            $requiredRole = Role::find($this->record->validation_state)->name;
+                            $user = auth()->user();
 
-                            $userCentresCollection = DepartementUser::where('user_id', auth()->user()->id)->get();
+                            if (array_key_exists($this->record->validation_step, $roleIds)) {    // ensure array key is not off limits
 
-                            foreach ($userCentresCollection as $userCentre) {
-                                $userCentresIds[] = $userCentre->departement_code_centre;
-                            }
+                                $indice = $roleIds[$this->record->validation_step];
 
-                            if (
-                                $user->hasAnyRole([
-                                    RolesEnum::Chef_division()->value,
-                                    RolesEnum::Chef_parc()->value,
-                                    RolesEnum::Diga()->value,
-                                    RolesEnum::Directeur()->value,
-                                    RolesEnum::Directeur_general()->value,
-                                    RolesEnum::Budget()->value,
-                                    RolesEnum::Dpl()->value,
-                                ]) && (in_array($requiredRole, $user->getRoleNames()->toArray())) // if required role is within  user's roles
-                            ) {
+                                $requiredRole = Role::where('id', $indice)->first();
+
+                                $userCentresCollection = DepartementUser::where('user_id', auth()->user()->id)->get();
+
+                                foreach ($userCentresCollection as $userCentre) {
+                                    $userCentresIds[] = $userCentre->departement_code_centre;
+                                }
+
 
                                 if (
-                                    in_array($requiredRole, [    //roles that don't require being of same department before seeing reject button
-                                        RolesEnum::Chef_parc()->value,
-                                        RolesEnum::Directeur_general()->value,
-                                        RolesEnum::Diga()->value,
-                                        RolesEnum::Budget()->value,
-                                    ])
-                                ) {
-                                    return true;
-                                } elseif (
                                     in_array($requiredRole, [
-                                        RolesEnum::Directeur()->value,
-                                        RolesEnum::Chef_division()->value,
-                                    ]) && (in_array(intval($concernedEngine->departement_id), $userCentresIds))
-                                ) {
+                                        Role::where('name', RolesEnum::Chef_parc()->value)->first(),
+                                        Role::where('name', RolesEnum::Directeur_general()->value)->first(),
+                                        Role::where('name', RolesEnum::Diga()->value)->first(),
+                                        Role::where('name', RolesEnum::Budget()->value)->first(),
+                                        Role::where('name', RolesEnum::Dpl()->value)->first(),
+
+                                    ])
+                                ) {   // if require role is in list (array) and user has the role
+                                     
+                                    if($requiredRole == Role::where('name', RolesEnum::Directeur_general()->value)->first() )
+                                    {
+                                      
+                                        if (($user->hasRole(RolesEnum::Directeur_general()->value)) || ($user->hasRole(RolesEnum::Interimaire_DG()->value))){
+                                            return true;
+                                        }
+
+                                    } 
+
+                                    elseif($requiredRole == Role::where('name', RolesEnum::Directeur()->value)->first())
+                                    {
+                                      
+                                        if ($user->hasRole(RolesEnum::Directeur()->value && (in_array(intval($concernedEngine->departement_id), $userCentresIds)) || $user->hasRole(RolesEnum::Interimaire_Directeur()->value ))){
+                                            return true;
+                                        }
+
+                                    } 
+
+                                    elseif($requiredRole == Role::where('name', RolesEnum::Chef_division()->value)->first() )
+                                    {
+                                    
+                                        if ($user->hasRole(RolesEnum::Chef_division()->value   && (in_array(intval($concernedEngine->departement_id), $userCentresIds))|| $user->hasRole(RolesEnum::Interimaire_Chef_division()->value))){
+                                            return true;
+                                        }
+
+                                    } 
+
+                                    elseif($requiredRole == Role::where('name', RolesEnum::Chef_parc()->value)->first() )
+                                    {
+                                    
+                                        if (($user->hasRole(RolesEnum::Chef_parc()->value) || ($user->hasRole(RolesEnum::Interimaire_Chef_parc()->value)))){
+                                            return true;
+                                        }
+
+                                    } 
+ 
+                                   elseif($user->hasRole(Role::where('id', $indice)->value('id')))   
+                                   {
+                                    return true;
+                                   }
+                                   
+
+                                  
+                                } elseif ($user->hasRole(Role::where('id', $indice)->value('id')) && (in_array(intval($concernedEngine->departement_id), $userCentresIds))) {
                                     return true;
                                 } else {
                                     return false;
                                 }
+
                             } else {
                                 return false;
                             }
-
-                        } else {
-                            return false;
                         }
 
                     })

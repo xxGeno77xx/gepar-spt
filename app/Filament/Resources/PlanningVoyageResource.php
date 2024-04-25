@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use Exception;
 use App\Models\Pays;
 use Filament\Tables;
 use App\Models\Chauffeur;
@@ -10,6 +11,7 @@ use Filament\Resources\Form;
 use Filament\Resources\Table;
 use App\Models\PlanningVoyage;
 use Filament\Resources\Resource;
+use App\Support\Database\RolesEnum;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Actions\Action;
@@ -17,9 +19,11 @@ use App\Support\Database\StatesClass;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Repeater;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Forms\Components\DatePicker;
 use App\Support\Database\PermissionsClass;
+use Database\Seeders\RolesPermissionsSeeder;
 use App\Filament\Resources\PlanningVoyageResource\Pages;
 
 class PlanningVoyageResource extends Resource
@@ -67,7 +71,17 @@ class PlanningVoyageResource extends Resource
                                                             ->where('chauffeurs.id', $get('chauffeur'))
                                                             ->first();
 
-                                                        $set('affectation', $result->code_centre);
+                                                            try{
+                                                                $set('affectation', $result->code_centre);
+                                                            }catch(Exception $e){
+                                                                Notification::make()
+                                                                ->title('Ce chauffeur n\'a pas encore d\'engin affecté!!!')
+                                                                ->danger()
+                                                                ->persistent()
+                                                                ->send();
+                                                            }
+
+                                                        
                                                     }),
 
                                                 Select::make('affectation')
@@ -152,11 +166,11 @@ class PlanningVoyageResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()->hasAnyPermission([
+        return auth()->user()->hasAnyRole([
 
-            PermissionsClass::Planning_read()->value,
-            PermissionsClass::Planning_update()->value,
-            PermissionsClass::Planning_create()->value,
+       RolesEnum::Chef_parc()->value,
+       RolesEnum::Dpl()->value,
+        RolesPermissionsSeeder::SuperAdmin
 
         ]);
     }

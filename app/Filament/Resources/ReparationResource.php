@@ -110,6 +110,7 @@ class ReparationResource extends Resource
                                                         RolesEnum::Diga()->value,
                                                         RolesEnum::Dpl()->value,
                                                         RolesEnum::Budget()->value,
+                                                        RolesEnum::Interimaire_DG()->value,
                                                     ])
                                                 ) {
                                                     return Engine::pluck('plate_number', 'id');
@@ -124,7 +125,11 @@ class ReparationResource extends Resource
                                                     ])
 
                                                 ) {
-                                                    return Engine::where('engines.departement_id', $loggedUser->departement_id)->pluck('plate_number', 'id');
+
+                                                    $userCentresCollection = DepartementUser::where('user_id', auth()->user()->id)->pluck("departement_code_centre")->toArray();
+    
+
+                                                    return Engine::whereIn('engines.departement_id', $userCentresCollection)->pluck('plate_number', 'id');
                                                 }
                                             } else {
 
@@ -138,6 +143,7 @@ class ReparationResource extends Resource
                                                         RolesEnum::Delegue_Division()->value,
                                                     ])
                                                 ) {
+                                                    
 
                                                     return Engine::where('engines.departement_id', $loggedUser->departement_id)->pluck('plate_number', 'id');
 
@@ -228,7 +234,10 @@ class ReparationResource extends Resource
                                     }),
 
                                 DatePicker::make('date_lancement')
-                                    ->label("Date d'envoi en réparation")
+                                    ->label("Date de la demande")
+                                    ->default(today())
+                                    ->disabled()
+                                    ->dehydrated(true)
                                     ->required(),
 
                                 DatePicker::make('date_fin')
@@ -1358,7 +1367,7 @@ class ReparationResource extends Resource
                         }),
 
                     RichEditor::make('avis_dg')
-                        ->label('Avis de la DIGA')
+                        ->label('Avis du Directeur Général / Intérimaire')
                         ->disableAllToolbarButtons()
                         ->placeholder('Observations du Directeur général')
                         ->visible(function ($record) {
@@ -1384,10 +1393,11 @@ class ReparationResource extends Resource
 
                                 $secondSlicedArray = array_slice($roleIds, $secondOccurenceOfRoleInOriginalRolesArray + 1);
 
-                                $thirdOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $secondSlicedArray)) + $secondOccurenceOfRoleInOriginalRolesArray + 1;
+                                $thirdOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $secondSlicedArray)) + $secondOccurenceOfRoleInOriginalRolesArray ;
 
                                 $arrayDivided = array_chunk($roleIds, $thirdOccurenceOfRoleInOriginalRolesArray , true); //  cut form second match of dg role
                 
+                         
                                 $ArrayToUse = array_flip($arrayDivided[1]); 
 
                                 if (in_array($record->validation_step,  $ArrayToUse) || $record->validation_step == 100) {
@@ -1401,46 +1411,53 @@ class ReparationResource extends Resource
                             }
 
                         })
-                        ->required(function ($record) {
-
-                            if ($record) {
-
-                                $user = auth()->user();
-
-                                $circuit = Circuit::where('id', $record->circuit_id)->value('steps');
-
-                                foreach ($circuit as $key => $item) {
-
-                                    $roleIds[] = $item['role_id'];
-                                }
-
-                                $searchedRoleId = (Role::where('name', RolesEnum::Directeur_general()->value)->first())->id;
-
-                                $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
-                
-                                $slicedArray = array_slice($roleIds, $firstOccurenceOfRole + 1);
-
-                                $secondOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $slicedArray)) + $firstOccurenceOfRole + 1;
-
-                                $secondSlicedArray = array_slice($roleIds, $secondOccurenceOfRoleInOriginalRolesArray + 1);
-
-                                $thirdOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $secondSlicedArray)) + $secondOccurenceOfRoleInOriginalRolesArray + 1;
-
-                                $arrayDivided = array_chunk($roleIds, $thirdOccurenceOfRoleInOriginalRolesArray , true); //  cut form second match of dg role
-                
-                                $ArrayToUse = array_flip($arrayDivided[1]); 
-
-                                if (in_array($record->validation_step,  $ArrayToUse)) {
-
-                                    return true;
-
-                                } else {
-
-                                    return false;
-                                }
+                        ->disabled(function(){
+                            if(auth()->user()->hasAnyRole([RolesEnum::Interimaire_DG()->value, RolesEnum::Directeur_general()->value ]))
+                            {
+                                return false;
                             }
-
+                            return true;
                         })
+                        // ->required(function ($record) {
+
+                        //     if ($record) {
+
+                        //         $user = auth()->user();
+
+                        //         $circuit = Circuit::where('id', $record->circuit_id)->value('steps');
+
+                        //         foreach ($circuit as $key => $item) {
+
+                        //             $roleIds[] = $item['role_id'];
+                        //         }
+
+                        //         $searchedRoleId = (Role::where('name', RolesEnum::Directeur_general()->value)->first())->id;
+
+                        //         $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
+                
+                        //         $slicedArray = array_slice($roleIds, $firstOccurenceOfRole + 1);
+
+                        //         $secondOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $slicedArray)) + $firstOccurenceOfRole + 1;
+
+                        //         $secondSlicedArray = array_slice($roleIds, $secondOccurenceOfRoleInOriginalRolesArray + 1);
+
+                        //         $thirdOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $secondSlicedArray)) + $secondOccurenceOfRoleInOriginalRolesArray + 1;
+
+                        //         $arrayDivided = array_chunk($roleIds, $thirdOccurenceOfRoleInOriginalRolesArray , true); //  cut form second match of dg role
+                
+                        //         $ArrayToUse = array_flip($arrayDivided[1]); 
+
+                        //         if (in_array($record->validation_step,  $ArrayToUse)) {
+
+                        //             return true;
+
+                        //         } else {
+
+                        //             return false;
+                        //         }
+                        //     }
+
+                        // })
                 ]),
 
                 RichEditor::make('details')

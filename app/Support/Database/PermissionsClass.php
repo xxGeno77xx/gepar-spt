@@ -102,6 +102,13 @@ use Spatie\Enum\Enum;
  * @method static self Planning_create()
  * @method static self Planning_read()
  * @method static self Planning_update()
+ * // =================================================
+ * 
+ * ORDRE_MISSION
+ * @method static Ordre_create()
+ * @method static Ordre_read()
+ * @method static Ordre_update()
+ * 
  */
 class PermissionsClass extends Enum
 {

@@ -57,9 +57,9 @@
         }
 
         .centered-div {
-            width: 75%;
+            width: 100%;
             /* Changer la largeur selon vos besoins */
-            margin: 0 auto;
+            text-align: center;
             /* La marge automatique sur les côtés horizontaux centre l'élément */
             /* padding-left: 2.2cm; */
             /* Exemple de remplissage intérieur */
@@ -97,6 +97,7 @@
                 <div class="centered-div">
                     <h1 style="font-weight: bold; font-family: Bookman Old Style;"><u>ORDRE DE ROUTE N° </u></h1>
                 </div>
+          
                 <br> 
                 <br> 
                 <br> 
@@ -110,7 +111,7 @@
                 <br> 
                 <br> 
                 <div class="bottom-right">
-                    <p style="marhin-right 80cm">A.............., {{Carbon::parse( $order->date_debut)->translatedFormat('d F Y') }}</p>
+                    <p style="marhin-right 80cm">A......................, {{Carbon::parse( $order->date_debut)->translatedFormat('d F Y') }}</p>
                 </div>
                 <br>
                 <br>

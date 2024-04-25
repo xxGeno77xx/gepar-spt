@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Database\Seeders\DummySeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -27,7 +28,9 @@ class DatabaseSeeder extends Seeder
 
         // $this->call(PrestataireSeeder::class);
         $this->call(CircuitsSeeder::class);
-        $this->call(ConsommationSeeder::class);
+        // $this->call(ConsommationSeeder::class);
+        // $this->call(DirecteursSeeder::class);
+        // $this->call(DummySeeder::class);
 
     }
 }

@@ -45,7 +45,7 @@ class CommonInfos
         } else {
             return Placeholder::make('created_at')
                 ->label('Ajouté le:')
-                ->content(fn ($record): ?string => $record->created_at->format('d-m-Y H:i:s'));
+                ->content(fn ($record): ?string => $record?->created_at->format('d-m-Y H:i:s'));
         }
 
     }

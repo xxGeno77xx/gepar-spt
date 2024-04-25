@@ -83,13 +83,12 @@ class TypeResource extends Resource
 
     public static function canViewAny(): bool
     {
-        // return auth()->user()->hasAnyPermission([
-        //     PermissionsClass::departements_read()->value,
-        //     PermissionsClass::departements_update()->value,
-        // ]);
-
-        return auth()->user()->hasRole([
-            RolesPermissionsSeeder::SuperAdmin,
+        return auth()->user()->hasAnyPermission([
+            PermissionsClass::Types_create()->value,
+            PermissionsClass::Types_read()->value,
+            PermissionsClass::Types_update()->value,
         ]);
+
+    
     }
 }

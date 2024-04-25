@@ -48,18 +48,18 @@ class CarburantResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
 
-                Action::make('Supprimer')
-                    ->color('danger')
-                    ->action(function (?Carburant $record) {
-                        $record->update(['state' => StatesClass::Deactivated()->value]);
-                        redirect('/carburants');
-                        Notification::make()
-                            ->title('Supprimé(e)')
-                            ->success()
-                            ->persistent()
-                            ->send();
-                    })
-                    ->requiresConfirmation(),
+                // Action::make('Supprimer')
+                //     ->color('danger')
+                //     ->action(function (?Carburant $record) {
+                //         $record->update(['state' => StatesClass::Deactivated()->value]);
+                //         redirect('/carburants');
+                //         Notification::make()
+                //             ->title('Supprimé(e)')
+                //             ->success()
+                //             ->persistent()
+                //             ->send();
+                //     })
+                //     ->requiresConfirmation(),
                 // Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([

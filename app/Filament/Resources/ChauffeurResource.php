@@ -2,25 +2,26 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ChauffeurResource\Pages;
-use App\Filament\Resources\ChauffeurResource\RelationManagers\OrdreDeMissionsRelationManager;
-use App\Models\Chauffeur;
+use Filament\Tables;
 use App\Models\Engine;
-use App\Support\Database\ChauffeursStatesClass;
-use App\Support\Database\PermissionsClass;
-use App\Support\Database\StatesClass;
+use App\Models\Chauffeur;
+use Filament\Resources\Form;
+use Filament\Resources\Table;
+use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Placeholder;
+use App\Support\Database\StatesClass;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Resources\Form;
-use Filament\Resources\Resource;
-use Filament\Resources\Table;
-use Filament\Tables;
-use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\BadgeColumn;
 use Illuminate\Database\Eloquent\Builder;
+use App\Support\Database\PermissionsClass;
+use Filament\Forms\Components\Placeholder;
+use App\Support\Database\ChauffeursStatesClass;
+use App\Filament\Resources\ChauffeurResource\Pages;
+use App\Filament\Resources\ChauffeurResource\RelationManagers\OrdreDeMissionsRelationManager;
 
 class ChauffeurResource extends Resource
 {
@@ -56,26 +57,30 @@ class ChauffeurResource extends Resource
                                             //check engines that are already linked to chauffeurs
 
                                             $linkedChauffeurs = Chauffeur::whereNotNull('engine_id')->get();
+                                            if(! empty($linkedChauffeurs))
+                                            {
+                                                $linkedEnginesIds = array();
+                                                foreach ($linkedChauffeurs as $chauffeur) {
 
-                                            foreach ($linkedChauffeurs as $chauffeur) {
-
-                                                $linkedEnginesIds[] = $chauffeur->engine_id;
+                                                    $linkedEnginesIds[] = $chauffeur->engine_id;
+                                                }
+    
+                                                if ($record) {
+    
+                                                    return Engine::where(function (Builder $query) use ($record, $linkedEnginesIds) {
+                                                        return $query->whereNotIn('id', $linkedEnginesIds)
+                                                            ->orWhere('id', $record->engine_id);
+    
+                                                    })->get()->pluck('plate_number', 'id');
+    
+                                                } else {
+    
+                                                    return Engine::whereNotIn('id', $linkedEnginesIds)
+                                                        ->where('state', StatesClass::Activated()->value)
+                                                        ->pluck('plate_number', 'id');
+                                                }
                                             }
-
-                                            if ($record) {
-
-                                                return Engine::where(function (Builder $query) use ($record, $linkedEnginesIds) {
-                                                    return $query->whereNotIn('id', $linkedEnginesIds)
-                                                        ->orWhere('id', $record->engine_id);
-
-                                                })->get()->pluck('plate_number', 'id');
-
-                                            } else {
-
-                                                return Engine::whereNotIn('id', $linkedEnginesIds)
-                                                    ->where('state', StatesClass::Activated()->value)
-                                                    ->pluck('plate_number', 'id');
-                                            }
+                                           
                                         }
                                     )
                                     ->searchable(),
@@ -95,6 +100,8 @@ class ChauffeurResource extends Resource
                     ])
                     ->columnSpan(['lg' => 1])
                     ->hidden(fn (?Chauffeur $record) => $record === null),
+
+                    Hidden::make("mission_state")->default(ChauffeursStatesClass::Disponible()->value)
             ]);
     }
 

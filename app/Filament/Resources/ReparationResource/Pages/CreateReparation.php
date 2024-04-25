@@ -37,6 +37,8 @@ class CreateReparation extends CreateRecord
         abort_unless(($user->hasAnyRole([
             RolesPermissionsSeeder::SuperAdmin,
             RolesEnum::Chef_division()->value,
+            RolesEnum::Chef_parc()->value,
+            RolesEnum::Dpl()->value,
             RolesEnum::Delegue_Division()->value,
             RolesEnum::Directeur()->value,
             RolesEnum::Delegue_Direction()->value,
@@ -168,21 +170,21 @@ class CreateReparation extends CreateRecord
         $dirGeneDivisions = [
             Departement::where('sigle_centre', 'CI')->first()->code_centre,
             Departement::where('sigle_centre', 'DSC')->first()->code_centre,
-            Departement::where('sigle_centre', 'DSC')->first()->code_centre,
+            // Departement::where('sigle_centre', 'DFC')->first()->code_centre,  conformité
         ];
 
-        if ((auth()->user()->hasRole(RolesEnum::Chef_Division()->value)) && (array_intersect($userCentresIds, $dirGeneDivisions))) {
+        if ((auth()->user()->hasAnyRole([RolesEnum::Chef_Division()->value, RolesEnum::Delegue_Division()->value])) && (array_intersect($userCentresIds, $dirGeneDivisions))) {
 
             $data['circuit_id'] = 4; // circuit particulier
 
-        } elseif (auth()->user()->hasRole(RolesEnum::Directeur_general()->value)) {
+        } elseif (auth()->user()->hasAnyRole([RolesEnum::Directeur_general()->value, RolesEnum::Delegue_Direction_Generale()->value])) {
 
             $data['circuit_id'] = 3; // circuit de  Direction Générale
-        } elseif (auth()->user()->hasRole(RolesEnum::Directeur()->value)) {
+        } elseif (auth()->user()->hasAnyRole([RolesEnum::Directeur()->value, RolesEnum::Delegue_Direction()->value])) {
 
             $data['circuit_id'] = 2; // circuit de Direction
 
-        } elseif (auth()->user()->hasRole(RolesEnum::Chef_Division()->value)) {
+        } elseif (auth()->user()->hasAnyRole([RolesEnum::Chef_Division()->value, RolesEnum::Delegue_Division()->value])) {
 
             $data['circuit_id'] = 1; // circuit de Division
         }

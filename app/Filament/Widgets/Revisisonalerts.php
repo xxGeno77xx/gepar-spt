@@ -13,6 +13,10 @@ class Revisisonalerts extends BaseWidget
 {
     protected static ?string $heading = 'Alertes révision';
 
+    public static function canView(): bool
+    {
+        return false;
+    }
     protected static ?int $sort = 4;
 
     protected function getTableQuery(): Builder

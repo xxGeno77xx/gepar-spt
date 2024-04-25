@@ -55,19 +55,19 @@ class TypeReparationResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 // Tables\Actions\DeleteAction::make(),
-                Tables\Actions\Action::make('Supprimer')
-                    ->action(function (?TypeReparation $record) {
-                        $record->update(['state' => StatesClass::Deactivated()->value]);
-                        redirect('/type-reparations');
-                        Notification::make()
-                            ->title('Supprimé(e)')
-                            ->success()
-                            ->persistent()
-                            ->send();
-                    })
-                    ->icon('heroicon-o-x')
-                    ->color('danger')
-                    ->requiresConfirmation(),
+                // Tables\Actions\Action::make('Supprimer')
+                //     ->action(function (?TypeReparation $record) {
+                //         $record->update(['state' => StatesClass::Deactivated()->value]);
+                //         redirect('/type-reparations');
+                //         Notification::make()
+                //             ->title('Supprimé(e)')
+                //             ->success()
+                //             ->persistent()
+                //             ->send();
+                //     })
+                //     ->icon('heroicon-o-x')
+                //     ->color('danger')
+                //     ->requiresConfirmation(),
             ])
             ->bulkActions([
                 // Tables\Actions\DeleteBulkAction::make(),
@@ -84,9 +84,8 @@ class TypeReparationResource extends Resource
     public static function canViewAny(): bool
     {
         return auth()->user()->hasAnyPermission([
-            PermissionsClass::TypesCarburant_create()->value,
-            PermissionsClass::TypesCarburant_read()->value,
-            PermissionsClass::TypesCarburant_update()->value,
+
+            PermissionsClass::TypesReparations_manage()->value,
         ]);
     }
 }

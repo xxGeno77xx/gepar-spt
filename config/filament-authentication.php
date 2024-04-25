@@ -25,7 +25,7 @@ return [
     ],
     'preload_roles' => true,
     'impersonate' => [
-        'enabled' => false,
+        'enabled' => true,
         'guard' => 'web',
         'redirect' => '/',
     ],

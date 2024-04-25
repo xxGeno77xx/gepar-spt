@@ -56,6 +56,10 @@ return new class extends Migration
 
             $table->string('motif_rejet')->nullable();
 
+            $table->string('avis_dg')->nullable();
+
+            $table->string('avis_diga')->nullable();
+
             $table->unsignedBigInteger('rejete_par')->nullable();
 
             $table->string('ref_proforma')->nullable();

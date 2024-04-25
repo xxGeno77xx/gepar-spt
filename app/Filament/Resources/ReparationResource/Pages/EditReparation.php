@@ -51,10 +51,13 @@ class EditReparation extends EditRecord
             elseif ($this->record->validation_state == "nextValue" || $this->record->validation_step == 100)  // if reparation is finished
             {
                 abort(403, "Vous ne pouvez plus modifier une réparation déjà achevée");
-            } elseif (($this->record->validation_step != 0)) // if is not in starting step
+            } 
+ 
+            
+            elseif (($this->record->validation_step != 0)) // if is not in starting step
+
             {
-
-
+               
                 $chefParcRoleId = (Role::where("name", RolesEnum::Directeur_general()->value)->first())->id;
 
                 $firstOccurenceOfRole = array_search($chefParcRoleId, $roleIds); // first array key where role occurs
@@ -63,12 +66,16 @@ class EditReparation extends EditRecord
 
                 $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole + 1);
 
+                
 
                 abort_unless(
                     $user->hasAnyRole([
                         RolesEnum::Chef_parc()->value,
                         RolesEnum::Dpl()->value,
                         RolesEnum::Budget()->value,
+                        RolesEnum::Directeur_general()->value,
+                        RolesEnum::Interimaire_DG()->value,
+                        RolesEnum::Diga()->value,
                     ]) && (in_array($this->record->validation_step, $indicesDesired)),
                     403,
                     "Vous n'avez pas les permissions pour modifier une demande en cours de validation"

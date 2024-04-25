@@ -15,7 +15,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ordre N° {{ $order->numero_ordre }}</title>
+    <title>Ordre-de-route N° {{ $order->numero_ordre }}</title>
     {{-- <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css"> --}}
 
     <style>
@@ -57,9 +57,10 @@
         }
 
         .centered-div {
-            width: 50%;
+            width: 100%;
             /* Changer la largeur selon vos besoins */
-            margin: 0 auto;
+            margin:  auto;
+            text-align: center;
             /* La marge automatique sur les côtés horizontaux centre l'élément */
             /* padding-left: 2.2cm; */
             /* Exemple de remplissage intérieur */
@@ -78,6 +79,10 @@
         .async {
             display: flex;
         }
+
+        .flexed {
+            display: flex
+        }
     </style>
 
 </head>
@@ -87,66 +92,62 @@
         <div class="top-content">
             <div class="main">
                 <p class="left-hand-heading">
-                    NA/KAMK
                 </p>
                 <span style="font-weight: bold; font-style: italic;">
-                    N° <u> 000{{ $order->numero_ordre }}</u> /SPT/DG/DRHP/DPAS
                 </span>
                 <div class="centered-div">
-                    <h1 style="font-weight: bold; font-family: Bookman Old Style;"><u>ORDRE DE MISSION</u></h1>
+                    <h1 style="font-weight: bold; font-family: Bookman Old Style;"><u>ORDRE DE ROUTE N°</u></h1>
                 </div>
-                <p style="font-family: Bookman Old Style;">Il est ordonné à Messieurs:</p>
-                <ul style="list-style-type:none;">
+                <br> 
+                <br> 
+                <br> 
+                <p style="font-family: Bookman Old Style;">Il est ordonné à Messieurs
                     @foreach ($agents as $key => $agent)
-                        <li style="margin-bottom: 15px;">-{{ $agent['Nom'] }}, {{ $agent['Désignation'] }}</li>
+                        {{ $agent['Nom'] }},
                     @endforeach
-
-                </ul>
-
-                <p>de se rendre en mission à l'intérieur du pays.</p>
-
+                    de se rendre de Lomé à XXXX pour {{ $order->objet_mission }}.
+                </p>
+                <br> 
+                <br> 
+                <br> 
+                <div class="bottom-right">
+                    <p style="marhin-right 80cm">A......................, {{Carbon::parse( $order->date_debut)->translatedFormat('d F Y') }}</p>
+                </div>
                 <br>
-                <div>
-                    <div style="display: inline-block; width: 34%;   vertical-align: top;">
-                        <u style="font-weight: bold; margin-right: 65px; ">Objet de la mission</u>:
+                <br>
+                <br>
+                <br> 
+                <br> 
+                <br> 
+                <div style="overflow: auto;">
+                    <div
+                        style="width: 50%; float: left; padding: 20px; box-sizing: border-box;">
+                        Vu au départ de ..............., le................................
                     </div>
-                    <div style="display: inline-block; width: 60%; vertical-align: top;">
-                        {{ $order->objet_mission }}
+                    <div
+                        style="width: 50%; float: left; padding: 20px; box-sizing: border-box;">
+                        Vu au départ de ..............., le................................
                     </div>
                 </div>
-
-                <p>
-                    <span>
-                        <u style="font-weight: bold; font-style:italic; margin-right: 104px">Date de départ</u>:
-                        {{ Carbon::parse($order->date_de_depart)->translatedFormat('d F Y') }}
-                    </span>
-                </p>
-                <p>
-                    <span>
-                        <u style="font-weight: bold; font-style:italic; margin-right: 107px ">Date de retour</u>:
-                        {{ Carbon::parse($order->date_de_retour)->translatedFormat('d F Y') }}
-                    </span>
-                </p>
-                <p>
-                    <span>
-                        <u style="font-weight: bold; font-style:italic; margin-right: 60px ">Moyen de transport </u>:
-                        Véhicule {{ $moyenTransport }}
-                    </span>
-                </p>
-            </div>
-
-            <div class="bottom-right">
-                <p style="marhin-right 80cm">Lomé, {{ today()->translatedFormat('d F Y') }}</p>
-                <p>Le Directeur Général de la <br>Société des Postes du Togo</p>
-                <br>
-                <br>
-                <p style="font-weight: bold;"><u>Kwadzo Dzodzro KWASI</u></p>
+                <br> 
+                <br>&nbsp;
+                <br> 
+                <br> 
+                <br> 
+                <br> 
+                <br> 
+                <div style="overflow: auto;">
+                    <div
+                        style="width: 50%; float: left; padding: 20px; box-sizing: border-box;">
+                        Vu à l'arrivée à ..............., le................................
+                    </div>
+                    <div
+                        style="width: 50%; float: left; padding: 20px; box-sizing: border-box;">
+                        Vu à l'arrivée à ..............., le................................
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-
-
-
 </body>
 
 </html>

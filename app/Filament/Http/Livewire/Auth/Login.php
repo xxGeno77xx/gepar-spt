@@ -3,19 +3,30 @@
 namespace App\Filament\Http\Livewire\Auth;
 
 use App\Models\User;
-use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
-use DanHarrin\LivewireRateLimiting\WithRateLimiting;
-use Filament\Facades\Filament;
-use Filament\Forms\ComponentContainer;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Contracts\HasForms;
-use Filament\Http\Responses\Auth\Contracts\LoginResponse;
-use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
+use App\Models\DbaUser;
 use Livewire\Component;
+use App\Models\Departement;
+use Illuminate\Support\Str;
+use Filament\Facades\Filament;
+use App\Models\DepartementUser;
+use App\Support\Database\RolesEnum;
+use Filament\Forms\Components\Grid;
+use Illuminate\Contracts\View\View;
+use Filament\Forms\Components\Radio;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use App\Support\Database\StatesClass;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
+use Filament\Forms\ComponentContainer;
+use Filament\Forms\Contracts\HasForms;
+use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\TextInput;
+use Illuminate\Validation\ValidationException;
+use Filament\Forms\Concerns\InteractsWithForms;
+use DanHarrin\LivewireRateLimiting\WithRateLimiting;
+use Filament\Http\Responses\Auth\Contracts\LoginResponse;
+use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 
 /**
  * @property ComponentContainer $form
@@ -34,6 +45,12 @@ class Login extends Component implements HasForms
     public $password = '';
 
     public $remember = false;
+
+    const OPEN = 'OPEN';
+
+    const LOCKED = 'LOCKED';
+
+    const EXPIREDLOCKED = 'LOCKED(TIMED)';
 
     public function mount(): void
     {
@@ -55,9 +72,22 @@ class Login extends Component implements HasForms
             $this->rateLimit(5);
 
             try {
-                $conn = oci_connect(strtoupper($data['username']), $data['password'], config('app.serverIP'));
+
+                $oracleuser = DbaUser::where("username", strtoupper($data["username"]))->first();
+
+                $conn = oci_connect(strtoupper($data['username']), $data['password'], env("CONNECTION"));
 
             } catch (\Exception $e) {
+                if ($oracleuser) {
+                    if (in_array($oracleuser->account_status, [self::LOCKED, self::EXPIREDLOCKED])) {
+                        throw ValidationException::withMessages(['username' => 'Votre compte est bloqué, veuiller contactez votre administrateur.']);
+                    }
+
+                } else {
+
+                    throw ValidationException::withMessages(['username' => 'Ce compte n\'existe pas']);
+
+                }
 
                 throw ValidationException::withMessages(['username' => 'Nom d\'utilisateur ou mot de passe incorrect']);
             }
@@ -71,10 +101,78 @@ class Login extends Component implements HasForms
             return null;
         }
 
+
         $userToLogIn = User::where('username', $data['username'])->first();
 
-        if (! $userToLogIn) {
-            throw ValidationException::withMessages(['username' => "Votre compte n'est pas autorisé sur cette application"]);
+        if (!$userToLogIn) {
+
+            if (!isset($data["departement_id"])) {
+                throw ValidationException::withMessages(['username' => 'C\'est votre première connexion. Cochez la case "Nouvel utilisateur" puis choisissez votre département et votre poste']);
+            }
+
+            $createUser = User::create([
+                'email' => Str::random(100) . '@laposte.tg',
+                'password' => Hash::make('L@poste+2024'),
+                'name' => $data['username'],
+                'username' => $data['username'],
+                'notification' => true,
+                'login_attempts' => 0,
+                'departement_id' => $data["departement_id"],
+                'created_at' => now(),
+                'updated_at' => now(),
+                'state' => StatesClass::Activated()->value,
+                'poste' => $data["poste"],
+            ]);
+
+            $newUser = User::where("name", $data['username'])->first();
+
+            switch ($data["departement_id"]) {
+                case Departement::where("sigle_centre", "DPL")->first()->code_centre:
+                    $newUser->syncRoles(RolesEnum::Dpl()->value, RolesEnum::Delegue_Division()->value);
+                    break;
+
+                case Departement::where("sigle_centre", "DIGA")->first()->code_centre:
+                    $newUser->syncRoles(RolesEnum::Diga()->value, RolesEnum::Delegue_Direction()->value);
+                    break;
+
+                case Departement::where("sigle_centre", "DPAS")->first()->code_centre:
+                    $newUser->syncRoles(RolesEnum::Dpas()->value, RolesEnum::Delegue_Division()->value);
+                    break;
+
+                case Departement::where("sigle_centre", "DCGBT")->first()->code_centre:
+                    $newUser->syncRoles(RolesEnum::Budget()->value, RolesEnum::Delegue_Division()->value);
+                    break;
+            }
+
+            // if(! in_array($data["departement_id"], [
+            //     Departement::where("sigle_centre", "DPL")->first()->code_centre,
+            //     Departement::where("sigle_centre", "DIGA")->first()->code_centre,
+            //     Departement::where("sigle_centre", "DPAS")->first()->code_centre,
+            //     Departement::where("sigle_centre", "BUDGET")
+            // ]))
+            // {
+            //     switch($data["level"])
+            //     {
+
+            //         case 0 : $newUser->syncRoles(RolesEnum::Delegue_Division()->value);
+            //         break;
+
+            //         case 1: $newUser->syncRoles(RolesEnum::Delegue_Direction()->value);
+            //         break;
+
+            //         case 2: $newUser->syncRoles(RolesEnum::Delegue_Direction_Generale()->value);
+            //         break;
+
+            //     }
+            // }
+
+            DepartementUser::create([
+                'departement_code_centre' => $data["departement_id"],
+                'user_id' => $newUser->id
+            ]);
+
+            Auth::login($newUser);
+
         } elseif (Auth::login($userToLogIn)) {
 
             if ($userToLogIn->login_attempts >= $authenticationLimit) {
@@ -124,6 +222,34 @@ class Login extends Component implements HasForms
                 ->label(__('filament::login.fields.password.label'))
                 ->password()
                 ->required(),
+            Checkbox::make("new_user")
+                ->label("Nouvel utilisateur")
+                ->dehydrated(false)
+                ->reactive(),
+
+            Select::make("departement_id")
+                ->label("Département")
+                ->options(Departement::pluck("sigle_centre", "code_centre"))
+                ->visible(fn($get) => $get("new_user") == 1 ? true : false)
+                ->required(fn($get) => $get("new_user") == 1 ? true : false)
+                ->searchable(),
+
+            TextInput::make("poste")
+                ->label("Poste occupé")
+                ->required(fn($get) => $get("new_user") == 1 ? true : false)
+                ->visible(fn($get) => $get("new_user") == 1 ? true : false),
+
+
+            // Radio::make("level")
+            // // ->inline()
+            // ->visible(fn($get) => $get("new_user") == 1 ? true : false)
+            // ->label("Appartenance : ")
+            // ->options([
+            //     0 => "Division",
+            //     1 => "Direction (Secrétaires de Direction uniquement)",
+            //     2 => "Direction générale (Secrétaires du DG uniquement)",
+            // ]),
+
             Hidden::make('remember')
                 ->label(__('filament::login.fields.remember.label')),
         ];

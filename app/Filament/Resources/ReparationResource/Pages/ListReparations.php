@@ -2,15 +2,16 @@
 
 namespace App\Filament\Resources\ReparationResource\Pages;
 
-use App\Filament\Resources\ReparationResource;
-use App\Support\Database\PermissionsClass;
-use App\Support\Database\RolesEnum;
-use App\Support\Database\StatesClass;
-use Database\Seeders\RolesPermissionsSeeder;
 use Filament\Pages\Actions;
-use Filament\Resources\Pages\ListRecords;
+use App\Models\DepartementUser;
+use App\Support\Database\RolesEnum;
 use Filament\Tables\Filters\Layout;
+use App\Support\Database\StatesClass;
+use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
+use App\Support\Database\PermissionsClass;
+use Database\Seeders\RolesPermissionsSeeder;
+use App\Filament\Resources\ReparationResource;
 
 class ListReparations extends ListRecords
 {
@@ -36,6 +37,14 @@ class ListReparations extends ListRecords
             $loggedUser->hasAnyRole([
                 RolesEnum::Chef_parc()->value,
                 RolesEnum::Dpl()->value,
+                RolesEnum::Budget()->value,
+                RolesEnum::Diga()->value,
+                RolesEnum::Directeur_general()->value,
+                RolesEnum::Interimaire_DG()->value,
+
+
+
+
             ]) || $loggedUser->hasRole(RolesPermissionsSeeder::SuperAdmin)
         ) {
             return static::getResource()::getEloquentQuery()
@@ -54,14 +63,18 @@ class ListReparations extends ListRecords
             ])
         ) {
 
+  
+            $userCentresCollection = DepartementUser::where('user_id', auth()->user()->id)->pluck("departement_code_centre")->toArray();
+          
+
             return static::getResource()::getEloquentQuery()
                 ->join('engines', 'reparations.engine_id', 'engines.id')
                 ->leftjoin('fournisseur', 'fournisseur.code_fr', 'reparations.prestataire_id')
-                ->where("engines.deparement_id", $loggedUser->departement_id)
+                ->whereIn("engines.departement_id", $userCentresCollection)
                 ->select('engines.plate_number', 'reparations.*')
                 ->where('reparations.state', StatesClass::Activated()->value);
         }
-return static::getResource()::getEloquentQuery()::query()->whereRaw('1 = 0');
+        return static::getResource()::getEloquentQuery()::query()->whereRaw('1 = 0');
 
     }
 

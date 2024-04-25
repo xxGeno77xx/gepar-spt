@@ -31,7 +31,7 @@ class ChauffeurSeeder extends Seeder
         foreach ($chauffeursNames as $name) {
             Chauffeur::create([
                 'fullname' => $name,
-                'engine_id' => mt_rand(1, 7),
+                // 'engine_id' => mt_rand(1, 7),
                 'mission_state' => ChauffeursStatesClass::Disponible()->value,
             ]);
         }
