@@ -2,16 +2,29 @@
 
 namespace App\Filament\Resources\ChauffeurResource\Pages;
 
-use App\Filament\Resources\ChauffeurResource;
+use App\Models\Engine;
 use App\Models\Chauffeur;
-use App\Support\Database\PermissionsClass;
-use App\Support\Database\StatesClass;
-use Filament\Notifications\Notification;
 use Filament\Pages\Actions;
+use Filament\Forms\Components\Grid;
+use App\Models\AffectationChauffeur;
+use App\Support\Database\StatesClass;
+use Filament\Forms\Components\Select;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use Filament\Forms\Components\DatePicker;
+use Illuminate\Database\Eloquent\Builder;
+use App\Support\Database\PermissionsClass;
+use App\Filament\Resources\ChauffeurResource;
 
 class EditChauffeur extends EditRecord
 {
+    protected $listeners = ['refreshAffectations' => 'refresh'];
+
+    
+    public function refresh()
+    {
+
+    }
     protected static string $resource = ChauffeurResource::class;
 
     protected function authorizeAccess(): void
@@ -20,32 +33,62 @@ class EditChauffeur extends EditRecord
 
         $userPermission = $user->hasAnyPermission([PermissionsClass::Chauffeurs_update()->value]);
 
-        abort_if(! $userPermission, 403, __("Vous n'avez pas access à cette page"));
+        abort_if(!$userPermission, 403, __("Vous n'avez pas access à cette page"));
     }
 
     protected function getActions(): array
     {
-    //     if (auth()->user()->hasAnyPermission([PermissionsClass::marques_delete()->value])) {
-    //         return [
-
-    //             Actions\Action::make('Supprimer')
-    //                 ->color('danger')
-    //                 ->icon('heroicon-o-eye-off')
-    //                 ->action(function (?Chauffeur $record) {
-    //                     $this->record->update(['state' => StatesClass::Deactivated()->value]);
-    //                     redirect('/chauffeurs');
-    //                     Notification::make()
-    //                         ->title('Supprimé(e)')
-    //                         ->success()
-    //                         ->persistent()
-    //                         ->send();
-    //                 })
-    //                 ->requiresConfirmation(),
-
-    //         ];
-
-    //     }
+        
 
         return [];
+         
+
+    }    
+
+                public function beforeSave()
+                {
+ 
+                    $chauffeur = $this->record;
+
+                    $oldEngine = $chauffeur->engine_id;
+
+                    $newEngine = $this->data["engine_id"];
+
+                    $previousOwner = Chauffeur::where("engine_id", $this->data["engine_id"] )
+                    ->whereNot("id", $this->record->id)
+                    ->first();
+                    
+                    if($previousOwner)
+                    {
+                        $previousOwner->update(['engine_id' => null]);
+                    }
+ 
+                    
+                    if($this->data["engine_id"] != $this->record["engine_id"])
+                    {
+                        AffectationChauffeur::firstOrCreate([
+
+                            'chauffeur_id' =>$chauffeur->id,
+                            'old_engine_id' =>$oldEngine,
+                            'new_engine_id' =>  $newEngine,
+                            'date_affectation' => now(),
+                        ]);
+
+
+                        Notification::make()
+                        ->title('Réaffectation')
+                        ->iconColor('primary')
+                        ->body('L\'engin immatriculé ' . Engine::where("id", $this->data["engine_id"])->first()->plate_number . ' a été affecté à ce chauffeur ' )
+                        ->icon('heroicon-o-chat-alt-2')
+                        ->persistent()
+                        ->send();
+                    }
+
+                    
+
+                        $this->refreshFormData(["engin_id"]);
+                }
+
+      
     }
-}
+

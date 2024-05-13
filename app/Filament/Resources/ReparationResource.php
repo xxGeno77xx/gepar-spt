@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Support\Database\AppreciationClass;
 use Carbon\Carbon;
 use App\Models\Role;
 use App\Models\User;
@@ -730,6 +731,87 @@ class ReparationResource extends Resource
                                 }
 
                             }),
+
+
+                            RichEditor::make('rapport_final')
+                            ->label('Rapport de fin de réparation')
+                            ->disableAllToolbarButtons()
+                            ->placeholder('Vos observations concernant la réparation')
+                            ->visible(function ($record) {
+
+                                if ($record) {
+    
+                                    $user = auth()->user();
+    
+                                    $circuit = Circuit::where('id', $record->circuit_id)->value('steps');
+    
+                                    foreach ($circuit as $key => $item) {
+    
+                                        $roleIds[] = $item['role_id'];
+                                    }
+    
+                                    $searchedRoleId = (Role::where('name', RolesEnum::Chef_parc()->value)->first())->id;
+    
+                                    $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
+                    
+                                    $slicedArray = array_slice($roleIds, $firstOccurenceOfRole + 1);
+    
+                                    $secondOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $slicedArray)) + $firstOccurenceOfRole + 1;
+    
+                                    $secondSlicedArray = array_slice($roleIds, $secondOccurenceOfRoleInOriginalRolesArray + 1);
+    
+                                    $thirdOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $secondSlicedArray)) + $secondOccurenceOfRoleInOriginalRolesArray + 1;
+    
+                                    $arrayDivided = array_chunk($roleIds, $thirdOccurenceOfRoleInOriginalRolesArray + 1, true); //  cut form second match of dg role
+                    
+                                    if (in_array($record->validation_step, [array_key_last($roleIds), 100])) {
+    
+                                        return true;
+    
+                                    } else {
+                                        return false;
+                                    }
+                                }
+    
+                            })
+                            ->required(function ($record) {
+    
+                                if ($record) {
+    
+                                    $user = auth()->user();
+    
+                                    $circuit = Circuit::where('id', $record->circuit_id)->value('steps');
+    
+                                    foreach ($circuit as $key => $item) {
+    
+                                        $roleIds[] = $item['role_id'];
+                                    }
+    
+                                    $searchedRoleId = (Role::where('name', RolesEnum::Chef_parc()->value)->first())->id;
+    
+                                    $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
+                    
+                                    $slicedArray = array_slice($roleIds, $firstOccurenceOfRole + 1);
+    
+                                    $secondOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $slicedArray)) + $firstOccurenceOfRole + 1;
+    
+                                    $secondSlicedArray = array_slice($roleIds, $secondOccurenceOfRoleInOriginalRolesArray + 1);
+    
+                                    $thirdOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $secondSlicedArray)) + $secondOccurenceOfRoleInOriginalRolesArray + 1;
+    
+                                    $arrayDivided = array_chunk($roleIds, $thirdOccurenceOfRoleInOriginalRolesArray + 1, true); //  cut form second match of dg role
+                    
+                                    if (in_array($record->validation_step, [array_key_last($roleIds), 100])) {
+    
+                                        return true;
+    
+                                    } else {
+                                        return false;
+                                    }
+                                }
+    
+                            }),
+
                         Section::make('Travaux à faire')
                             ->schema([
 
@@ -1467,6 +1549,85 @@ class ReparationResource extends Resource
                     ])
                     ->columnSpanFull()
                     ->placeholder('Détails de la révision'),
+
+
+                Select::make("appreciation")
+                        ->searchable()
+                        ->options(AppreciationClass::toArray())
+                        ->visible(function ($record) {
+
+                            if ($record) {
+
+                                $user = auth()->user();
+
+                                $circuit = Circuit::where('id', $record->circuit_id)->value('steps');
+
+                                foreach ($circuit as $key => $item) {
+
+                                    $roleIds[] = $item['role_id'];
+                                }
+
+                                $searchedRoleId = (Role::where('name', RolesEnum::Chef_parc()->value)->first())->id;
+
+                                $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
+                
+                                $slicedArray = array_slice($roleIds, $firstOccurenceOfRole + 1);
+
+                                $secondOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $slicedArray)) + $firstOccurenceOfRole + 1;
+
+                                $secondSlicedArray = array_slice($roleIds, $secondOccurenceOfRoleInOriginalRolesArray + 1);
+
+                                $thirdOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $secondSlicedArray)) + $secondOccurenceOfRoleInOriginalRolesArray + 1;
+
+                                $arrayDivided = array_chunk($roleIds, $thirdOccurenceOfRoleInOriginalRolesArray + 1, true); //  cut form second match of dg role
+                
+                                if (in_array($record->validation_step, [array_key_last($roleIds), 100])) {
+
+                                    return true;
+
+                                } else {
+                                    return false;
+                                }
+                            }
+
+                        })
+                        ->required(function ($record) {
+
+                            if ($record) {
+
+                                $user = auth()->user();
+
+                                $circuit = Circuit::where('id', $record->circuit_id)->value('steps');
+
+                                foreach ($circuit as $key => $item) {
+
+                                    $roleIds[] = $item['role_id'];
+                                }
+
+                                $searchedRoleId = (Role::where('name', RolesEnum::Chef_parc()->value)->first())->id;
+
+                                $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
+                
+                                $slicedArray = array_slice($roleIds, $firstOccurenceOfRole + 1);
+
+                                $secondOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $slicedArray)) + $firstOccurenceOfRole + 1;
+
+                                $secondSlicedArray = array_slice($roleIds, $secondOccurenceOfRoleInOriginalRolesArray + 1);
+
+                                $thirdOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $secondSlicedArray)) + $secondOccurenceOfRoleInOriginalRolesArray + 1;
+
+                                $arrayDivided = array_chunk($roleIds, $thirdOccurenceOfRoleInOriginalRolesArray + 1, true); //  cut form second match of dg role
+                
+                                if (in_array($record->validation_step, [array_key_last($roleIds), 100])) {
+
+                                    return true;
+
+                                } else {
+                                    return false;
+                                }
+                            }
+
+                        }),
 
                 Hidden::make('user_id')->default(auth()->user()->id),
 

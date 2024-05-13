@@ -2,41 +2,42 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\EngineResource\Pages;
-use App\Filament\Resources\EngineResource\RelationManagers;
-use App\Filament\Resources\EngineResource\RelationManagers\AffectationsRelationManager;
-use App\Filament\Resources\EngineResource\RelationManagers\ConsommationCarburantsRelationManager;
-use App\Filament\Resources\EngineResource\RelationManagers\OrdreDeMissionsRelationManager;
-use App\Models\Carburant;
-use App\Models\Departement;
-use App\Models\Direction;
-use App\Models\Division;
-use App\Models\Engine;
-use App\Models\Engine as Engin;
-use App\Models\Modele;
-use App\Models\Type;
-use App\Support\Database\CommonInfos;
-use App\Support\Database\PermissionsClass;
-use App\Support\Database\StatesClass;
-use App\Tables\Columns\DepartementColumn;
 use Closure;
+use App\Models\Type;
+use Filament\Tables;
+use App\Models\Engine;
+use App\Models\Modele;
+use App\Models\Division;
+use App\Models\Carburant;
+use App\Models\Direction;
+use App\Models\Departement;
+use Filament\Resources\Form;
+use Filament\Resources\Table;
+use App\Models\Engine as Engin;
+use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
-use Filament\Forms\Components\ColorPicker;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
+use Filament\Tables\Filters\Filter;
+use App\Support\Database\CommonInfos;
+use App\Support\Database\StatesClass;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
-use Filament\Resources\Form;
-use Filament\Resources\Resource;
-use Filament\Resources\Table;
-use Filament\Tables;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\Filter;
+use App\Tables\Columns\DepartementColumn;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
+use App\Support\Database\PermissionsClass;
+use Filament\Forms\Components\ColorPicker;
+use App\Filament\Resources\EngineResource\Pages;
+use App\Filament\Resources\EngineResource\RelationManagers;
+use App\Filament\Resources\EngineResource\RelationManagers\TvmsRelationManager;
+use App\Filament\Resources\EngineResource\RelationManagers\AffectationsRelationManager;
+use App\Filament\Resources\EngineResource\RelationManagers\OrdreDeMissionsRelationManager;
+use App\Filament\Resources\EngineResource\RelationManagers\ConsommationCarburantsRelationManager;
 
 class EngineResource extends Resource
 {
@@ -63,16 +64,16 @@ class EngineResource extends Resource
 
                         TextInput::make('matricule_precedent')
                             ->label('Matricule précédent')
-                            ->regex('/^TG\s\d{4}-[A-Z]{2}$/')
+                            ->regex('/^(RTG|TG)-\d{4}-[A-Z]{2}$/')
                             ->placeholder('TG 1234-AB')
-                            ->maxLength(10)
+                            ->maxLength(12)
                             ->unique(ignoreRecord: true),
 
                         TextInput::make('plate_number')
                             ->label('Numéro de plaque')
-                            ->placeholder('TG 1234-AB')
-                            ->regex('/^TG\s\d{4}-[A-Z]{2}$/')
-                            ->maxLength(10)
+                            ->placeholder('TG-1234-AB ou RTG-1234')
+                            ->regex('/^(RTG|TG)-\d{4}-[A-Z]{2}$/')
+                            ->maxLength(12)
                             ->required()
                             // ->unique(ignoreRecord: true)
                             ->rules([
@@ -464,6 +465,7 @@ class EngineResource extends Resource
             ConsommationCarburantsRelationManager::class,
             AffectationsRelationManager::class,
             OrdreDeMissionsRelationManager::class,
+            TvmsRelationManager::class,
         ];
     }
 

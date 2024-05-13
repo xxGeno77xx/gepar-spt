@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Engine extends Model
 {
@@ -62,6 +63,16 @@ class Engine extends Model
     public function visites()
     {
         return $this->hasMany(Visite::class);
+    }
+
+    // public function tvms()
+    // {
+    //     return $this->hasMany(Tvm::class);
+    // }
+
+    public function tvms(): BelongsToMany
+    {
+        return $this->belongsToMany(Tvm::class)->withPivot("montant");
     }
 
     public function visite()

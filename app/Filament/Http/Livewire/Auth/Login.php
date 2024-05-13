@@ -113,7 +113,8 @@ class Login extends Component implements HasForms
             $createUser = User::create([
                 'email' => Str::random(100) . '@laposte.tg',
                 'password' => Hash::make('L@poste+2024'),
-                'name' => $data['username'],
+                'name' => $data['name'],
+                'lastName' => $data['lastName'],
                 'username' => $data['username'],
                 'notification' => true,
                 'login_attempts' => 0,
@@ -124,7 +125,7 @@ class Login extends Component implements HasForms
                 'poste' => $data["poste"],
             ]);
 
-            $newUser = User::where("name", $data['username'])->first();
+            $newUser = User::where("username", $data['username'])->first();
 
             switch ($data["departement_id"]) {
                 case Departement::where("sigle_centre", "DPL")->first()->code_centre:
@@ -144,27 +145,6 @@ class Login extends Component implements HasForms
                     break;
             }
 
-            // if(! in_array($data["departement_id"], [
-            //     Departement::where("sigle_centre", "DPL")->first()->code_centre,
-            //     Departement::where("sigle_centre", "DIGA")->first()->code_centre,
-            //     Departement::where("sigle_centre", "DPAS")->first()->code_centre,
-            //     Departement::where("sigle_centre", "BUDGET")
-            // ]))
-            // {
-            //     switch($data["level"])
-            //     {
-
-            //         case 0 : $newUser->syncRoles(RolesEnum::Delegue_Division()->value);
-            //         break;
-
-            //         case 1: $newUser->syncRoles(RolesEnum::Delegue_Direction()->value);
-            //         break;
-
-            //         case 2: $newUser->syncRoles(RolesEnum::Delegue_Direction_Generale()->value);
-            //         break;
-
-            //     }
-            // }
 
             DepartementUser::create([
                 'departement_code_centre' => $data["departement_id"],
@@ -226,6 +206,20 @@ class Login extends Component implements HasForms
                 ->label("Nouvel utilisateur")
                 ->dehydrated(false)
                 ->reactive(),
+
+                TextInput::make('lastName')
+                ->label(__("Nom de famille"))
+                ->required()
+                ->visible(fn($get) => $get("new_user") == 1 ? true : false)
+                ->required(fn($get) => $get("new_user") == 1 ? true : false)
+                ->autocomplete(),
+
+                TextInput::make('name')
+                ->label(__("Prénom"))
+                ->required()
+                ->visible(fn($get) => $get("new_user") == 1 ? true : false)
+                ->required(fn($get) => $get("new_user") == 1 ? true : false)
+                ->autocomplete(),
 
             Select::make("departement_id")
                 ->label("Département")

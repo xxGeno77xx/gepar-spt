@@ -30,6 +30,8 @@ return new class extends Migration
 
             $table->unsignedBigInteger('user_id');
 
+            $table->unsignedBigInteger('assureur_id');
+
             $table->unsignedBigInteger('updated_at_user_id');
 
             $table->enum('state', [StatesClass::Activated()->value, StatesClass::Deactivated()->value, StatesClass::Suspended()->value]);

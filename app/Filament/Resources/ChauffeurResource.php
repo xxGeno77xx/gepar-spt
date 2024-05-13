@@ -22,6 +22,7 @@ use Filament\Forms\Components\Placeholder;
 use App\Support\Database\ChauffeursStatesClass;
 use App\Filament\Resources\ChauffeurResource\Pages;
 use App\Filament\Resources\ChauffeurResource\RelationManagers\OrdreDeMissionsRelationManager;
+use App\Filament\Resources\ChauffeurResource\RelationManagers\AffectationChauffeursRelationManager;
 
 class ChauffeurResource extends Resource
 {
@@ -55,35 +56,46 @@ class ChauffeurResource extends Resource
                                         function ($record) {
 
                                             //check engines that are already linked to chauffeurs
+                                
+                                            if (!$record) {
 
-                                            $linkedChauffeurs = Chauffeur::whereNotNull('engine_id')->get();
-                                            if(! empty($linkedChauffeurs))
-                                            {
-                                                $linkedEnginesIds = array();
-                                                foreach ($linkedChauffeurs as $chauffeur) {
+                                                $linkedChauffeurs = Chauffeur::whereNotNull('engine_id')->get();
+                                                if (!empty ($linkedChauffeurs)) {
+                                                    $linkedEnginesIds = array ();
+                                                    foreach ($linkedChauffeurs as $chauffeur) {
 
-                                                    $linkedEnginesIds[] = $chauffeur->engine_id;
+                                                        $linkedEnginesIds[] = $chauffeur->engine_id;
+                                                    }
+
+                                                    if ($record) {
+
+                                                        return Engine::where(function (Builder $query) use ($record, $linkedEnginesIds) {
+                                                            return $query->whereNotIn('id', $linkedEnginesIds)
+                                                                ->orWhere('id', $record->engine_id);
+
+                                                        })->get()->pluck('plate_number', 'id');
+
+                                                    } else {
+
+                                                        return Engine::whereNotIn('id', $linkedEnginesIds)
+                                                            ->where('state', StatesClass::Activated()->value)
+                                                            ->pluck('plate_number', 'id');
+                                                    }
                                                 }
-    
-                                                if ($record) {
-    
-                                                    return Engine::where(function (Builder $query) use ($record, $linkedEnginesIds) {
-                                                        return $query->whereNotIn('id', $linkedEnginesIds)
-                                                            ->orWhere('id', $record->engine_id);
-    
-                                                    })->get()->pluck('plate_number', 'id');
-    
-                                                } else {
-    
-                                                    return Engine::whereNotIn('id', $linkedEnginesIds)
-                                                        ->where('state', StatesClass::Activated()->value)
-                                                        ->pluck('plate_number', 'id');
-                                                }
-                                            }
-                                           
+
+                                            } else
+
+                                                return Engine::where('state', StatesClass::Activated()->value)
+                                                    ->pluck('plate_number', 'id');
+
                                         }
                                     )
                                     ->searchable(),
+
+                                Select::make("categories_permis")
+                                    ->multiple()
+                                    ->preload()
+                                    ->relationship("categoriePermis", "libelle")
                             ]),
                     ]),
 
@@ -91,17 +103,17 @@ class ChauffeurResource extends Resource
                     ->schema([
                         Placeholder::make('created_at')
                             ->label('Ajouté')
-                            ->content(fn (Chauffeur $record): ?string => $record->created_at),
+                            ->content(fn(Chauffeur $record): ?string => $record->created_at),
 
                         Placeholder::make('updated_at')
                             ->label('Mise à jour')
-                            ->content(fn (Chauffeur $record): ?string => $record->updated_at),
+                            ->content(fn(Chauffeur $record): ?string => $record->updated_at),
 
                     ])
                     ->columnSpan(['lg' => 1])
-                    ->hidden(fn (?Chauffeur $record) => $record === null),
+                    ->hidden(fn(?Chauffeur $record) => $record === null),
 
-                    Hidden::make("mission_state")->default(ChauffeursStatesClass::Disponible()->value)
+                Hidden::make("mission_state")->default(ChauffeursStatesClass::Disponible()->value)
             ]);
     }
 
@@ -128,10 +140,15 @@ class ChauffeurResource extends Resource
                     ->label('Statut')
                     ->colors([
 
-                        'primary' => static fn ($state): bool => $state === ChauffeursStatesClass::En_mission()->value,
+                        'primary' => static fn($state): bool => $state === ChauffeursStatesClass::En_mission()->value,
 
-                        'success' => static fn ($state): bool => $state === ChauffeursStatesClass::Disponible()->value,
+                        'success' => static fn($state): bool => $state === ChauffeursStatesClass::Disponible()->value,
                     ])
+                    ->placeholder('-'),
+
+                BadgeColumn::make('categoriePermis.libelle')
+                    ->label('Permis')
+                    ->color('success')
                     ->placeholder('-'),
             ])
             ->filters([
@@ -149,6 +166,7 @@ class ChauffeurResource extends Resource
     {
         return [
             OrdreDeMissionsRelationManager::class,
+            AffectationChauffeursRelationManager::class,
         ];
     }
 

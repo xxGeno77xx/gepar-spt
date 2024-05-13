@@ -24,21 +24,33 @@ return new class extends Migration
             $table->date('date_prise');
 
             $table->unsignedBigInteger('engine_id');
-            $table->foreign('engine_id')->references('id')->on('engines');
+            $table->foreign('engine_id')
+                ->references('id')
+                ->on('engines');
 
-            $table->unsignedBigInteger('carburant_id');
-            $table->foreign('carburant_id')->references('id')->on('carburants');
+            $table->unsignedBigInteger('carburant_id')
+                ->nullable();
+            $table->foreign('carburant_id')
+                ->references('id')
+                ->on('carburants');
 
-            $table->unsignedBigInteger('chauffeur_id');
-            $table->foreign('chauffeur_id')->references('id')->on('chauffeurs');
+            $table->unsignedBigInteger('chauffeur_id')->nullable();
+            $table->foreign('chauffeur_id')
+                ->references('id')
+                ->on('chauffeurs');
 
-            $table->string('carte_recharge_id');
+            $table->string('carte_recharge_id')
+                ->nullable();
 
             $table->enum('state', [StatesClass::Activated()->value, StatesClass::Deactivated()->value, StatesClass::Suspended()->value]);
 
             $table->string('ticket');
 
-            $table->string('observation')->nullable();
+            $table->string('conducteur')
+                ->nullable();
+
+            $table->string('observation')
+                ->nullable();
 
             $table->integer('kilometres_a_remplissage');
 

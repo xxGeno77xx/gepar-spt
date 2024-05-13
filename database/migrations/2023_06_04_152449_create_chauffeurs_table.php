@@ -34,8 +34,6 @@ return new class extends Migration
 
             // $table->string('num_permis');
 
-            // $table->string('permmis');
-
             $table->enum('state', [
                 StatesClass::Activated()->value,
                 StatesClass::Deactivated()->value,

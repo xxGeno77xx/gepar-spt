@@ -27,7 +27,7 @@ class VisistesASurveiller extends BaseWidget
     protected function getTableQuery(): Builder
     {
 
-        $limite = parametre::where('options', 'Visites techniques')->value('limite');
+        $limite = Parametre::where('options', 'Visites techniques')->value('limite');
 
         $activated = StatesClass::Activated()->value;
 

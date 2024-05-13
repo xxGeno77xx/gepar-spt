@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Support\Database\RolesEnum;
 use Carbon\Carbon;
 use Database\Seeders\RolesPermissionsSeeder;
+use Filament\Forms\Components\Radio;
 use Filament\Tables;
 use App\Models\Engine;
 use App\Models\Chauffeur;
@@ -46,13 +47,13 @@ class OrdreDeMissionResource extends Resource
         return $form
             ->schema([
 
-                Toggle::make("is_ordre_de_route")
-                ->label("Ordre de route")
-                    ->onIcon("heroicon-o-check-circle")
-                    ->onColor("success")
-                    ->offColor("danger")
-                    ->reactive()
-                    ->offIcon("heroicon-o-ban"),
+                // Toggle::make("is_ordre_de_route")
+                // ->label("Ordre de route")
+                //     ->onIcon("heroicon-o-check-circle")
+                //     ->onColor("success")
+                //     ->offColor("danger")
+                //     ->reactive()
+                //     ->offIcon("heroicon-o-ban"),
 
                 Card::make()
                     ->schema([
@@ -113,7 +114,16 @@ class OrdreDeMissionResource extends Resource
                                                         ->required(),
 
                                                     TextInput::make('Désignation')
+                                                        ->label("Poste occupé")
                                                         ->required(),
+
+                                                    Radio::make("sexe")
+                                                        ->label("Sexe")
+                                                        ->inline()
+                                                        ->options([
+                                                            "Mr." => "Mr.",
+                                                            "Mme." => "Mme."
+                                                        ])
 
                                                 ]),
                                         ])

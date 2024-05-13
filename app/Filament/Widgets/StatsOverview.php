@@ -21,6 +21,8 @@ class StatsOverview extends BaseWidget
 
         $limiteV = parametre::where('options', 'Visites techniques')->value('limite');
 
+        $limiteT = parametre::where('options', 'Tvm')->value('limite');
+
         $visites = Engine::Join('visites', 'engines.id', '=', 'visites.engine_id')
             ->whereRaw('visites.created_at = (SELECT MAX(created_at) FROM visites WHERE engine_id = engines.id AND visites.state = ?)', [$activated])
             ->whereRaw('TRUNC(visites.date_expiration) <= TRUNC(SYSDATE + TRUNC(?))', [$limiteV])
@@ -42,10 +44,26 @@ class StatsOverview extends BaseWidget
             ->where('engines.state', '<>', StatesClass::Deactivated()->value)
             ->count();
 
+
+        $tvms = Engine::Join('tvms', 'engines.id', '=', 'tvms.engine_id')
+            ->whereNull('engines.deleted_at')
+            ->whereRaw('tvms.created_at = (SELECT MAX(created_at) FROM tvms WHERE engine_id = engines.id AND tvms.state = ?)', [$activated])
+            ->whereRaw('TRUNC(tvms.date_fin) <= TRUNC(SYSDATE + TRUNC(?))', [$limiteT])
+            ->where('tvms.state', $activated)
+            ->whereNull('tvms.deleted_at')
+            ->whereNull('engines.deleted_at')
+            ->where('engines.state', '<>', StatesClass::Deactivated()->value)
+            ->count();
+
+
         return [
-            Card::make('Total des engins du parc', Engine::where('engines.state', '<>', StatesClass::Deactivated()->value)->count()) //  to do:  where activated  or reparing
+            // Card::make('Total des engins du parc', Engine::where('engines.state', '<>', StatesClass::Deactivated()->value)->count()) //  to do:  where activated  or reparing
+            //     ->chart([mt_rand(1, 50), mt_rand(1, 50), mt_rand(1, 50), mt_rand(1, 50), mt_rand(1, 50), mt_rand(1, 50), mt_rand(1, 50)])
+            //     ->color('success'),
+
+            Card::make('TVM à surveiller',  $tvms) //  to do:  where activated  or reparing
                 ->chart([mt_rand(1, 50), mt_rand(1, 50), mt_rand(1, 50), mt_rand(1, 50), mt_rand(1, 50), mt_rand(1, 50), mt_rand(1, 50)])
-                ->color('success'),
+                ->color('danger'),
 
             Card::make('Visites techniques à surveiller', $visites)
                 ->chart([mt_rand(1, 50), mt_rand(1, 50), mt_rand(1, 50), mt_rand(1, 50), mt_rand(1, 50), mt_rand(1, 50), mt_rand(1, 50)])

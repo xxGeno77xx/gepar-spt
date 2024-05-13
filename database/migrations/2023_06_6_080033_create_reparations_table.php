@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Database\AppreciationClass;
 use App\Support\Database\StatesClass;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -27,6 +28,8 @@ return new class extends Migration
             $table->string('facture')->nullable();
 
             $table->text('details')->nullable();
+
+            $table->text('rapport_final')->nullable();
 
             $table->unsignedBigInteger('engine_id');
             $table->foreign('engine_id')->references('id')->on('engines');
@@ -63,6 +66,14 @@ return new class extends Migration
             $table->unsignedBigInteger('rejete_par')->nullable();
 
             $table->string('ref_proforma')->nullable();
+
+            $table->string('appreciation')
+                ->nullable()
+                ->enum([
+
+                    AppreciationClass::Satisfaisant()->value,
+                    AppreciationClass::Insatisfaisant()->value
+                ]);
 
             $table->unsignedBigInteger('circuit_id')->nullable();
 

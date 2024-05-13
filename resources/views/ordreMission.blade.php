@@ -1,12 +1,17 @@
 @php
     use App\Models\Chauffeur;
     use App\Models\Engine;
+    use App\Models\Departement;
     use Carbon\Carbon;
 
     $chauffeur = Chauffeur::find($order->chauffeur_id)->value('fullname');
     $moyenTransport = Engine::find($order->engine_id)->value('plate_number');
+    $departement = Departement::where("code_centre",$order->departement_id)->first()->sigle_centre;
     $agents = $order->agents;
 
+ 
+
+ 
 @endphp
 
 <!DOCTYPE html>
@@ -90,20 +95,20 @@
                     NA/KAMK
                 </p>
                 <span style="font-weight: bold; font-style: italic;">
-                    N° <u> 000{{ $order->numero_ordre }}</u> /SPT/DG/DRHP/DPAS
+                    N°______________/SPT/DG/DRHP/{{$departement}}
                 </span>
                 <div class="centered-div">
                     <h1 style="font-weight: bold; font-family: Bookman Old Style;"><u>ORDRE DE MISSION</u></h1>
                 </div>
-                <p style="font-family: Bookman Old Style;">Il est ordonné à Messieurs:</p>
+                <p style="font-family: Bookman Old Style;">Il est ordonné à Monsieur {{$chauffeur}} de conduire :</p>
                 <ul style="list-style-type:none;">
                     @foreach ($agents as $key => $agent)
-                        <li style="margin-bottom: 15px;">-{{ $agent['Nom'] }}, {{ $agent['Désignation'] }}</li>
+                        <li style="margin-bottom: 15px;">- {{ $agent['sexe']}}  {{ $agent['Nom']}}, {{ $agent['Désignation'] }}</li>
                     @endforeach
 
                 </ul>
 
-                <p>de se rendre en mission à l'intérieur du pays.</p>
+                <p>pour une mission à l'intérieur du pays.</p>
 
                 <br>
                 <div>
@@ -131,6 +136,12 @@
                     <span>
                         <u style="font-weight: bold; font-style:italic; margin-right: 60px ">Moyen de transport </u>:
                         Véhicule {{ $moyenTransport }}
+                    </span>
+                </p>
+                <p>
+                    <span>
+                        <u style="font-weight: bold; font-style:italic; margin-right: 90px ">Prise en charge </u>:
+                        Société des Postes du Togo
                     </span>
                 </p>
             </div>

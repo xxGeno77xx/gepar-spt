@@ -35,5 +35,14 @@ class ParametersSeeder extends Seeder
             // 'icon'=>'loop.png',
         ]);
 
+        parametre::firstOrCreate([
+            'nom' => 'Rappels à 1 mois',
+            'limite' => 30,
+            'options' => 'Tvm',
+            'created_at' => now(),
+            'updated_at' => now(),
+            // 'icon'=>'loop.png',
+        ]);
+
     }
 }

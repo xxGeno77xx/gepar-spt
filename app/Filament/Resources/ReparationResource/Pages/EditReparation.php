@@ -7,6 +7,7 @@ use App\Models\Engine;
 use App\Models\Circuit;
 use App\Models\Reparation;
 use Filament\Pages\Actions;
+use Filament\Pages\Actions\DeleteAction;
 use Forms\Components\Textarea;
 use App\Support\Database\RolesEnum;
 use App\Support\Database\StatesClass;
@@ -24,6 +25,9 @@ class EditReparation extends EditRecord
     protected static string $resource = ReparationResource::class;
 
 
+    public function getHeaderActions(): array{
+        return [DeleteAction::make()];
+    }
 
     protected function authorizeAccess(): void
     {
@@ -125,6 +129,7 @@ class EditReparation extends EditRecord
 
     public function beforeSave()
     {
+    
         $reparation = $this->record;
 
         // if ($reparation->validation_step == 0) {

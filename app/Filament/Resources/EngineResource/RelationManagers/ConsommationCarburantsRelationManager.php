@@ -14,6 +14,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
 use Filament\Resources\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Resources\Table;
@@ -37,6 +38,15 @@ class ConsommationCarburantsRelationManager extends RelationManager
 
                 Grid::make(3)
                     ->schema([
+
+                        // Toggle::make("especes")
+                        //     ->label("Prise en especes")
+                        //     ->reactive()
+                        //     ->dehydrated(false)
+                        //     ->columnSpanFull()
+                        //     ->afterStateUpdated(function(){
+
+                        //     }),
                         Forms\Components\DatePicker::make('date_prise')
                             // ->beforeOrEqual(date_format(now(), 'd-m-Y')) // to do: make it unique for every engine
                             ->required(),
@@ -128,12 +138,18 @@ class ConsommationCarburantsRelationManager extends RelationManager
                             ->options(
                                 Chauffeur::select(['fullname', 'id'])->get()->pluck('fullname', 'id')
                             )
-                            ->required()
-                            ->searchable(),
+                            ->searchable()
+                            ->reactive()
+                            ->required(fn($get, $set) => $get("conducteur") ? false : true),
+
+                            Forms\Components\TextInput::make("conducteur")
+                            ->reactive()
+                                ->required(fn($get, $set) => $get("chauffeur_id") ? false : true),
 
                         Forms\Components\TextInput::make('carte_recharge_id')
+                                ->columnSpanFull()
                             ->label('Carte de recharge')
-                            ->required(),
+                            // ->visible(fn($get , $set) => $get("especes") == 1 ? false : true),
 
                     ]),
                 Forms\Components\TextInput::make('observation')
@@ -163,7 +179,12 @@ class ConsommationCarburantsRelationManager extends RelationManager
                     ->label('Indice compteur'),
 
                 Tables\Columns\TextColumn::make('fullname')
-                    ->label('Chauffeur'),
+                    ->label('Chauffeur')
+                    ->placeholder("-"),
+
+                    Tables\Columns\TextColumn::make('conducteur')
+                    ->label('Conducteur')
+                    ->placeholder("-"),
 
                 Tables\Columns\TextColumn::make('observation')
                     ->limit(8)

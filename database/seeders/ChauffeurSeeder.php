@@ -2,9 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Models\Permis;
 use App\Models\Chauffeur;
-use App\Support\Database\ChauffeursStatesClass;
 use Illuminate\Database\Seeder;
+use App\Support\Database\CategoryPermisClass;
+use App\Support\Database\ChauffeursStatesClass;
 
 class ChauffeurSeeder extends Seeder
 {
@@ -28,13 +30,31 @@ class ChauffeurSeeder extends Seeder
             'TOSSIM Essodom',
         ];
 
+
+        $categoriesPermis =[
+            CategoryPermisClass::Autorisation_speciale()->value,
+            CategoryPermisClass::A1()->value,
+            CategoryPermisClass::B()->value,
+            CategoryPermisClass::C()->value,
+            CategoryPermisClass::D()->value,
+            CategoryPermisClass::E()->value,
+            CategoryPermisClass::F()->value,
+        ];
+
         foreach ($chauffeursNames as $name) {
             Chauffeur::create([
                 'fullname' => $name,
-                // 'engine_id' => mt_rand(1, 7),
                 'mission_state' => ChauffeursStatesClass::Disponible()->value,
             ]);
         }
+
+        foreach($categoriesPermis as $permis)
+        {
+            Permis::create([
+                "libelle" => $permis
+            ]);
+        }
+       
 
     }
 }
