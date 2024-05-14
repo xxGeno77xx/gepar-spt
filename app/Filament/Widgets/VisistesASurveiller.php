@@ -46,6 +46,7 @@ class VisistesASurveiller extends BaseWidget
             ->groupBy(
                 'visites.date_expiration',
                 'visites.date_initiale',
+                'engines.tvm_mail_sent',
                 'engines.id',
                 'engines.modele_id',
                 'engines.power',

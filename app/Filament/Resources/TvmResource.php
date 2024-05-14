@@ -12,14 +12,18 @@ use Filament\Resources\Table;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
+use App\Support\Database\StatesClass;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Repeater;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
+use Filament\Tables\Columns\BadgeColumn;
 use Filament\Forms\Components\DatePicker;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use App\Filament\Resources\TvmResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\TvmResource\RelationManagers;
@@ -68,6 +72,7 @@ class TvmResource extends Resource
                         ->visibleOn("edit"),
 
                         Repeater::make("engins_prix")
+                        ->minItems(1)
                         ->disabledOn("edit")
                         ->visibleOn("create")
                         ->createItemButtonLabel('Ajouter un engin')
@@ -98,6 +103,8 @@ class TvmResource extends Resource
                         Hidden::make('updated_at_user_id')
                             ->default(auth()->user()->id)
                             ->disabled(),
+
+                    
                     ])
 
             ]);
@@ -113,6 +120,9 @@ class TvmResource extends Resource
                 TextColumn::make("date_debut")
                     ->date("d M Y"),
 
+                    BadgeColumn::make("plate_number")
+                    ->color("success"),
+
                 TextColumn::make("date_fin")
                     ->date("d M Y"),
 
@@ -126,7 +136,49 @@ class TvmResource extends Resource
                 // Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                // Tables\Actions\DeleteBulkAction::make(),
+                // Tables\Actions\DeleteBulkAction::make(),*
+                Tables\Actions\BulkAction::make("editer")
+                ->form([
+                    Card::make()
+                    ->columns(3)
+                    ->schema([
+
+                        DatePicker::make('date_debut')
+                            ->before('date_fin')
+                            ->label('Date initiale')
+                            ->reactive()
+                            ->afterStateUpdated(fn($set, $get) => $set("date_fin",  Carbon::parse($get("date_debut"))->addYear()))
+                            ->required(),
+
+                        DatePicker::make('date_fin')
+                            ->label("Date d'expiration")
+                            ->required(),
+
+                        TextInput::make("reference")
+                            ->required(),
+                            
+                    ])
+                   
+
+
+                ])
+                ->action(function (Collection $records, $data) {
+
+                    $records->each->update([
+                        "date_debut" => $data["date_debut"],
+                        "date_fin" => $data["date_fin"],
+                        "reference" => $data["reference"],
+    
+                    ]);
+
+                    Notification::make('notif')
+                    ->title('Modifié(e)')
+                    ->icon('heroicon-o-information-circle')
+                    ->iconColor('success')
+                    ->body('Les TVM ont été modifiées')
+                    ->send();
+                })
+
             ]);
     }
 

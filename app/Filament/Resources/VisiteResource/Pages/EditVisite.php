@@ -90,7 +90,7 @@ class EditVisite extends EditRecord
             })
             ->get();
 
-        if ($matchingVisites->count() > 1) {
+        if ($matchingVisites->count() >= 1) {
 
             Notification::make()
                 ->warning()

@@ -45,6 +45,8 @@ return new class extends Migration
             $table->foreign('carburant_id')->references('id')->on('carburants');
 
             $table->boolean('assurances_mail_sent');
+            
+            $table->boolean('tvm_mail_sent');
 
             $table->boolean('visites_mail_sent');
 

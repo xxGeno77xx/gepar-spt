@@ -51,6 +51,7 @@ class TvmASurveiller extends BaseWidget
             ->groupBy(
                 'tvms.date_fin',
                 'tvms.date_debut',
+                'engines.tvm_mail_sent',
                 'engines.id',
                 'engines.modele_id',
                 'engines.power',

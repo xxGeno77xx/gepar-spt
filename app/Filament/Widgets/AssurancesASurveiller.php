@@ -68,6 +68,7 @@ class AssurancesASurveiller extends BaseWidget
                 'assurances.date_fin',
                 'assurances.date_debut',
                 'engines.id',
+                'engines.tvm_mail_sent',
                 'engines.modele_id',
                 'engines.power',
                 'engines.departement_id',

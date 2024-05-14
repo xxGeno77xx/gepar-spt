@@ -7,6 +7,8 @@
     use App\Models\Pays;
     use App\Support\Database\StatesClass;
 
+    $dates = collect($record->order);
+ 
 @endphp
 
 <x-filament::widget>
@@ -30,10 +32,10 @@
                     /* Hauteur */
                 }
             </style>
-            <h2 class="text-4xl  text-center py-6 font-bold dark:text-white" style="color:rgb(235, 134, 3)">Planning de
+            <h2 class="text-8xl  text-center py-6 font-bold dark:text-white" style="color:rgb(235, 134, 3)">Planning de
                 voyage pour les dates du
-                {{ Carbon::parse($record->date_debut)->translatedformat('d F') }} au
-                {{ Carbon::parse($record->date_fin)->translatedformat('d F Y') }}</h2>
+                {{ Carbon::parse($dates->min("date_debut"))->translatedformat('d F') }} au
+                {{ Carbon::parse($dates->max("date_fin"))->translatedformat('d F Y') }}</h2>
             <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md m-5">
                 <table class="w-full border-collapse bg-white text-left text-sm ">
                     <thead class="bg-gray-50">

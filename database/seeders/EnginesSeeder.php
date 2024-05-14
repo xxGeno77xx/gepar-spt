@@ -41,6 +41,7 @@ class EnginesSeeder extends Seeder
                 'updated_at_user_id' => 1,
                 'assurances_mail_sent' => 0,
                 'visites_mail_sent' => 0,
+                'tvm_mail_sent' => 0,
                 'created_at' => now(),
                 'updated_at' => now(),
                 'carosserie' => 'Bâchée',
