@@ -9,14 +9,13 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-
     protected $connection = 'oracle';
-    
+
     public function up(): void
     {
         Schema::create('chauffeur_permis', function (Blueprint $table) {
-            $table->unsignedBigInteger("chauffeur_id");
-            $table->unsignedBigInteger("permis_id");
+            $table->unsignedBigInteger('chauffeur_id');
+            $table->unsignedBigInteger('permis_id');
             $table->timestamps();
         });
     }

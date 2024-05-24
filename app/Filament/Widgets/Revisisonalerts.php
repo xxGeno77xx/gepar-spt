@@ -17,6 +17,7 @@ class Revisisonalerts extends BaseWidget
     {
         return false;
     }
+
     protected static ?int $sort = 4;
 
     protected function getTableQuery(): Builder

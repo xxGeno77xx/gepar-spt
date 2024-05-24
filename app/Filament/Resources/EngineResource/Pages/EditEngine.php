@@ -116,7 +116,7 @@ class EditEngine extends EditRecord
                         ]);
 
                         Notification::make()
-                            ->title('Réaffectation')
+                            ->title('Affectation')
                             ->iconColor('primary')
                             ->body('L\'engin immatriculé '.$this->record->plate_number.' a été affecté à '.$newDepartement)
                             ->icon('heroicon-o-chat-alt-2')

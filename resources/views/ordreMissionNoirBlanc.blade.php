@@ -145,7 +145,7 @@
                     </span>
                 </p>
             </div>
-
+            <br><br>
             <div class="bottom-right">
                 <p style="marhin-right 80cm">Lomé, {{ today()->translatedFormat('d F Y') }}</p>
                 <p>Le Directeur Général de la <br>Société des Postes du Togo</p>

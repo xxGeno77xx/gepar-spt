@@ -90,25 +90,24 @@ use Spatie\Enum\Enum;
  * @method static self Carburant_read()
  * @method static self Carburant_update()
  * @method static self Carburant_delete()
- * =================================================
- * TYPES_CARBURANT
+ *                                        =================================================
+ *                                        TYPES_CARBURANT
  * @method static self TypesCarburant_create()
  * @method static self TypesCarburant_read()
  * @method static self TypesCarburant_update()
  * @method static self TypesCarburant_delete()
- * // =================================================
- * 
+ *                                             // =================================================
+ *
  * PLANING_VOYAGE
  * @method static self Planning_create()
  * @method static self Planning_read()
  * @method static self Planning_update()
- * // =================================================
- * 
+ *                                       // =================================================
+ *
  * ORDRE_MISSION
  * @method static Ordre_create()
  * @method static Ordre_read()
  * @method static Ordre_update()
- * 
  */
 class PermissionsClass extends Enum
 {

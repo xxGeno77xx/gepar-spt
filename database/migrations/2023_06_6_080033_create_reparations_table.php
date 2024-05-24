@@ -72,7 +72,7 @@ return new class extends Migration
                 ->enum([
 
                     AppreciationClass::Satisfaisant()->value,
-                    AppreciationClass::Insatisfaisant()->value
+                    AppreciationClass::Insatisfaisant()->value,
                 ]);
 
             $table->unsignedBigInteger('circuit_id')->nullable();

@@ -2,16 +2,15 @@
 
 namespace App\Filament\Resources\TvmResource\Pages;
 
-use Carbon\Carbon;
-use App\Models\Tvm;
-use App\Models\Engine;
-use Filament\Pages\Actions;
-use App\Support\Database\StatesClass;
 use App\Filament\Resources\TvmResource;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Notifications\Notification;
+use App\Models\Engine;
+use App\Models\Tvm;
 use App\Support\Database\PermissionsClass;
+use App\Support\Database\StatesClass;
+use Carbon\Carbon;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Database\Eloquent\Model;
 
 class CreateTvm extends CreateRecord
 {
@@ -22,41 +21,39 @@ class CreateTvm extends CreateRecord
     protected function handleRecordCreation(array $data): Model
     {
 
-
-        foreach ($data["engins_prix"] as $key => $engine) {
-            //if forelast then break 
-            if ($key == count($data["engins_prix"]) - 1) {
+        foreach ($data['engins_prix'] as $key => $engine) {
+            //if forelast then break
+            if ($key == count($data['engins_prix']) - 1) {
 
                 break;
 
             }
 
             $model = static::getModel()::create([
-                "date_debut" => $data["date_debut"],
-                "date_fin" => $data["date_fin"],
-                "reference" => $data["reference"],
-                "engine_id" => intval($engine["engine_id"]),
-                "prix" => intval($engine["prix"]),
-                "user_id" => $data["user_id"],
-                "updated_at_user_id" => $data["updated_at_user_id"],
-                "state" => StatesClass::Activated()->value
+                'date_debut' => $data['date_debut'],
+                'date_fin' => $data['date_fin'],
+                'reference' => intval($engine['reference']),
+                'engine_id' => intval($engine['engine_id']),
+                'prix' => intval($engine['prix']),
+                'user_id' => $data['user_id'],
+                'updated_at_user_id' => $data['updated_at_user_id'],
+                'state' => StatesClass::Activated()->value,
             ]);
 
         }
 
         return static::getModel()::create([
-            "date_debut" => $data["date_debut"],
-            "date_fin" => $data["date_fin"],
-            "reference" => $data["reference"],
-            "engine_id" => intval($data["engins_prix"][count($data["engins_prix"]) - 1]["engine_id"]),
-            "prix" => intval($data["engins_prix"][count($data["engins_prix"]) - 1]["prix"]),
-            "user_id" => $data["user_id"],
-            "updated_at_user_id" => $data["updated_at_user_id"],
-            "state" => StatesClass::Activated()->value
+            'date_debut' => $data['date_debut'],
+            'date_fin' => $data['date_fin'],
+            'reference' => intval($data['engins_prix'][count($data['engins_prix']) - 1]['reference']),
+            'engine_id' => intval($data['engins_prix'][count($data['engins_prix']) - 1]['engine_id']),
+            'prix' => intval($data['engins_prix'][count($data['engins_prix']) - 1]['prix']),
+            'user_id' => $data['user_id'],
+            'updated_at_user_id' => $data['updated_at_user_id'],
+            'state' => StatesClass::Activated()->value,
         ]);
 
     }
-
 
     protected function authorizeAccess(): void
     {
@@ -64,99 +61,26 @@ class CreateTvm extends CreateRecord
 
         $userPermission = $user->hasAnyPermission([PermissionsClass::assurances_create()->value]);
 
-        abort_if(!$userPermission, 403, __("Vous n'avez pas acces à cette fonctionnalité"));
+        abort_if(! $userPermission, 403, __("Vous n'avez pas acces à cette fonctionnalité"));
     }
-
 
     protected function afterCreate(): void
     {
-        $tvm = $this->record;
 
-        Engine::where('id', $tvm->engine_id)->update(['tvm_mail_sent' => false]);
+        $data = $this->data;
+
+        $this->resetTvmMailSentCollumnOnEnginesTable($data);
+
     }
 
     protected function beforeCreate(): void
     {
-        $tvm = $this->data;
+        $data = $this->data;
 
-        $enginesForThisTVM = $tvm["engins_prix"];
+        $this->checkIfEngineAlreadyHasTvmForThisYear($data);
 
-        $enginesIDs = [];
-
-        $latestTvmsForTheseEngines = [];
-
-        $allTvmsForEnginesInForm = [];
-
-        // get latest tvms for the engines in the form
-        foreach ($enginesForThisTVM as $engine) { 
-
-            $enginesIDs [] = intval($engine["engine_id"]);
-
-            $latestTvmsForTheseEngines[] = Tvm::where("engine_id", $engine["engine_id"])
-                ->where('tvms.state', StatesClass::Activated()->value)
-                ->orderBy('id', 'desc')
-                ->first();     
-        }
-
-        $allTvmsForEnginesInForm = Tvm::whereIn("engine_id", $enginesIDs)
-        ->where('tvms.state', StatesClass::Activated()->value)
-        ->get();
-
-
-        //collection of latest tvms for engines in form
-        $tvmCollection = collect(($latestTvmsForTheseEngines));
-
-        if ($tvmCollection) {
-
-            foreach ($tvmCollection as $aTvmForAgivenEngine) {
-
-                if ($aTvmForAgivenEngine) {
-
-                    $latestTvmEndDateForThisEngine = Carbon::parse($aTvmForAgivenEngine->date_fin);
-
-                    if ($latestTvmEndDateForThisEngine) { 
-                          //if end_date is < to current date minus 2 days, notification + stopping process
-                        if (($latestTvmEndDateForThisEngine)->subDays(2) > carbon::today()) {
-                            Notification::make()
-                                ->warning()
-                                ->title('Attention!')
-                                ->body('L\'engin immatriculé '.Engine::where("id", $aTvmForAgivenEngine->engine_id)->first()->plate_number.' possède une TVM qui n\'a pas encore expiré. Vous ne pouvez pas en enregistrer de nouvelle pour cet engin là!')
-                                ->persistent()
-                                ->send();
-
-                            $this->halt();
-                        }
-
-                    }
-                }
-
-            }
-
-            foreach($allTvmsForEnginesInForm as $tvmItem)
-            {
-                $carbonTvmRecordDateExpiration = Carbon::parse($tvmItem['date_fin'])->format('y-m-d');
-
-                $carbonTvmRecordDateInitiale = Carbon::parse($tvmItem['date_debut'])->format('y-m-d');
-
-                $carbonTvmFormDataDateExpiration = Carbon::parse($tvm['date_fin'])->format('y-m-d');
-
-                $carbonTvmFormDataDateInitiale = Carbon::parse($tvm['date_debut'])->format('y-m-d');
-                
-
-                if (($carbonTvmFormDataDateExpiration == $carbonTvmRecordDateExpiration) || ($carbonTvmFormDataDateInitiale == $carbonTvmRecordDateInitiale)) {
-                    Notification::make()
-                        ->warning()
-                        ->title('Attention!')
-                        ->body('Il existe déjà une TVM avec les dates fournies pour l\'engin '.Engine::where("id", $tvmItem->engine_id)->first()->plate_number.'. Veuillez les changer!!!')
-                        ->send();
-
-                    $this->halt();
-                }
-            }
-        }
-
+        $this->preventFutureDate($data);
     }
-
 
     protected function getRedirectUrl(): string
     {
@@ -171,5 +95,63 @@ class CreateTvm extends CreateRecord
         ];
     }
 
-}
+    public function checkIfEngineAlreadyHasTvmForThisYear($data)
+    {
+        $formEngines = $this->data['engins_prix'];
 
+        $formYear = Carbon::parse($this->data['date_debut'])->format('Y');
+
+        $engineIDs = [];
+
+        foreach ($formEngines as $engine) {
+            $engineIDs[] = $engine['engine_id'];
+        }
+
+        $allTvmsForEnginesInForm = Tvm::whereIn('engine_id', $engineIDs)->get();
+
+        foreach ($allTvmsForEnginesInForm as $tvm) {
+            if (Carbon::parse($tvm->date_debut)->format('Y') == $formYear) {
+                Notification::make()
+                    ->warning()
+                    ->title('Attention!')
+                    ->body('Il existe déjà une TVM de l\'année '.$formYear.' pour l\'engin '.Engine::where('id', $tvm->engine_id)->first()->plate_number)
+                    ->send();
+
+                $this->halt();
+            }
+        }
+    }
+
+    public function resetTvmMailSentCollumnOnEnginesTable($data)
+    {
+        $formEngines = $this->data['engins_prix'];
+
+        $engineIDs = [];
+
+        foreach ($formEngines as $engine) {
+            $engineIDs[] = $engine['engine_id'];
+        }
+
+        foreach ($engineIDs as $iD) {
+            Engine::where('id', $iD)->update(['tvm_mail_sent' => 0]);
+        }
+    }
+
+    public function preventFutureDate($data)
+    {
+        $formYear = Carbon::parse($this->data['date_debut'])->format('Y');
+
+        $currentYear = Carbon::parse(now())->format('Y');
+
+        if ($formYear > $currentYear) {
+
+            Notification::make()
+                ->warning()
+                ->title('Attention!')
+                ->body('Vous essayez d\'enregistrer une TVM pour une année ultérieure à '.$currentYear.'!!!')
+                ->send();
+
+            $this->halt();
+        }
+    }
+}

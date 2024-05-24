@@ -12,10 +12,8 @@ use Spatie\Enum\Enum;
  * @method static self D()
  * @method static self E()
  * @method static self F()
-
  */
 class CategoryPermisClass extends Enum
-
 {
     protected static function values()
     {

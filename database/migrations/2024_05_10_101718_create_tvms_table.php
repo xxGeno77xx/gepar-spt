@@ -1,15 +1,15 @@
 <?php
 
 use App\Support\Database\StatesClass;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
-
     protected $connection = 'oracle';
 
     public function up(): void
@@ -21,11 +21,11 @@ return new class extends Migration {
 
             $table->date('date_fin');
 
-            $table->string('reference');
+            $table->integer('reference');
 
-            $table->unsignedBigInteger("engine_id");
+            $table->unsignedBigInteger('engine_id');
 
-            $table->integer("prix");
+            $table->integer('prix');
 
             $table->unsignedBigInteger('user_id');
 

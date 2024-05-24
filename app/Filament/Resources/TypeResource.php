@@ -6,7 +6,6 @@ use App\Filament\Resources\TypeResource\Pages;
 use App\Models\Type;
 use App\Support\Database\PermissionsClass;
 use App\Support\Database\StatesClass;
-use Database\Seeders\RolesPermissionsSeeder;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Form;
@@ -89,6 +88,5 @@ class TypeResource extends Resource
             PermissionsClass::Types_update()->value,
         ]);
 
-    
     }
 }

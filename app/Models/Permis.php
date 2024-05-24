@@ -2,16 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use App\Support\Database\CategoryPermisClass;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Model;
 
 class Permis extends Model
 {
     use HasFactory;
 
-    protected $connection ="oracle";
-    protected $table = "categories_permis";
+    protected $connection = 'oracle';
 
+    protected $table = 'categories_permis';
 }

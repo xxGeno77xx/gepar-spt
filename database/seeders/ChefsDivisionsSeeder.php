@@ -2,11 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Support\Str;
+use App\Support\Database\StatesClass;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use App\Support\Database\StatesClass;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Support\Str;
 
 class ChefsDivisionsSeeder extends Seeder
 {

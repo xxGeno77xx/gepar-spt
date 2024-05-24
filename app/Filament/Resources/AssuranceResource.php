@@ -2,25 +2,25 @@
 
 namespace App\Filament\Resources;
 
-use App\Models\Engine;
+use App\Filament\Resources\AssuranceResource\Pages;
 use App\Models\Assurance;
+use App\Models\Engine;
 use App\Models\Prestataire;
-use Filament\Resources\Form;
-use Filament\Resources\Table;
-use Filament\Resources\Resource;
-use Filament\Forms\Components\Card;
-use Filament\Forms\Components\Grid;
 use App\Support\Database\CommonInfos;
+use App\Support\Database\PermissionsClass;
 use App\Support\Database\StatesClass;
+use Filament\Forms\Components\Card;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use Filament\Resources\Form;
+use Filament\Resources\Resource;
+use Filament\Resources\Table;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\BadgeColumn;
-use Filament\Forms\Components\DatePicker;
-use App\Support\Database\PermissionsClass;
-use App\Filament\Resources\AssuranceResource\Pages;
+use Filament\Tables\Columns\TextColumn;
 
 class AssuranceResource extends Resource
 {
@@ -41,31 +41,26 @@ class AssuranceResource extends Resource
                             ->schema([
 
                                 Select::make('engine_id')
-                                ->label('Numéro de plaque')
-                                ->options(
-                                    Engine::select(['plate_number', 'id'])
-                                        ->where('engines.state', StatesClass::Activated()->value)
-                                        ->get()->pluck('plate_number', 'id')
-                                )
-                                ->searchable()
-                                ->required(),
+                                    ->label('Numéro de plaque')
+                                    ->options(
+                                        Engine::select(['plate_number', 'id'])
+                                            ->where('engines.state', StatesClass::Activated()->value)
+                                            ->get()->pluck('plate_number', 'id')
+                                    )
+                                    ->searchable()
+                                    ->required(),
 
-                                
                                 Select::make('assureur_id')
                                     ->label('Assureur')
                                     ->options(
                                         Prestataire::select(['raison_social_fr', 'code_fr'])
-                                            ->where('raison_social_fr', 'LIKE', '%SUNU%')
-                                            ->Orwhere('raison_social_fr', 'LIKE', '%NSIA%')
-                                            ->OrWhere('raison_social_fr', 'LIKE', '%GTA%')
+                                            ->whereIn('code_fr', [97, 9, 10])
                                             ->get()->pluck('raison_social_fr', 'code_fr')
                                     )
                                     ->searchable()
                                     ->preload()
                                     ->required(),
 
-
-                              
                                 DatePicker::make('date_debut')
                                     ->before('date_fin')
                                     ->label('Date initiale')
@@ -76,7 +71,6 @@ class AssuranceResource extends Resource
                                     ->required(),
                             ]),
 
-
                         Hidden::make('user_id')
                             ->default(auth()->user()->id)
                             ->disabled(),
@@ -86,9 +80,7 @@ class AssuranceResource extends Resource
                             ->disabled(),
 
                     ])
-                    ->columnSpan(['lg' => fn(?Assurance $record) => $record === null ? 3 : 2]),
-
-                    
+                    ->columnSpan(['lg' => fn (?Assurance $record) => $record === null ? 3 : 2]),
 
                 Hidden::make('state')->default(StatesClass::Activated()->value),
 
@@ -108,6 +100,10 @@ class AssuranceResource extends Resource
                     ->label('Numéro de plaque')
                     ->searchable()
                     ->sortable(),
+
+                TextColumn::make('assureur_id')
+                    ->label('Assureur')
+                    ->formatStateUsing(fn ($state) => Prestataire::where('code_fr', $state) ? Prestataire::where('code_fr', $state)->first()->raison_social_fr : ' '),
 
                 TextColumn::make('date_debut')
                     ->dateTime('d-m-Y')

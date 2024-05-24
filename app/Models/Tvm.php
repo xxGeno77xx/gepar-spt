@@ -13,14 +13,12 @@ class Tvm extends Model
     protected $connection = 'oracle';
 
     protected $casts = [
-        "engine_id" => "array",
-        "engins_prix" => "array",
+        'engine_id' => 'array',
+        'engins_prix' => 'array',
     ];
-
 
     public function engines(): BelongsToMany
     {
-        return $this->belongsToMany(Engine::class)->withPivot("montant");
+        return $this->belongsToMany(Engine::class)->withPivot('montant');
     }
-
 }

@@ -2,31 +2,29 @@
 
 namespace App\Filament\Http\Livewire\Auth;
 
-use App\Models\User;
 use App\Models\DbaUser;
-use Livewire\Component;
 use App\Models\Departement;
-use Illuminate\Support\Str;
-use Filament\Facades\Filament;
 use App\Models\DepartementUser;
+use App\Models\User;
 use App\Support\Database\RolesEnum;
-use Filament\Forms\Components\Grid;
-use Illuminate\Contracts\View\View;
+use App\Support\Database\StatesClass;
+use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
+use DanHarrin\LivewireRateLimiting\WithRateLimiting;
+use Filament\Facades\Filament;
+use Filament\Forms\ComponentContainer;
+use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Radio;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
+use Filament\Http\Responses\Auth\Contracts\LoginResponse;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Support\Database\StatesClass;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Select;
-use Filament\Forms\ComponentContainer;
-use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Components\Checkbox;
-use Filament\Forms\Components\TextInput;
 use Illuminate\Validation\ValidationException;
-use Filament\Forms\Concerns\InteractsWithForms;
-use DanHarrin\LivewireRateLimiting\WithRateLimiting;
-use Filament\Http\Responses\Auth\Contracts\LoginResponse;
-use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
+use Livewire\Component;
 
 /**
  * @property ComponentContainer $form
@@ -73,9 +71,9 @@ class Login extends Component implements HasForms
 
             try {
 
-                $oracleuser = DbaUser::where("username", strtoupper($data["username"]))->first();
+                $oracleuser = DbaUser::where('username', strtoupper($data['username']))->first();
 
-                $conn = oci_connect(strtoupper($data['username']), $data['password'], env("CONNECTION"));
+                $conn = oci_connect(strtoupper($data['username']), $data['password'], env('CONNECTION'));
 
             } catch (\Exception $e) {
                 if ($oracleuser) {
@@ -86,7 +84,6 @@ class Login extends Component implements HasForms
                 } else {
 
                     throw ValidationException::withMessages(['username' => 'Ce compte n\'existe pas']);
-
                 }
 
                 throw ValidationException::withMessages(['username' => 'Nom d\'utilisateur ou mot de passe incorrect']);
@@ -101,54 +98,52 @@ class Login extends Component implements HasForms
             return null;
         }
 
-
         $userToLogIn = User::where('username', $data['username'])->first();
 
-        if (!$userToLogIn) {
+        if (! $userToLogIn) {
 
-            if (!isset($data["departement_id"])) {
+            if (! isset($data['departement_id'])) {
                 throw ValidationException::withMessages(['username' => 'C\'est votre première connexion. Cochez la case "Nouvel utilisateur" puis choisissez votre département et votre poste']);
             }
 
             $createUser = User::create([
-                'email' => Str::random(100) . '@laposte.tg',
+                'email' => $data['email'],
                 'password' => Hash::make('L@poste+2024'),
                 'name' => $data['name'],
                 'lastName' => $data['lastName'],
                 'username' => $data['username'],
                 'notification' => true,
                 'login_attempts' => 0,
-                'departement_id' => $data["departement_id"],
+                'departement_id' => $data['departement_id'],
                 'created_at' => now(),
                 'updated_at' => now(),
                 'state' => StatesClass::Activated()->value,
-                'poste' => $data["poste"],
+                'poste' => $data['poste'],
             ]);
 
-            $newUser = User::where("username", $data['username'])->first();
+            $newUser = User::where('username', $data['username'])->first();
 
-            switch ($data["departement_id"]) {
-                case Departement::where("sigle_centre", "DPL")->first()->code_centre:
+            switch ($data['departement_id']) {
+                case Departement::where('sigle_centre', 'DPL')->first()->code_centre:
                     $newUser->syncRoles(RolesEnum::Dpl()->value, RolesEnum::Delegue_Division()->value);
                     break;
 
-                case Departement::where("sigle_centre", "DIGA")->first()->code_centre:
+                case Departement::where('sigle_centre', 'DIGA')->first()->code_centre:
                     $newUser->syncRoles(RolesEnum::Diga()->value, RolesEnum::Delegue_Direction()->value);
                     break;
 
-                case Departement::where("sigle_centre", "DPAS")->first()->code_centre:
+                case Departement::where('sigle_centre', 'DPAS')->first()->code_centre:
                     $newUser->syncRoles(RolesEnum::Dpas()->value, RolesEnum::Delegue_Division()->value);
                     break;
 
-                case Departement::where("sigle_centre", "DCGBT")->first()->code_centre:
+                case Departement::where('sigle_centre', 'DCGBT')->first()->code_centre:
                     $newUser->syncRoles(RolesEnum::Budget()->value, RolesEnum::Delegue_Division()->value);
                     break;
             }
 
-
             DepartementUser::create([
-                'departement_code_centre' => $data["departement_id"],
-                'user_id' => $newUser->id
+                'departement_code_centre' => $data['departement_id'],
+                'user_id' => $newUser->id,
             ]);
 
             Auth::login($newUser);
@@ -202,37 +197,45 @@ class Login extends Component implements HasForms
                 ->label(__('filament::login.fields.password.label'))
                 ->password()
                 ->required(),
-            Checkbox::make("new_user")
-                ->label("Nouvel utilisateur")
+            Checkbox::make('new_user')
+                ->label('Nouvel utilisateur')
                 ->dehydrated(false)
                 ->reactive(),
 
-                TextInput::make('lastName')
-                ->label(__("Nom de famille"))
+            TextInput::make('lastName')
+                ->label(__('Nom de famille'))
                 ->required()
-                ->visible(fn($get) => $get("new_user") == 1 ? true : false)
-                ->required(fn($get) => $get("new_user") == 1 ? true : false)
+                ->visible(fn ($get) => $get('new_user') == 1 ? true : false)
+                ->required(fn ($get) => $get('new_user') == 1 ? true : false)
                 ->autocomplete(),
 
-                TextInput::make('name')
-                ->label(__("Prénom"))
+            TextInput::make('name')
+                ->label(__('Prénom'))
                 ->required()
-                ->visible(fn($get) => $get("new_user") == 1 ? true : false)
-                ->required(fn($get) => $get("new_user") == 1 ? true : false)
+                ->visible(fn ($get) => $get('new_user') == 1 ? true : false)
+                ->required(fn ($get) => $get('new_user') == 1 ? true : false)
                 ->autocomplete(),
 
-            Select::make("departement_id")
-                ->label("Département")
-                ->options(Departement::pluck("sigle_centre", "code_centre"))
-                ->visible(fn($get) => $get("new_user") == 1 ? true : false)
-                ->required(fn($get) => $get("new_user") == 1 ? true : false)
+            TextInput::make('email')
+                ->label(__('Adresse mail'))
+                ->required()
+                ->regex('/.*@laposte\.tg$/')
+                ->email()
+                ->visible(fn ($get) => $get('new_user') == 1 ? true : false)
+                ->required(fn ($get) => $get('new_user') == 1 ? true : false)
+                ->autocomplete(),
+
+            Select::make('departement_id')
+                ->label('Département')
+                ->options(Departement::pluck('sigle_centre', 'code_centre'))
+                ->visible(fn ($get) => $get('new_user') == 1 ? true : false)
+                ->required(fn ($get) => $get('new_user') == 1 ? true : false)
                 ->searchable(),
 
-            TextInput::make("poste")
-                ->label("Poste occupé")
-                ->required(fn($get) => $get("new_user") == 1 ? true : false)
-                ->visible(fn($get) => $get("new_user") == 1 ? true : false),
-
+            TextInput::make('poste')
+                ->label('Poste occupé')
+                ->required(fn ($get) => $get('new_user') == 1 ? true : false)
+                ->visible(fn ($get) => $get('new_user') == 1 ? true : false),
 
             // Radio::make("level")
             // // ->inline()

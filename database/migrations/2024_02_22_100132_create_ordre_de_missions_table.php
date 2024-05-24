@@ -32,7 +32,7 @@ return new class extends Migration
 
             $table->string('departement_id');
 
-            $table->boolean('is_ordre_de_route');
+            $table->boolean('is_ordre_de_route')->nullable();
 
             $table->date('date_de_depart');
 

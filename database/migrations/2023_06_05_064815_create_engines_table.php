@@ -45,7 +45,7 @@ return new class extends Migration
             $table->foreign('carburant_id')->references('id')->on('carburants');
 
             $table->boolean('assurances_mail_sent');
-            
+
             $table->boolean('tvm_mail_sent');
 
             $table->boolean('visites_mail_sent');
@@ -70,13 +70,13 @@ return new class extends Migration
                 ->unique()
                 ->nullable();
 
-            $table->integer('poids_total_en_charge');
+            $table->double('poids_total_en_charge', 10, 2);
 
-            $table->integer('poids_a_vide');
+            $table->double('poids_a_vide', 10, 2);
 
-            $table->integer('poids_total_roulant')->nullable();
+            $table->double('poids_total_roulant', 10, 2)->nullable();
 
-            $table->integer('charge_utile');
+            $table->double('charge_utile', 10, 2);
 
             $table->double('largeur', 10, 2);
 

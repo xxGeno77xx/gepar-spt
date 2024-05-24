@@ -10,5 +10,6 @@ class Enginetvm extends Model
     use HasFactory;
 
     protected $table = 'engine_tvm';
+
     protected $connection = 'oracle';
 }

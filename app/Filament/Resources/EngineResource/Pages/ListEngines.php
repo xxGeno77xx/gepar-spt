@@ -57,6 +57,7 @@ class ListEngines extends ListRecords
             ->groupBy(
                 'engines.id',
                 'date_expiration',
+                'engines.tvm_mail_sent',
                 'date_fin',
                 'engines.modele_id',
                 'engines.power',

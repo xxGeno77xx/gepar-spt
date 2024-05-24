@@ -23,6 +23,7 @@ use Spatie\Enum\Enum;
  * @method static self Interimaire_Directeur()
  * @method static self Interimaire_Chef_division()
  * @method static self Interimaire_Chef_parc()
+ * @method static self Chef_section()
  */
 class RolesEnum extends Enum
 {
@@ -42,6 +43,7 @@ class RolesEnum extends Enum
             'Interimaire_Directeur' => 'Intérimaire du Directeur',
             'Interimaire_Chef_division' => 'Intérimaire du Chef Division',
             'Interimaire_Chef_parc' => 'Intérimaire du Chef Parc',
+            'Chef_section' => 'Chef section',
         ];
 
     }

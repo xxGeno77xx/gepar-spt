@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\OrdreDeMission;
 use App\Models\PlanningVoyage;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 
 class OrdreMissionPdfController extends Controller
 {
@@ -29,7 +30,6 @@ class OrdreMissionPdfController extends Controller
             ->stream('Ordre N '.$planning->id.'.pdf');
     }
 
-
     public function ordreDeRouteCouleur(OrdreDeMission $order)
     {
 
@@ -42,5 +42,14 @@ class OrdreMissionPdfController extends Controller
 
         return Pdf::loadView('ordreDeRouteBn', ['order' => $order])
             ->stream('Ordre-de-route N° '.$order->id.'.pdf');
+    }
+
+    public function dashboardEtat()
+    {
+
+        $currentYear = Carbon::parse(now())->format('Y');
+
+        return Pdf::loadView('dashboardEtat')
+            ->stream('Situation annuelle '.$currentYear.'.pdf');
     }
 }

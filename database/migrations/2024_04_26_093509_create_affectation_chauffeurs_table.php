@@ -9,19 +9,18 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-
     protected $connection = 'oracle';
 
     public function up(): void
     {
-            Schema::create('affectation_chauffeurs', function (Blueprint $table) {
-                $table->id();
-                $table->unsignedBigInteger("chauffeur_id");
-                $table->unsignedBigInteger("old_engine_id")->nullable();
-                $table->unsignedBigInteger("new_engine_id");
-                $table->date("date_affectation");
-                $table->timestamps();
-            });
+        Schema::create('affectation_chauffeurs', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('chauffeur_id');
+            $table->unsignedBigInteger('old_engine_id')->nullable();
+            $table->unsignedBigInteger('new_engine_id');
+            $table->date('date_affectation');
+            $table->timestamps();
+        });
     }
 
     /**

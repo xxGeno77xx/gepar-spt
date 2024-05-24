@@ -2,15 +2,13 @@
 
 namespace App\Filament\Resources\EngineResource\RelationManagers;
 
-use App\Models\Enginetvm;
 use App\Models\Tvm;
 use Filament\Forms;
-use Filament\Tables;
 use Filament\Resources\Form;
-use Filament\Resources\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Resources\Table;
+use Filament\Tables;
+use Illuminate\Database\Eloquent\Builder;
 
 class TvmsRelationManager extends RelationManager
 {
@@ -33,15 +31,17 @@ class TvmsRelationManager extends RelationManager
         return $table
             ->columns([
 
-                Tables\Columns\TextColumn::make('reference'),
+                Tables\Columns\TextColumn::make('reference')
+                    ->label('N° lot'),
 
-                Tables\Columns\TextColumn::make('date_debut')
-                    ->date("d M Y"),
+                Tables\Columns\BadgeColumn::make('date_debut')
+                    ->date('d M Y')
+                    ->color('success'),
 
-                Tables\Columns\TextColumn::make('date_fin')
-                    ->date("d M Y"),
+                Tables\Columns\BadgeColumn::make('date_fin')
+                    ->date('d M Y')
+                    ->color('success'),
 
-                
             ])
             ->filters([
                 //
@@ -56,14 +56,13 @@ class TvmsRelationManager extends RelationManager
             ->bulkActions([
                 // Tables\Actions\DeleteBulkAction::make(),
             ]);
-    }    
+    }
 
-       protected function getTableQuery(): Builder
+    protected function getTableQuery(): Builder
     {
 
-        
-        return Enginetvm::join("tvms", "tvms.id", "engine_tvm.tvm_id")
-        ->select("date_debut", "date_fin", "reference", "engine_tvm.id")
-        ->where("engine_tvm.engine_id", $this->getOwnerRecord()->id);
+        return Tvm::join('engines', 'engines.id', 'tvms.engine_id')
+            ->select('date_debut', 'date_fin', 'reference', 'tvms.id')
+            ->where('tvms.engine_id', $this->getOwnerRecord()->id);
     }
 }

@@ -25,4 +25,4 @@ Route::get('ordre-de-route/{order}', [OrdreMissionPdfController::class, 'ordreDe
 
 Route::get('ordre-de-route_Bn/{order}', [OrdreMissionPdfController::class, 'ordreDeRouteBn'])->name('ordreDeRouteBn');
 
-
+Route::get('SitutationAnnuelle', [OrdreMissionPdfController::class, 'dashboardEtat'])->name('dashboardEtat');

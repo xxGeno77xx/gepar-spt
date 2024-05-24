@@ -64,6 +64,9 @@ class UserResource extends Resource
                             ->label(strval(__('filament-authentication::filament-authentication.field.user.name')))
                             ->required(),
 
+                        TextInput::make('lastname')
+                            ->label('Prénom'),
+
                         TextInput::make('email')
                             ->required()
                             ->email()
@@ -142,8 +145,11 @@ class UserResource extends Resource
                     ->sortable()
                     ->label(strval(__('filament-authentication::filament-authentication.field.user.name'))),
 
-                    TextColumn::make('poste')
-                    ->label("Poste occupé")
+                TextColumn::make('lastname')
+                    ->searchable(),
+
+                TextColumn::make('poste')
+                    ->label('Poste occupé')
                     ->searchable()
                     ->sortable(),
                 // TextColumn::make('email')

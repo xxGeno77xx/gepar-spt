@@ -27,7 +27,7 @@ class FraisReparationOveview extends BaseWidget
 
         return [
 
-            Card::make(new HtmlString('<p style="color:green; font-weight:bold; font-size:20px">Total des frais de réparation</p>'), number_format($FraisDeReparation, "0", " ", ".").' FCFA')
+            Card::make(new HtmlString('<p style="color:green; font-weight:bold; font-size:20px">Total des frais de réparation</p>'), number_format($FraisDeReparation, '0', ' ', '.').' FCFA')
                 ->color('success')
                 ->icon('heroicon-o-cash'),
 

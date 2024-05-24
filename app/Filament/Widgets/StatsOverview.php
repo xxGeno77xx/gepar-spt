@@ -33,7 +33,6 @@ class StatsOverview extends BaseWidget
             ->where('engines.state', '<>', StatesClass::Deactivated()->value)
             ->count();
 
-
         $assurances = Engine::Join('assurances', 'engines.id', '=', 'assurances.engine_id')
             ->whereNull('engines.deleted_at')
             ->whereRaw('assurances.created_at = (SELECT MAX(created_at) FROM assurances WHERE engine_id = engines.id AND assurances.state = ?)', [$activated])
@@ -43,7 +42,6 @@ class StatsOverview extends BaseWidget
             ->whereNull('engines.deleted_at')
             ->where('engines.state', '<>', StatesClass::Deactivated()->value)
             ->count();
-
 
         $tvms = Engine::Join('tvms', 'engines.id', '=', 'tvms.engine_id')
             ->whereNull('engines.deleted_at')
@@ -55,13 +53,12 @@ class StatsOverview extends BaseWidget
             ->where('engines.state', '<>', StatesClass::Deactivated()->value)
             ->count();
 
-
         return [
             // Card::make('Total des engins du parc', Engine::where('engines.state', '<>', StatesClass::Deactivated()->value)->count()) //  to do:  where activated  or reparing
             //     ->chart([mt_rand(1, 50), mt_rand(1, 50), mt_rand(1, 50), mt_rand(1, 50), mt_rand(1, 50), mt_rand(1, 50), mt_rand(1, 50)])
             //     ->color('success'),
 
-            Card::make('TVM à surveiller',  $tvms) //  to do:  where activated  or reparing
+            Card::make('TVM à surveiller', $tvms) //  to do:  where activated  or reparing
                 ->chart([mt_rand(1, 50), mt_rand(1, 50), mt_rand(1, 50), mt_rand(1, 50), mt_rand(1, 50), mt_rand(1, 50), mt_rand(1, 50)])
                 ->color('danger'),
 

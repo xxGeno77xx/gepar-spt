@@ -140,16 +140,16 @@ class ConsommationCarburantsRelationManager extends RelationManager
                             )
                             ->searchable()
                             ->reactive()
-                            ->required(fn($get, $set) => $get("conducteur") ? false : true),
+                            ->required(fn ($get, $set) => $get('conducteur') ? false : true),
 
-                            Forms\Components\TextInput::make("conducteur")
+                        Forms\Components\TextInput::make('conducteur')
                             ->reactive()
-                                ->required(fn($get, $set) => $get("chauffeur_id") ? false : true),
+                            ->required(fn ($get, $set) => $get('chauffeur_id') ? false : true),
 
                         Forms\Components\TextInput::make('carte_recharge_id')
-                                ->columnSpanFull()
-                            ->label('Carte de recharge')
-                            // ->visible(fn($get , $set) => $get("especes") == 1 ? false : true),
+                            ->columnSpanFull()
+                            ->label('Carte de recharge'),
+                        // ->visible(fn($get , $set) => $get("especes") == 1 ? false : true),
 
                     ]),
                 Forms\Components\TextInput::make('observation')
@@ -180,11 +180,11 @@ class ConsommationCarburantsRelationManager extends RelationManager
 
                 Tables\Columns\TextColumn::make('fullname')
                     ->label('Chauffeur')
-                    ->placeholder("-"),
+                    ->placeholder('-'),
 
-                    Tables\Columns\TextColumn::make('conducteur')
+                Tables\Columns\TextColumn::make('conducteur')
                     ->label('Conducteur')
-                    ->placeholder("-"),
+                    ->placeholder('-'),
 
                 Tables\Columns\TextColumn::make('observation')
                     ->limit(8)

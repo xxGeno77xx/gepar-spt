@@ -80,7 +80,7 @@ class RolesPermissionsSeeder extends Seeder
 
         $usersPermissions = Arr::where($permissions, function ($value) {
 
-            return !in_array($value, [
+            return ! in_array($value, [
                 PermissionsClass::Parametre_read()->value,
                 PermissionsClass::Parametre_update()->value,
                 PermissionsClass::Permissions_read()->value,
@@ -105,8 +105,6 @@ class RolesPermissionsSeeder extends Seeder
         //     ['name' => 'TCHESSOTAGBA Pidénam', 'username' => 'TCHESSOTAGBA', 'email' => 'Pidename.Tchessotagba@laposte.tg', 'notification' => 1, 'password' => Hash::make('L@poste+2024'), 'login_attempts' => 0, 'created_at' => now(), 'updated_at' => now(), 'state' => StatesClass::Activated()->value, 'departement_id' => 9],
         //     ['name' => 'wiyao', 'username' => 'wiyao.aboua', 'email' => 'wiyao.aboua@laposte.tg', 'notification' => 1, 'password' => Hash::make('L@poste+2024'), 'login_attempts' => 0, 'created_at' => now(), 'updated_at' => now(), 'state' => StatesClass::Activated()->value, 'departement_id' => 5],
         // ]);
-
-
 
         // $directeurs = collect([
         //     ['name' => 'TCHOYO Yaou', 'username' => 'TCHOYO', 'email' => 'Yaou.Tchoyo@laposte.tg', 'notification' => 1, 'password' => Hash::make('L@poste+2024'), 'login_attempts' => 0, 'created_at' => now(), 'updated_at' => now(), 'state' => StatesClass::Activated()->value],
@@ -135,10 +133,7 @@ class RolesPermissionsSeeder extends Seeder
             ]);
         }
 
-
-
         ////////////DPL permissions ///////
-
 
         $DdplPermissions = [
 
@@ -150,7 +145,6 @@ class RolesPermissionsSeeder extends Seeder
             PermissionsClass::Assurances_read()->value,
             PermissionsClass::Assurances_update()->value,
 
-
             PermissionsClass::Visites_create()->value,
             PermissionsClass::Visites_read()->value,
             PermissionsClass::Visites_update()->value,
@@ -158,7 +152,6 @@ class RolesPermissionsSeeder extends Seeder
             PermissionsClass::Carburant_create()->value,
             PermissionsClass::Carburant_read()->value,
             PermissionsClass::Carburant_update()->value,
-
 
             PermissionsClass::Carburant_create()->value,
             PermissionsClass::Carburant_read()->value,
@@ -180,8 +173,7 @@ class RolesPermissionsSeeder extends Seeder
 
         ];
 
-        (Role::where("name", RolesEnum::Dpl()->value))->first()->syncPermissions($DdplPermissions);
-
+        (Role::where('name', RolesEnum::Dpl()->value))->first()->syncPermissions($DdplPermissions);
 
         //Directeurs permissions
 
@@ -194,8 +186,7 @@ class RolesPermissionsSeeder extends Seeder
             PermissionsClass::Engines_read()->value,
         ];
 
-        (Role::where("name", RolesEnum::Directeur()->value))->first()->syncPermissions($directeursPermissions);
-
+        (Role::where('name', RolesEnum::Directeur()->value))->first()->syncPermissions($directeursPermissions);
 
         //BUDGET permissions
 
@@ -208,8 +199,7 @@ class RolesPermissionsSeeder extends Seeder
             PermissionsClass::Engines_read()->value,
         ];
 
-        (Role::where("name", RolesEnum::Budget()->value))->first()->syncPermissions($budgetPermissions);
-
+        (Role::where('name', RolesEnum::Budget()->value))->first()->syncPermissions($budgetPermissions);
 
         //DPAS permissions
 
@@ -222,14 +212,11 @@ class RolesPermissionsSeeder extends Seeder
             PermissionsClass::Engines_read()->value,
         ];
 
-        (Role::where("name", RolesEnum::Dpas()->value))->first()->syncPermissions($dPasPermissions);
+        (Role::where('name', RolesEnum::Dpas()->value))->first()->syncPermissions($dPasPermissions);
 
- 
+        //CHEF DIVISIONS Permissions
 
-
-         //CHEF DIVISIONS Permissions
-
-         $chefsDivisionsPermissions = [
+        $chefsDivisionsPermissions = [
 
             PermissionsClass::Reparation_create()->value,
             PermissionsClass::Reparation_read()->value,
@@ -238,8 +225,7 @@ class RolesPermissionsSeeder extends Seeder
             PermissionsClass::Engines_read()->value,
         ];
 
-        (Role::where("name", RolesEnum::Chef_division()->value))->first()->syncPermissions($chefsDivisionsPermissions);
-
+        (Role::where('name', RolesEnum::Chef_division()->value))->first()->syncPermissions($chefsDivisionsPermissions);
 
         //DG  Permissions
 
@@ -252,20 +238,19 @@ class RolesPermissionsSeeder extends Seeder
             PermissionsClass::Engines_read()->value,
         ];
 
-        (Role::where("name", RolesEnum::Directeur_general()->value))->first()->syncPermissions($dGPermissions);
+        (Role::where('name', RolesEnum::Directeur_general()->value))->first()->syncPermissions($dGPermissions);
 
+        //DIGA  Permissions
 
-              //DIGA  Permissions
+        $diGAPermissions = [
 
-              $diGAPermissions = [
+            PermissionsClass::Reparation_create()->value,
+            PermissionsClass::Reparation_read()->value,
+            PermissionsClass::Reparation_update()->value,
 
-                PermissionsClass::Reparation_create()->value,
-                PermissionsClass::Reparation_read()->value,
-                PermissionsClass::Reparation_update()->value,
-    
-                PermissionsClass::Engines_read()->value,
-            ];
-    
-            (Role::where("name", RolesEnum::Diga()->value))->first()->syncPermissions($diGAPermissions);
+            PermissionsClass::Engines_read()->value,
+        ];
+
+        (Role::where('name', RolesEnum::Diga()->value))->first()->syncPermissions($diGAPermissions);
     }
 }

@@ -2,31 +2,28 @@
 
 namespace App\Filament\Resources;
 
-use Carbon\Carbon;
-use App\Models\Tvm;
-use Filament\Forms;
-use Filament\Tables;
+use App\Filament\Resources\TvmResource\Pages;
 use App\Models\Engine;
-use Filament\Resources\Form;
-use Filament\Resources\Table;
-use Filament\Resources\Resource;
-use Filament\Forms\Components\Card;
-use Filament\Forms\Components\Grid;
+use App\Models\Tvm;
+use App\Support\Database\RolesEnum;
 use App\Support\Database\StatesClass;
+use Carbon\Carbon;
+use Database\Seeders\RolesPermissionsSeeder;
+use Filament\Forms\Components\Card;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Repeater;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Resources\Form;
+use Filament\Resources\Resource;
+use Filament\Resources\Table;
+use Filament\Tables;
 use Filament\Tables\Columns\BadgeColumn;
-use Filament\Forms\Components\DatePicker;
-use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Collection;
-use App\Filament\Resources\TvmResource\Pages;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\TvmResource\RelationManagers;
 
 class TvmResource extends Resource
 {
@@ -42,59 +39,75 @@ class TvmResource extends Resource
             ->schema([
 
                 Card::make()
-                    ->columns(3)
+                    ->columns(2)
                     ->schema([
 
                         DatePicker::make('date_debut')
                             ->before('date_fin')
                             ->label('Date initiale')
                             ->reactive()
-                            ->afterStateUpdated(fn($set, $get) => $set("date_fin",  Carbon::parse($get("date_debut"))->addYear()))
+                            ->afterStateUpdated(fn ($set, $get) => $set('date_fin', ((Carbon::parse($get('date_debut')))->endOfYear())))
                             ->required(),
 
                         DatePicker::make('date_fin')
                             ->label("Date d'expiration")
-                            ->required(),
-
-                        TextInput::make("reference")
+                            ->disabled()
+                            ->dehydrated()
                             ->required(),
 
                         Select::make('engine_id')
-                        ->label('Engins')
-                        ->options(Engine::pluck("plate_number", "id"))
-                        ->preload()
-                        ->searchable()
-                        ->required()
-                            ->visibleOn("edit"),
+                            ->label('Engins')
+                            ->options(Engine::where('state', StatesClass::Activated()->value)->pluck('plate_number', 'id'))
+                            ->preload()
+                            ->searchable()
+                            ->required()
+                            ->visibleOn('edit'),
 
-                    TextInput::make("prix")
-                    ->numeric()
-                        ->visibleOn("edit"),
+                        TextInput::make('prix')
+                            ->numeric()
+                            ->required()
+                            ->visibleOn('edit'),
 
-                        Repeater::make("engins_prix")
-                        ->minItems(1)
-                        ->disabledOn("edit")
-                        ->visibleOn("create")
-                        ->createItemButtonLabel('Ajouter un engin')
-                        ->columnSpanFull()
-                        
+                        TextInput::make('reference')
+                            ->label('N° lot')
+                            ->required()
+                            ->numeric()
+                            ->required()
+                            ->visibleOn('edit')
+                            ->columnSpanFull(),
+
+                        Repeater::make('engins_prix')
+                            ->label('Informations')
+                            ->minItems(1)
+                            ->disabledOn('edit')
+                            ->visibleOn('create')
+                            ->createItemButtonLabel('Ajouter un engin')
+                            ->columnSpanFull()
+
                             ->schema([
-                                Grid::make(2)
+                                Grid::make(3)
                                     ->schema([
 
                                         Select::make('engine_id')
-                                        ->label('Engins')
-                                        ->options(Engine::pluck("plate_number", "id"))
-                                        ->preload()
-                                        ->searchable()
-                                        ->required()
-                                        ->reactive()
-                                        ,
-    
-                                    TextInput::make("prix")->numeric(),
-                                    ])
+                                            ->label('Engins')
+                                            ->options(Engine::where('state', StatesClass::Activated()->value)->pluck('plate_number', 'id'))
+                                            ->preload()
+                                            ->searchable()
+                                            ->required()
+                                            ->reactive(),
 
-                               
+                                        TextInput::make('prix')
+                                            ->required()
+                                            ->numeric(),
+
+                                        TextInput::make('reference')
+                                            ->label('N° lot')
+                                            ->required()
+                                            ->numeric()
+                                            ->unique(ignoreRecord: true)
+                                            ->required(),
+                                    ]),
+
                             ]),
                         Hidden::make('user_id')
                             ->default(auth()->user()->id)
@@ -104,8 +117,7 @@ class TvmResource extends Resource
                             ->default(auth()->user()->id)
                             ->disabled(),
 
-                    
-                    ])
+                    ]),
 
             ]);
     }
@@ -114,20 +126,19 @@ class TvmResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make("reference")
-                    ->label("Référence"),
+                TextColumn::make('reference')
+                    ->label('N° lot'),
 
-                TextColumn::make("date_debut")
-                    ->date("d M Y"),
+                BadgeColumn::make('plate_number')
+                    ->label('Numéro de plaque')
+                    ->color('success'),
 
-                    BadgeColumn::make("plate_number")
-                    ->color("success"),
+                TextColumn::make('date_debut')
+                    ->date('d M Y'),
 
-                TextColumn::make("date_fin")
-                    ->date("d M Y"),
+                TextColumn::make('date_fin')
+                    ->date('d M Y'),
 
-                TextColumn::make("reference")
-                    ->label("Référence"),
             ])
             ->filters([
                 //
@@ -137,47 +148,41 @@ class TvmResource extends Resource
             ])
             ->bulkActions([
                 // Tables\Actions\DeleteBulkAction::make(),*
-                Tables\Actions\BulkAction::make("editer")
-                ->form([
-                    Card::make()
-                    ->columns(3)
-                    ->schema([
+                Tables\Actions\BulkAction::make('editer')
+                    ->form([
+                        Card::make()
+                            ->columns(3)
+                            ->schema([
 
-                        DatePicker::make('date_debut')
-                            ->before('date_fin')
-                            ->label('Date initiale')
-                            ->reactive()
-                            ->afterStateUpdated(fn($set, $get) => $set("date_fin",  Carbon::parse($get("date_debut"))->addYear()))
-                            ->required(),
+                                DatePicker::make('date_debut')
+                                    ->before('date_fin')
+                                    ->label('Date initiale')
+                                    ->reactive()
+                                    ->afterStateUpdated(fn ($set, $get) => $set('date_fin', ((Carbon::parse($get('date_debut')))->endOfYear())))
+                                    ->required(),
 
-                        DatePicker::make('date_fin')
-                            ->label("Date d'expiration")
-                            ->required(),
+                                DatePicker::make('date_fin')
+                                    ->label("Date d'expiration")
+                                    ->disabled()
+                                    ->dehydrated()
+                                    ->required(),
+                            ]),
 
-                        TextInput::make("reference")
-                            ->required(),
-                            
                     ])
-                   
+                    ->action(function (Collection $records, $data) {
 
+                        $records->each->update([
+                            'date_debut' => $data['date_debut'],
+                            'date_fin' => $data['date_fin'],
+                        ]);
 
-                ])
-                ->action(function (Collection $records, $data) {
-
-                    $records->each->update([
-                        "date_debut" => $data["date_debut"],
-                        "date_fin" => $data["date_fin"],
-                        "reference" => $data["reference"],
-    
-                    ]);
-
-                    Notification::make('notif')
-                    ->title('Modifié(e)')
-                    ->icon('heroicon-o-information-circle')
-                    ->iconColor('success')
-                    ->body('Les TVM ont été modifiées')
-                    ->send();
-                })
+                        Notification::make('notif')
+                            ->title('Modifié(e)')
+                            ->icon('heroicon-o-information-circle')
+                            ->iconColor('success')
+                            ->body('Les TVM ont été modifiées')
+                            ->send();
+                    }),
 
             ]);
     }
@@ -198,5 +203,14 @@ class TvmResource extends Resource
         ];
     }
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->hasAnyRole([
 
+            RolesEnum::Chef_parc()->value,
+            RolesEnum::Dpl()->value,
+            RolesPermissionsSeeder::SuperAdmin,
+
+        ]);
+    }
 }

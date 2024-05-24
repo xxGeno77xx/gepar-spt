@@ -98,10 +98,10 @@ class ViewReparation extends ViewRecord
                                             $userCentresIds[] = $userCentre->departement_code_centre;
                                         }
 
-                                        if ($user->hasAnyRole([RolesEnum::Directeur_general()->value,  RolesEnum::Interimaire_DG()->value]) ) {
+                                        if ($user->hasAnyRole([RolesEnum::Directeur_general()->value,  RolesEnum::Interimaire_DG()->value])) {
                                             return true;
 
-                                        } elseif (($user->hasRole(Role::where('id', $indice)->value('id')) ||  $user->hasRole(RolesEnum::Interimaire_Directeur()->value)) && (in_array(intval($concernedEngine->departement_id), $userCentresIds))) {
+                                        } elseif (($user->hasRole(Role::where('id', $indice)->value('id')) || $user->hasRole(RolesEnum::Interimaire_Directeur()->value)) && (in_array(intval($concernedEngine->departement_id), $userCentresIds))) {
 
                                             return true;
 
@@ -372,7 +372,6 @@ class ViewReparation extends ViewRecord
                                     $userCentresIds[] = $userCentre->departement_code_centre;
                                 }
 
-
                                 if (
                                     in_array($requiredRole, [
                                         Role::where('name', RolesEnum::Chef_parc()->value)->first(),
@@ -383,50 +382,35 @@ class ViewReparation extends ViewRecord
 
                                     ])
                                 ) {   // if require role is in list (array) and user has the role
-                                     
-                                    if($requiredRole == Role::where('name', RolesEnum::Directeur_general()->value)->first() )
-                                    {
-                                      
-                                        if (($user->hasRole(RolesEnum::Directeur_general()->value)) || ($user->hasRole(RolesEnum::Interimaire_DG()->value))){
+
+                                    if ($requiredRole == Role::where('name', RolesEnum::Directeur_general()->value)->first()) {
+
+                                        if (($user->hasRole(RolesEnum::Directeur_general()->value)) || ($user->hasRole(RolesEnum::Interimaire_DG()->value))) {
                                             return true;
                                         }
 
-                                    } 
+                                    } elseif ($requiredRole == Role::where('name', RolesEnum::Directeur()->value)->first()) {
 
-                                    elseif($requiredRole == Role::where('name', RolesEnum::Directeur()->value)->first())
-                                    {
-                                      
-                                        if ($user->hasRole(RolesEnum::Directeur()->value && (in_array(intval($concernedEngine->departement_id), $userCentresIds)) || $user->hasRole(RolesEnum::Interimaire_Directeur()->value ))){
+                                        if ($user->hasRole(RolesEnum::Directeur()->value && (in_array(intval($concernedEngine->departement_id), $userCentresIds)) || $user->hasRole(RolesEnum::Interimaire_Directeur()->value))) {
                                             return true;
                                         }
 
-                                    } 
+                                    } elseif ($requiredRole == Role::where('name', RolesEnum::Chef_division()->value)->first()) {
 
-                                    elseif($requiredRole == Role::where('name', RolesEnum::Chef_division()->value)->first() )
-                                    {
-                                    
-                                        if ($user->hasRole(RolesEnum::Chef_division()->value   && (in_array(intval($concernedEngine->departement_id), $userCentresIds))|| $user->hasRole(RolesEnum::Interimaire_Chef_division()->value))){
+                                        if ($user->hasRole(RolesEnum::Chef_division()->value && (in_array(intval($concernedEngine->departement_id), $userCentresIds)) || $user->hasRole(RolesEnum::Interimaire_Chef_division()->value))) {
                                             return true;
                                         }
 
-                                    } 
+                                    } elseif ($requiredRole == Role::where('name', RolesEnum::Chef_parc()->value)->first()) {
 
-                                    elseif($requiredRole == Role::where('name', RolesEnum::Chef_parc()->value)->first() )
-                                    {
-                                    
-                                        if (($user->hasRole(RolesEnum::Chef_parc()->value) || ($user->hasRole(RolesEnum::Interimaire_Chef_parc()->value)))){
+                                        if (($user->hasRole(RolesEnum::Chef_parc()->value) || ($user->hasRole(RolesEnum::Interimaire_Chef_parc()->value)))) {
                                             return true;
                                         }
 
-                                    } 
- 
-                                   elseif($user->hasRole(Role::where('id', $indice)->value('id')))   
-                                   {
-                                    return true;
-                                   }
-                                   
+                                    } elseif ($user->hasRole(Role::where('id', $indice)->value('id'))) {
+                                        return true;
+                                    }
 
-                                  
                                 } elseif ($user->hasRole(Role::where('id', $indice)->value('id')) && (in_array(intval($concernedEngine->departement_id), $userCentresIds))) {
                                     return true;
                                 } else {
@@ -442,64 +426,69 @@ class ViewReparation extends ViewRecord
                     ->icon('heroicon-o-check-circle')
                     ->after(function () {
 
-                        // $currentValidationStep = $this->record->validation_step;
+                        $currentValidationStep = $this->record->validation_step;
 
-                        // $concernedEngine = Engine::where('id', $this->record->engine_id)->first();
+                        $concernedEngine = Engine::where('id', $this->record->engine_id)->first();
 
-                        // $circuit = Circuit::where('id', $this->data['circuit_id'])->first()->steps;
+                        $circuit = Circuit::where('id', $this->data['circuit_id'])->first()->steps;
 
-                        // foreach ($circuit as $key => $item) {
+                        foreach ($circuit as $key => $item) {
 
-                        //     $roleIds[] = $item['role_id'];
-                        // }
+                            $roleIds[] = $item['role_id'];
+                        }
 
-                        // if (array_key_exists($currentValidationStep, $roleIds)) {
-                        //     $NextdestinataireRole = Role::find($roleIds[$currentValidationStep])->name;
+                        if (array_key_exists($currentValidationStep, $roleIds)) {
 
-                        //     $destinataire = User::role($NextdestinataireRole)->first();
+                            $NextdestinataireRole = Role::find($roleIds[$currentValidationStep])->name;
 
-                        //     if ($destinataire) {
+                            $destinataire = User::role($NextdestinataireRole)->first();
 
-                        //         if ($NextdestinataireRole) {
+                            dd();
 
-                        //             if (in_array($NextdestinataireRole, [RolesEnum::Directeur()->value, RolesEnum::Chef_division()->value]) && $destinataire->departement_id == $concernedEngine->departement_id) {
+                            if ($destinataire) {
 
-                        //                 $realDestination = User::role($NextdestinataireRole)->where('departement_id', $concernedEngine->departement_id)->first();
+                                if ($NextdestinataireRole) {
 
-                        //                 Notification::make()
-                        //                     ->title('Demande de validation')
-                        //                     ->body('Réparation pour l\'engin immatriculé '.$concernedEngine->plate_number.' en attente de validation')
-                        //                     ->actions([
-                        //                         NotificationActions::make('voir')
-                        //                             ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
-                        //                             ->button()
-                        //                             ->color('primary'),
-                        //                     ])
-                        //                     ->sendToDatabase($realDestination);
+                                    if (in_array($NextdestinataireRole, [RolesEnum::Directeur()->value, RolesEnum::Chef_division()->value]) && $destinataire->departement_id == $concernedEngine->departement_id) {
 
-                        //             } elseif (
-                        //                 in_array($NextdestinataireRole, [
-                        //                     RolesEnum::Directeur_general()->value,
-                        //                     RolesEnum::Diga()->value,
-                        //                     RolesEnum::Chef_parc()->value,
-                        //                     RolesEnum::Budget()->value,
-                        //                 ])
-                        //             ) {
-                        //                 Notification::make()
-                        //                     ->title('Nouvelle demande')
-                        //                     ->body('Réparation pour l\'engin immatriculé '.$concernedEngine->plate_number.' en attente de validation')
-                        //                     ->actions([
-                        //                         NotificationActions::make('voir')
-                        //                             ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
-                        //                             ->button()
-                        //                             ->color('primary'),
-                        //                     ])
-                        //                     ->sendToDatabase($destinataire);
-                        //             }
-                        //         }
+                                        $realDestination = User::role($NextdestinataireRole)->where('departement_id', $concernedEngine->departement_id)->first();
 
-                        //     }
-                        // }
+                                        // $mailDestinator = User::role($NextdestinataireRole)->where('departement_id', $concernedEngine->departement_id)->where("notification" , true);
+
+                                        Notification::make()
+                                            ->title('Demande de validation')
+                                            ->body('Réparation pour l\'engin immatriculé '.$concernedEngine->plate_number.' en attente de validation')
+                                            ->actions([
+                                                NotificationActions::make('voir')
+                                                    ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
+                                                    ->button()
+                                                    ->color('primary'),
+                                            ])
+                                            ->sendToDatabase($realDestination);
+
+                                    } elseif (
+                                        in_array($NextdestinataireRole, [
+                                            RolesEnum::Directeur_general()->value,
+                                            RolesEnum::Diga()->value,
+                                            RolesEnum::Chef_parc()->value,
+                                            RolesEnum::Budget()->value,
+                                        ])
+                                    ) {
+                                        Notification::make()
+                                            ->title('Nouvelle demande')
+                                            ->body('Réparation pour l\'engin immatriculé '.$concernedEngine->plate_number.' en attente de validation')
+                                            ->actions([
+                                                NotificationActions::make('voir')
+                                                    ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
+                                                    ->button()
+                                                    ->color('primary'),
+                                            ])
+                                            ->sendToDatabase($destinataire);
+                                    }
+                                }
+
+                            }
+                        }
 
                     })
                     ->action(function (?Reparation $record) {
@@ -639,7 +628,7 @@ class ViewReparation extends ViewRecord
                     }),
 
                 Actions\Action::make('Rejeter')
-                    ->label('Rejeter') 
+                    ->label('Rejeter')
                     ->color('danger')
                     ->icon('heroicon-o-x')
                     ->form([
@@ -686,7 +675,6 @@ class ViewReparation extends ViewRecord
                                     $userCentresIds[] = $userCentre->departement_code_centre;
                                 }
 
-
                                 if (
                                     in_array($requiredRole, [
                                         Role::where('name', RolesEnum::Chef_parc()->value)->first(),
@@ -697,50 +685,35 @@ class ViewReparation extends ViewRecord
 
                                     ])
                                 ) {   // if require role is in list (array) and user has the role
-                                     
-                                    if($requiredRole == Role::where('name', RolesEnum::Directeur_general()->value)->first() )
-                                    {
-                                      
-                                        if (($user->hasRole(RolesEnum::Directeur_general()->value)) || ($user->hasRole(RolesEnum::Interimaire_DG()->value))){
+
+                                    if ($requiredRole == Role::where('name', RolesEnum::Directeur_general()->value)->first()) {
+
+                                        if (($user->hasRole(RolesEnum::Directeur_general()->value)) || ($user->hasRole(RolesEnum::Interimaire_DG()->value))) {
                                             return true;
                                         }
 
-                                    } 
+                                    } elseif ($requiredRole == Role::where('name', RolesEnum::Directeur()->value)->first()) {
 
-                                    elseif($requiredRole == Role::where('name', RolesEnum::Directeur()->value)->first())
-                                    {
-                                      
-                                        if ($user->hasRole(RolesEnum::Directeur()->value && (in_array(intval($concernedEngine->departement_id), $userCentresIds)) || $user->hasRole(RolesEnum::Interimaire_Directeur()->value ))){
+                                        if ($user->hasRole(RolesEnum::Directeur()->value && (in_array(intval($concernedEngine->departement_id), $userCentresIds)) || $user->hasRole(RolesEnum::Interimaire_Directeur()->value))) {
                                             return true;
                                         }
 
-                                    } 
+                                    } elseif ($requiredRole == Role::where('name', RolesEnum::Chef_division()->value)->first()) {
 
-                                    elseif($requiredRole == Role::where('name', RolesEnum::Chef_division()->value)->first() )
-                                    {
-                                    
-                                        if ($user->hasRole(RolesEnum::Chef_division()->value   && (in_array(intval($concernedEngine->departement_id), $userCentresIds))|| $user->hasRole(RolesEnum::Interimaire_Chef_division()->value))){
+                                        if ($user->hasRole(RolesEnum::Chef_division()->value && (in_array(intval($concernedEngine->departement_id), $userCentresIds)) || $user->hasRole(RolesEnum::Interimaire_Chef_division()->value))) {
                                             return true;
                                         }
 
-                                    } 
+                                    } elseif ($requiredRole == Role::where('name', RolesEnum::Chef_parc()->value)->first()) {
 
-                                    elseif($requiredRole == Role::where('name', RolesEnum::Chef_parc()->value)->first() )
-                                    {
-                                    
-                                        if (($user->hasRole(RolesEnum::Chef_parc()->value) || ($user->hasRole(RolesEnum::Interimaire_Chef_parc()->value)))){
+                                        if (($user->hasRole(RolesEnum::Chef_parc()->value) || ($user->hasRole(RolesEnum::Interimaire_Chef_parc()->value)))) {
                                             return true;
                                         }
 
-                                    } 
- 
-                                   elseif($user->hasRole(Role::where('id', $indice)->value('id')))   
-                                   {
-                                    return true;
-                                   }
-                                   
+                                    } elseif ($user->hasRole(Role::where('id', $indice)->value('id'))) {
+                                        return true;
+                                    }
 
-                                  
                                 } elseif ($user->hasRole(Role::where('id', $indice)->value('id')) && (in_array(intval($concernedEngine->departement_id), $userCentresIds))) {
                                     return true;
                                 } else {

@@ -2,29 +2,28 @@
 
 namespace App\Filament\Resources;
 
-use Exception;
-use App\Models\Pays;
-use Filament\Tables;
+use App\Filament\Resources\PlanningVoyageResource\Pages;
 use App\Models\Chauffeur;
 use App\Models\Departement;
-use Filament\Resources\Form;
-use Filament\Resources\Table;
+use App\Models\Pays;
 use App\Models\PlanningVoyage;
-use Filament\Resources\Resource;
 use App\Support\Database\RolesEnum;
-use Filament\Forms\Components\Card;
-use Filament\Forms\Components\Grid;
-use Filament\Tables\Actions\Action;
 use App\Support\Database\StatesClass;
+use Database\Seeders\RolesPermissionsSeeder;
+use Exception;
+use Filament\Forms\Components\Card;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\Repeater;
 use Filament\Notifications\Notification;
+use Filament\Resources\Form;
+use Filament\Resources\Resource;
+use Filament\Resources\Table;
+use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\BadgeColumn;
-use Filament\Forms\Components\DatePicker;
-use App\Support\Database\PermissionsClass;
-use Database\Seeders\RolesPermissionsSeeder;
-use App\Filament\Resources\PlanningVoyageResource\Pages;
 
 class PlanningVoyageResource extends Resource
 {
@@ -59,7 +58,8 @@ class PlanningVoyageResource extends Resource
                                             ->schema([
                                                 Select::make('chauffeur')
                                                     ->label('Chauffeur')
-                                                    ->options(Chauffeur::pluck('fullname', 'id'))
+                                                    ->options(Chauffeur::pluck('fullname', 'id')->whereNotNull('engine_id'))
+
                                                     ->searchable()
                                                     ->reactive()
                                                     ->afterStateUpdated(function ($set, $get) {
@@ -71,17 +71,16 @@ class PlanningVoyageResource extends Resource
                                                             ->where('chauffeurs.id', $get('chauffeur'))
                                                             ->first();
 
-                                                            try{
-                                                                $set('affectation', $result->code_centre);
-                                                            }catch(Exception $e){
-                                                                Notification::make()
+                                                        try {
+                                                            $set('affectation', $result->code_centre);
+                                                        } catch (Exception $e) {
+                                                            Notification::make()
                                                                 ->title('Ce chauffeur n\'a pas encore d\'engin affecté!!!')
                                                                 ->danger()
                                                                 ->persistent()
                                                                 ->send();
-                                                            }
+                                                        }
 
-                                                        
                                                     }),
 
                                                 Select::make('affectation')
@@ -168,9 +167,9 @@ class PlanningVoyageResource extends Resource
     {
         return auth()->user()->hasAnyRole([
 
-       RolesEnum::Chef_parc()->value,
-       RolesEnum::Dpl()->value,
-        RolesPermissionsSeeder::SuperAdmin
+            RolesEnum::Chef_parc()->value,
+            RolesEnum::Dpl()->value,
+            RolesPermissionsSeeder::SuperAdmin,
 
         ]);
     }

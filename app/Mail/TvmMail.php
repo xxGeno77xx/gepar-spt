@@ -1,39 +1,32 @@
 <?php
 
-namespace App\Filament\Widgets;
+namespace App\Mail;
 
-use App\Models\Departement;
 use App\Models\Engine;
 use App\Models\Parametre;
 use App\Support\Database\StatesClass;
-use App\Tables\Columns\DepartementColumn;
-use Carbon\Carbon;
-use Closure;
-use Filament\Tables\Columns\BadgeColumn;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Widgets\TableWidget as BaseWidget;
-use Illuminate\Contracts\Support\Htmlable;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Bus\Queueable;
+use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Content;
+use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Queue\SerializesModels;
 
-class TvmASurveiller extends BaseWidget
+class TvmMail extends Mailable
 {
-    protected static ?int $sort = 3;
+    use Queueable, SerializesModels;
 
-    protected int|string|array $columnSpan = 'full';
+    public $mailableEngines;
 
-    protected function getTableHeading(): string|Htmlable|Closure|null
-    {
-        return 'TVM à surveiller';
-    }
-
-    protected function getTableQuery(): Builder
+    /**
+     * Create a new message instance.
+     */
+    public function __construct()
     {
         $limite = Parametre::where('options', 'Tvm')->value('limite');
 
         $activated = StatesClass::Activated()->value;
 
-        $tvmASurveiller = Engine::Join('tvms', 'engines.id', '=', 'tvms.engine_id')
+        $this->mailableEngines = Engine::Join('tvms', 'engines.id', '=', 'tvms.engine_id')
             ->whereRaw('tvms.created_at = (SELECT MAX(created_at) FROM tvms WHERE engine_id = engines.id AND tvms.state = ?)', [$activated])
             ->whereRaw('TRUNC(tvms.date_fin) <= TRUNC(SYSDATE + TRUNC(?))', [$limite])
             ->where('tvms.state', $activated)
@@ -90,63 +83,36 @@ class TvmASurveiller extends BaseWidget
                 'remainder'
 
             )
-            ->distinct();
-
-        return $tvmASurveiller;
+            ->distinct()->get();
     }
 
-    protected function getTableColumns(): array
+    /**
+     * Get the message envelope.
+     */
+    public function envelope(): Envelope
     {
-        return [
-            TextColumn::make('plate_number')
-                ->label('Numéro de plaque')
-                ->searchable(),
-
-            DepartementColumn::make('departement_id')
-                ->searchable()
-                ->label('Département')
-                ->tooltip(fn ($record) => Departement::find($record->departement_id)->libelle),
-
-            ImageColumn::make('logo')
-                ->searchable()
-                ->default(asset('images/default_product_image.jpg'))
-                ->label('Marque')
-                ->alignment('center'),
-
-            TextColumn::make('date_debut')
-                ->label('Date de début')
-                ->color('primary')
-                ->searchable()
-                ->dateTime('d-m-Y'),
-
-            BadgeColumn::make('date_fin')
-                ->label("Date d'expiration")
-                ->color(static function ($record): string {
-                    if (Carbon::parse($record->date_expiration)->format('y-m-d') <= Carbon::now()->format('y-m-d')) {
-                        return 'danger';
-                    }
-
-                    return 'primary';
-                })
-                ->searchable()
-                ->wrap()
-                ->dateTime('d-m-Y'),
-            BadgeColumn::make('state')
-                ->label('Etat')
-                ->color(static function ($record): string {
-
-                    if ($record->state == StatesClass::Repairing()->value) {
-                        return 'primary';
-                    } else {
-                        return 'success';
-                    }
-                }),
-
-        ];
+        return new Envelope(
+            subject: 'Alerte Tvm ',
+        );
     }
 
-    protected function getTableRecordUrlUsing(): ?Closure
+    /**
+     * Get the message content definition.
+     */
+    public function content(): Content
     {
-        return fn (Engine $record): string => url('engines/'.$record->id.'/edit');
+        return new Content(
+            markdown: 'emails.mail.TvmsMailMarkdown',
+        );
+    }
+
+    /**
+     * Get the attachments for the message.
+     *
+     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     */
+    public function attachments(): array
+    {
+        return [];
     }
 }

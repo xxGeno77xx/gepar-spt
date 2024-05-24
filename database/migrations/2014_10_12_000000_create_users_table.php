@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('username');
 
             $table->string('email')->unique();
-            
+
             $table->string('poste')->unique()->nullable();
 
             $table->timestamp('email_verified_at')->nullable();

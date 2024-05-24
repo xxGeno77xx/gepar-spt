@@ -5,15 +5,9 @@ namespace App\Support\Database;
 use Spatie\Enum\Enum;
 
 /**
+ * @method static self Transport_a_deux_roues()
+ * @method static self Tricycle_motorises()
  * @method static self Bus()
- * @method static self Bus_15_places()
- * @method static self Bus_32_places()
- * @method static self Citadine()
- * @method static self Pickup()
- * @method static self Fourgon()
- * @method static self Camionnette()
- * @method static self Moto()
- * @method static self Tricycle()
  */
 class TypesClass extends Enum
 {
@@ -21,7 +15,11 @@ class TypesClass extends Enum
     {
         return function (string $name): string|int {
 
-            $traductions = [];
+            $traductions = [
+
+                'Transport_a_deux_roues' => 'Transport à deux roues',
+                'Tricycle_motorises' => 'Tricycle motorisés',
+            ];
 
             return strtr(str_replace('_', ' ', str($name)), $traductions);
         };

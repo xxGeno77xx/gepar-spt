@@ -2,42 +2,42 @@
 
 namespace App\Filament\Resources;
 
-use Closure;
-use App\Models\Type;
-use Filament\Tables;
-use App\Models\Engine;
-use App\Models\Modele;
-use App\Models\Division;
-use App\Models\Carburant;
-use App\Models\Direction;
-use App\Models\Departement;
-use Filament\Resources\Form;
-use Filament\Resources\Table;
-use App\Models\Engine as Engin;
-use Filament\Resources\Resource;
-use Filament\Forms\Components\Card;
-use Filament\Forms\Components\Grid;
-use Filament\Tables\Filters\Filter;
-use App\Support\Database\CommonInfos;
-use App\Support\Database\StatesClass;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Select;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Columns\BadgeColumn;
-use Filament\Tables\Columns\ImageColumn;
-use App\Tables\Columns\DepartementColumn;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
-use Illuminate\Database\Eloquent\Builder;
-use App\Support\Database\PermissionsClass;
-use Filament\Forms\Components\ColorPicker;
 use App\Filament\Resources\EngineResource\Pages;
 use App\Filament\Resources\EngineResource\RelationManagers;
-use App\Filament\Resources\EngineResource\RelationManagers\TvmsRelationManager;
 use App\Filament\Resources\EngineResource\RelationManagers\AffectationsRelationManager;
-use App\Filament\Resources\EngineResource\RelationManagers\OrdreDeMissionsRelationManager;
 use App\Filament\Resources\EngineResource\RelationManagers\ConsommationCarburantsRelationManager;
+use App\Filament\Resources\EngineResource\RelationManagers\OrdreDeMissionsRelationManager;
+use App\Filament\Resources\EngineResource\RelationManagers\TvmsRelationManager;
+use App\Models\Carburant;
+use App\Models\Departement;
+use App\Models\Direction;
+use App\Models\Division;
+use App\Models\Engine;
+use App\Models\Engine as Engin;
+use App\Models\Modele;
+use App\Models\Type;
+use App\Support\Database\CommonInfos;
+use App\Support\Database\PermissionsClass;
+use App\Support\Database\StatesClass;
+use App\Tables\Columns\DepartementColumn;
+use Closure;
+use Filament\Forms\Components\Card;
+use Filament\Forms\Components\ColorPicker;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Resources\Form;
+use Filament\Resources\Resource;
+use Filament\Resources\Table;
+use Filament\Tables;
+use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Illuminate\Database\Eloquent\Builder;
 
 class EngineResource extends Resource
 {
@@ -445,13 +445,36 @@ class EngineResource extends Resource
                             );
                     }),
 
+                Filter::make('type')
+                    ->form([
+                        Select::make('type_id')
+                            ->searchable()
+                            ->label('Type d\'engin')
+                            ->options(
+                                Type::pluck('nom_type', 'id')
+                            ),
+
+                    ])->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['type_id'],
+                                fn (Builder $query, $status): Builder => $query->where('engines.type_id', $status),
+                            );
+                    })->indicateUsing(function (array $data): ?string {
+                        if (! $data['type_id']) {
+                            return null;
+                        }
+
+                        return 'Type d\'engin: '.Type::where('id', $data['type_id'])->first()->nom_type;
+                    }),
+
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                // Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
             ]);
 
     }

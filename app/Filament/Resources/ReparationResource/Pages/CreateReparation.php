@@ -9,13 +9,11 @@ use App\Models\DepartementUser;
 use App\Models\Engine;
 use App\Models\Reparation;
 use App\Models\Role;
-use App\Models\TypeReparation;
 use App\Models\User;
 use App\Support\Database\PermissionsClass;
 use App\Support\Database\ReparationValidationStates;
 use App\Support\Database\RolesEnum;
 use App\Support\Database\StatesClass;
-use App\Support\Database\TypesReparation;
 use Database\Seeders\RolesPermissionsSeeder;
 use Filament\Notifications\Actions\Action as NotificationActions;
 use Filament\Notifications\Notification;
@@ -74,7 +72,7 @@ class CreateReparation extends CreateRecord
             ->first();
 
         if ($latestReparation) {
-            if (!$latestReparation->date_fin) {
+            if (! $latestReparation->date_fin) {
                 Notification::make()
                     ->warning()
                     ->title('Attention!')
@@ -86,7 +84,7 @@ class CreateReparation extends CreateRecord
             }
         }
 
-        if (!is_null($newRaparation['date_fin'])) {
+        if (! is_null($newRaparation['date_fin'])) {
 
         }
 
@@ -142,7 +140,6 @@ class CreateReparation extends CreateRecord
         return $data;
     }
 
-
     public function sendNotificationToValidatior()
     {
 
@@ -167,7 +164,7 @@ class CreateReparation extends CreateRecord
 
                 Notification::make()
                     ->title('Nouvelle demande')
-                    ->body('Demande de réparation pour l\'engin immatriculé ' . $concernedEngine->plate_number . '')
+                    ->body('Demande de réparation pour l\'engin immatriculé '.$concernedEngine->plate_number.'')
                     ->actions([
                         NotificationActions::make('voir')
                             ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
@@ -179,7 +176,7 @@ class CreateReparation extends CreateRecord
             } elseif ($destinataireRole == RolesEnum::Directeur_general()->value) {
                 Notification::make()
                     ->title('Nouvelle demande')
-                    ->body('Demande de réparation pour l\'engin immatriculé ' . $concernedEngine->plate_number . '')
+                    ->body('Demande de réparation pour l\'engin immatriculé '.$concernedEngine->plate_number.'')
                     ->actions([
                         NotificationActions::make('voir')
                             ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
@@ -191,9 +188,4 @@ class CreateReparation extends CreateRecord
         }
 
     }
-
 }
-
-
-
-
