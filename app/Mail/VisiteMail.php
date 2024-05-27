@@ -50,11 +50,10 @@ class VisiteMail extends Mailable
             ->whereRaw('visites.created_at = (SELECT MAX(created_at) FROM visites WHERE engine_id = engines.id AND visites.state = ?)', [$activated])
             ->whereRaw('TRUNC(visites.date_expiration) <= TRUNC(SYSDATE + TRUNC(?))', [$limite])
             ->where('visites.state', $activated)
-            ->where('engines.visites_mail_sent', '=', 0)
             ->whereNull('visites.deleted_at')
             ->whereNull('engines.deleted_at')
             ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
-            ->join('divisions', 'engines.departement_id', 'divisions.id')
+            ->join('centre', 'engines.departement_id', 'centre.code_centre')
             ->join('marques', 'modeles.marque_id', '=', 'marques.id')
             ->select('engines.*', /*'centre.sigle',*/ 'marques.logo as logo', 'visites.date_initiale as date_initiale', 'visites.date_expiration as date_expiration')
             ->where('engines.state', '<>', StatesClass::Deactivated()->value)
@@ -62,6 +61,7 @@ class VisiteMail extends Mailable
             ->groupBy(
                 'visites.date_expiration',
                 'visites.date_initiale',
+                'engines.tvm_mail_sent',
                 'engines.id',
                 'engines.modele_id',
                 'engines.power',
@@ -96,7 +96,7 @@ class VisiteMail extends Mailable
                 'engines.deleted_at',
                 'engines.created_at',
                 'engines.updated_at',
-                'sigle_division',
+                'sigle_centre',
                 'nom_modele',
                 'nom_marque',
                 'logo',
@@ -104,6 +104,8 @@ class VisiteMail extends Mailable
 
             )
             ->distinct()->get();
+
+       
     }
 
     /**

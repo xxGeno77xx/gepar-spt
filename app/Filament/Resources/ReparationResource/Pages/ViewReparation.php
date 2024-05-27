@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\ReparationResource\Pages;
 
 use Actions\Action;
+use App\Mail\VisiteMail;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Engine;
@@ -456,8 +457,9 @@ class ViewReparation extends ViewRecord
 
                                         $mailDestinator = User::role($NextdestinataireRole)->where('departement_id', $concernedEngine->departement_id)->where("notification", true)->first();
 
+                                        
 
-                                        (Mail::to($mailDestinator)->send(new ReparationMail($this->record)));
+                                        Mail::to($mailDestinator)->send(new ReparationMail($this->record));
 
                                         Notification::make()
                                             ->title('Demande de validation')
@@ -490,17 +492,10 @@ class ViewReparation extends ViewRecord
                                             ])
                                             ->sendToDatabase($destinataire);
 
-                                        $mailDestinator = User::role($NextdestinataireRole)->where("notification", true)->get();
-
-                                        if ($mailDestinator) {
-                                            foreach ($mailDestinator as $user) {
-                                                (Mail::to($user)->send(new ReparationMail($this->record)));
-                                            }
-                                        }
-
-
-
-
+                                        $mailDestinator = User::role($NextdestinataireRole)->where("notification", true)->pluck("email");
+ 
+                                                (Mail::to($mailDestinator)->send(new ReparationMail($this->record)));
+ 
                                     }
                                 }
 
