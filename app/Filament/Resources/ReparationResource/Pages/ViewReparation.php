@@ -494,7 +494,7 @@ class ViewReparation extends ViewRecord
 
                                         if ($mailDestinator) {
                                             foreach ($mailDestinator as $user) {
-                                                (Mail::to($user->email)->send(new ReparationMail($this->record)));
+                                                (Mail::to($user)->send(new ReparationMail($this->record)));
                                             }
                                         }
 
