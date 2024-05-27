@@ -329,6 +329,9 @@ class EngineResource extends Resource
                 Hidden::make('visites_mail_sent')
                     ->default(0),
 
+                    Hidden::make('tvm_mail_sent')
+                    ->default(0),
+
                 Hidden::make('state')->default(StatesClass::Activated()->value),
 
                 CommonInfos::PlaceholderCard(),

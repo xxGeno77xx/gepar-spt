@@ -16,26 +16,26 @@ class EditMarque extends EditRecord
 
     protected function getActions(): array
     {
-        if (auth()->user()->hasAnyPermission([PermissionsClass::marques_delete()->value])) {
-            return [
-                // Actions\DeleteAction::make(),
-                Actions\Action::make('Supprimer')
-                    ->color('danger')
-                    ->icon('heroicon-o-eye-off')
-                    ->action(function (?Marque $record) {
-                        $this->record->update(['state' => StatesClass::Deactivated()->value]);
-                        redirect('/marques');
-                        Notification::make()
-                            ->title('Supprimé(e)')
-                            ->success()
-                            ->persistent()
-                            ->send();
-                    })
-                    ->requiresConfirmation(),
+        // if (auth()->user()->hasAnyPermission([PermissionsClass::marques_delete()->value])) {
+        //     return [
+        //         // Actions\DeleteAction::make(),
+        //         Actions\Action::make('Supprimer')
+        //             ->color('danger')
+        //             ->icon('heroicon-o-eye-off')
+        //             ->action(function (?Marque $record) {
+        //                 $this->record->update(['state' => StatesClass::Deactivated()->value]);
+        //                 redirect('/marques');
+        //                 Notification::make()
+        //                     ->title('Supprimé(e)')
+        //                     ->success()
+        //                     ->persistent()
+        //                     ->send();
+        //             })
+        //             ->requiresConfirmation(),
 
-            ];
+        //     ];
 
-        }
+        // }
 
         return [];
     }
