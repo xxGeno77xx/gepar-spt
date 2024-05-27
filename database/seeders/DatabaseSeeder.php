@@ -21,9 +21,9 @@ class DatabaseSeeder extends Seeder
         $this->call(ChauffeurSeeder::class);
 
         $this->call(RolesPermissionsSeeder::class);
-        $this->call(DepartementsSeeder::class);
+        // $this->call(DepartementsSeeder::class);
 
-        $this->call(EnginesSeeder::class);
+        // $this->call(EnginesSeeder::class);
 
         // $this->call(PrestataireSeeder::class);
         $this->call(CircuitsSeeder::class);

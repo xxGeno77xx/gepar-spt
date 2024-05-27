@@ -117,10 +117,12 @@ class ReparationResource extends Resource
                                                 } elseif (
                                                     $loggedUser->hasAnyRole([
                                                         RolesEnum::Directeur()->value,
+                                                        RolesEnum::Interimaire_Directeur()->value,
                                                         RolesEnum::Delegue_Direction()->value,
                                                         RolesEnum::Directeur_general()->value,
                                                         RolesEnum::Delegue_Direction_Generale()->value,
                                                         RolesEnum::Chef_division()->value,
+                                                        RolesEnum::Interimaire_Chef_division()->value,
                                                         RolesEnum::Delegue_Division()->value,
                                                     ])
 
