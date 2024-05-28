@@ -423,7 +423,7 @@ class EngineResource extends Resource
                             ->when(
                                 $data['departement_id'],
                                 function (Builder $query, $status) {
-                                    $search = Division::where('id', $status)->value('id');
+                                    $search = Departement::where('code_centre', $status)->first()->code_centre;
 
                                     return $query->where('departement_id', $search);
                                 }

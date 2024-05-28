@@ -137,15 +137,15 @@ class ChauffeurResource extends Resource
                     ->color('success')
                     ->placeholder('-'),
 
-                BadgeColumn::make('mission_state')
-                    ->label('Statut')
-                    ->colors([
+                // BadgeColumn::make('mission_state')
+                //     ->label('Statut')
+                //     ->colors([
 
-                        'primary' => static fn ($state): bool => $state === ChauffeursStatesClass::En_mission()->value,
+                //         'primary' => static fn ($state): bool => $state === ChauffeursStatesClass::En_mission()->value,
 
-                        'success' => static fn ($state): bool => $state === ChauffeursStatesClass::Disponible()->value,
-                    ])
-                    ->placeholder('-'),
+                //         'success' => static fn ($state): bool => $state === ChauffeursStatesClass::Disponible()->value,
+                //     ])
+                //     ->placeholder('-'),
 
                 BadgeColumn::make('categoriePermis.libelle')
                     ->label('Permis')
