@@ -252,5 +252,35 @@ class RolesPermissionsSeeder extends Seeder
         ];
 
         (Role::where('name', RolesEnum::Diga()->value))->first()->syncPermissions($diGAPermissions);
+
+
+
+        //Delegues division Permissions
+
+        $deleguesDivisionsPermissions = [
+
+            PermissionsClass::Reparation_create()->value,
+            PermissionsClass::Reparation_read()->value,
+            PermissionsClass::Reparation_update()->value,
+
+            PermissionsClass::Engines_read()->value,
+        ];
+
+        (Role::where('name', RolesEnum::Delegue_Division()->value))->first()->syncPermissions($deleguesDivisionsPermissions);
+
+
+          //Delegues direction Permissions
+
+          $deleguesDirectionPermissions = [
+
+            PermissionsClass::Reparation_create()->value,
+            PermissionsClass::Reparation_read()->value,
+            PermissionsClass::Reparation_update()->value,
+
+            PermissionsClass::Engines_read()->value,
+        ];
+
+        (Role::where('name', RolesEnum::Delegue_Direction()->value))->first()->syncPermissions($deleguesDirectionPermissions);
+
     }
 }

@@ -93,6 +93,14 @@ class CreateReparation extends CreateRecord
     public function afterCreate()
     {
         $this->sendNotificationToValidatior();
+
+        $concernedEngine = Engine::where('id', $this->record->engine_id)->first();
+
+        if (is_null($this->record['date_fin'])) {
+            $concernedEngine->update([
+                'state' => StatesClass::Repairing()->value,
+            ]);
+        }
     }
 
     protected function mutateFormDataBeforeCreate(array $data): array

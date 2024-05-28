@@ -436,16 +436,27 @@ class EngineResource extends Resource
                             ->searchable()
                             ->label('Etat')
                             ->options([
-                                'En état' => StatesClass::Activated()->value,
-                                'En Réparation' => StatesClass::Repairing()->value,
-                            ]),
-
+                                StatesClass::Activated()->value =>  'En état',
+                                StatesClass::Repairing()->value=> 'En réparation',
+                            ])
+                            
                     ])->query(function (Builder $query, array $data): Builder {
                         return $query
                             ->when(
                                 $data['etat'],
                                 fn (Builder $query, $status): Builder => $query->where('engines.state', $status),
                             );
+                    })
+                    ->indicateUsing(function (array $data): ?string {
+                        if (! $data['etat']) {
+                            return null;
+                        }
+                        else if($data['etat'] == StatesClass::Activated()->value)
+                        {
+                            return 'Etat: '. StatesClass::Activated()->value;
+                        }
+                        else return 'Etat: '. StatesClass::Repairing()->value;
+
                     }),
 
                 Filter::make('type')
