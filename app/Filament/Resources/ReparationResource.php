@@ -1821,6 +1821,36 @@ class ReparationResource extends Resource
                     ->multiple()
                     ->relationship('typeReparations', 'libelle'),
 
+                Filter::make('Appreciation')
+                    ->form([
+                        Select::make('appreciation')
+                            ->searchable()
+                            ->label('Appréciation')
+                            ->options(AppreciationClass::toArray()),
+
+                    ])->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['appreciation'],
+                                function (Builder $query, $status) use ($data) {
+                                    $search =  $data['appreciation'];
+
+                                    return $query->where('appreciation', $search);
+                                }
+                            );
+                    })->indicateUsing(function (array $data): ?string {
+                        if (! $data['appreciation']) {
+                            return null;
+                        }
+                        else if($data['appreciation'] == AppreciationClass::Insatisfaisant()->value)
+                        {
+                            return  'Appreciation: '. AppreciationClass::Insatisfaisant()->value;
+                        }
+
+                         else return 'Appreciation: ' . AppreciationClass::Satisfaisant()->value;
+                    }),
+
+
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
