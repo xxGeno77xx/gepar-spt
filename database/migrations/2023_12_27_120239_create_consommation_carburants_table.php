@@ -21,6 +21,10 @@ return new class extends Migration
 
             $table->integer('quantite');
 
+            $table->integer('prix_unitaire');
+
+            $table->integer('montant_total');
+
             $table->date('date_prise');
 
             $table->unsignedBigInteger('engine_id');
@@ -44,7 +48,8 @@ return new class extends Migration
 
             $table->enum('state', [StatesClass::Activated()->value, StatesClass::Deactivated()->value, StatesClass::Suspended()->value]);
 
-            $table->string('ticket');
+            $table->string('ticket')
+                ->nullable();
 
             $table->string('conducteur')
                 ->nullable();

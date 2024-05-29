@@ -459,7 +459,11 @@ class ViewReparation extends ViewRecord
 
                                         
 
-                                        Mail::to($mailDestinator)->send(new ReparationMail($this->record));
+                                        if($mailDestinator)
+                                        {
+                                            Mail::to($mailDestinator)->send(new ReparationMail($this->record));
+                                        }
+                                        
 
                                         Notification::make()
                                             ->title('Demande de validation')
@@ -494,7 +498,11 @@ class ViewReparation extends ViewRecord
 
                                         $mailDestinator = User::role($NextdestinataireRole)->where("notification", true)->pluck("email");
  
-                                                (Mail::to($mailDestinator)->send(new ReparationMail($this->record)));
+                                        if($mailDestinator)
+                                        {
+                                            (Mail::to($mailDestinator)->send(new ReparationMail($this->record)));
+                                        }
+                                                
  
                                     }
                                 }

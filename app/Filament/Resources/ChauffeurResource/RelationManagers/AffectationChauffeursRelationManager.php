@@ -73,6 +73,7 @@ class AffectationChauffeursRelationManager extends RelationManager
 
         return AffectationChauffeur::join('chauffeurs', 'chauffeurs.id', '=', 'affectation_chauffeurs.chauffeur_id')
             ->where('chauffeurs.id', $this->ownerRecord->id)
-            ->select('chauffeurs.id', 'old_engine_id', 'new_engine_id', 'date_affectation');
+            ->select('chauffeurs.id', 'old_engine_id', 'new_engine_id', 'date_affectation')
+            ->orderBy("date_affectation", "desc");
     }
 }

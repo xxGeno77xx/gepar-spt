@@ -58,8 +58,7 @@ class PlanningVoyageResource extends Resource
                                             ->schema([
                                                 Select::make('chauffeur')
                                                     ->label('Chauffeur')
-                                                    ->options(Chauffeur::pluck('fullname', 'id')->whereNotNull('engine_id'))
-
+                                                    ->options(Chauffeur::whereNotNull('engine_id')->pluck('fullname', 'id'))
                                                     ->searchable()
                                                     ->reactive()
                                                     ->afterStateUpdated(function ($set, $get) {

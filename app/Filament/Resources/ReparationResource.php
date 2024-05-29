@@ -22,6 +22,7 @@ use App\Support\Database\RolesEnum;
 use App\Support\Database\StatesClass;
 use App\Tables\Columns\PrestataireColumn;
 use Carbon\Carbon;
+use Database\Seeders\RolesPermissionsSeeder;
 use Filament\Forms\Components\Builder as FilamentBuilder;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\DatePicker;
@@ -111,9 +112,10 @@ class ReparationResource extends Resource
                                                         RolesEnum::Dpl()->value,
                                                         RolesEnum::Budget()->value,
                                                         RolesEnum::Interimaire_DG()->value,
+                                                        RolesPermissionsSeeder::SuperAdmin
                                                     ])
-                                                ) {
-                                                    return Engine::where('state', StatesClass::Activated()->value)->pluck('plate_number', 'id');
+                                                ) {  
+                                                    return Engine::whereNot('state', StatesClass::Deactivated()->value)->pluck('plate_number', 'id');
                                                 } elseif (
                                                     $loggedUser->hasAnyRole([
                                                         RolesEnum::Directeur()->value,
@@ -131,7 +133,7 @@ class ReparationResource extends Resource
                                                     $userCentresCollection = DepartementUser::where('user_id', auth()->user()->id)->pluck('departement_code_centre')->toArray();
 
                                                     return Engine::whereIn('engines.departement_id', $userCentresCollection)
-                                                        ->where('state', StatesClass::Activated()->value)
+                                                        ->whereNot('state', StatesClass::Deactivated()->value)
                                                         ->pluck('plate_number', 'id');
                                                 }
                                             } else {
@@ -148,11 +150,11 @@ class ReparationResource extends Resource
                                                 ) {
 
                                                     return Engine::where('engines.departement_id', $loggedUser->departement_id)
-                                                        ->where('state', StatesClass::Activated()->value)
+                                                        ->whereNot('state', StatesClass::Deactivated()->value)
                                                         ->pluck('plate_number', 'id');
 
                                                 } else {
-                                                    return Engine::where('state', StatesClass::Activated()->value)->pluck('plate_number', 'id');
+                                                    return Engine::whereNot('state', StatesClass::Deactivated()->value)->pluck('plate_number', 'id');
                                                 }
                                             }
 
@@ -391,6 +393,8 @@ class ReparationResource extends Resource
                                 Section::make('Devis')
                                     ->schema([
                                         FileUpload::make('facture')
+                                        ->disk("medias")
+                            ->directory("proforma")
                                             ->required(function ($record) {
                                                 if ($record) {
 
@@ -463,6 +467,8 @@ class ReparationResource extends Resource
                                             ->enableOpen(),
 
                                         FileUpload::make('bon_commande')
+                                        ->disk("medias")
+                            ->directory("bons")
                                             ->label('Bon de commande')
                                             ->required(function ($record) {
                                                 if ($record) {

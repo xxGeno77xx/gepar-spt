@@ -38,6 +38,7 @@ class MarqueResource extends Resource
                     ->default(StatesClass::Activated()->value),
 
                 FileUpload::make('logo')
+                ->disk("public")
                     ->imageResizeTargetWidth('1300')
                     ->imageResizeTargetHeight('1200'),
             ]);

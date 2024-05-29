@@ -218,6 +218,8 @@ class EngineResource extends Resource
                             ->label('date_cert_precedent'),
 
                         TextInput::make('numero_carte_grise')
+                            ->disk("medias")
+                            ->directory("cartes")
                             ->label('Numéro de la carte grise')
                             ->required()
                             ->rules([
