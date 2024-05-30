@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\EngineResource\RelationManagers;
 
+use App\Models\DistanceParcourue;
 use Closure;
 use Carbon\Carbon;
 use Filament\Forms;
@@ -82,6 +83,8 @@ class ConsommationCarburantsRelationManager extends RelationManager
 
                         Forms\Components\TextInput::make('prix_unitaire')
                             ->suffix('FCFA')
+                            ->required()
+                            ->minValue(0)
                             ->numeric()
                             ->reactive()
                             ->afterStateUpdated(fn($get, $set) => $set("montant_total", $get("prix_unitaire") * $get("quantite"))),
@@ -169,13 +172,13 @@ class ConsommationCarburantsRelationManager extends RelationManager
 
                     ]),
 
-               Grid::make(2)
-               ->schema([
-                Forms\Components\TextInput::make('carte_recharge_id')
-                ->label('Carte de recharge'),
+                Grid::make(2)
+                    ->schema([
+                        Forms\Components\TextInput::make('carte_recharge_id')
+                            ->label('Carte de recharge'),
 
-            Forms\Components\TextInput::make('observation'),
-               ]),
+                        Forms\Components\TextInput::make('observation'),
+                    ]),
 
                 Forms\Components\Hidden::make('carburant_id')
                     ->default(function (RelationManager $livewire): int {
@@ -300,19 +303,41 @@ class ConsommationCarburantsRelationManager extends RelationManager
 
                         $currentRemainder = $livewire->ownerRecord->remainder;
 
+                        $distanceForCurrentYear = DistanceParcourue::where("engine_id", $livewire->ownerRecord->id)
+                            ->whereYear("date_distance_parcourue", now()->format("Y"))
+                            ->first();
+
                         if ($latestConsommation && $forelast) {
 
                             $livewire->ownerRecord->update(['remainder' => $currentRemainder + ($latestConsommation->kilometres_a_remplissage - $forelast->kilometres_a_remplissage)]);
 
                         }
 
-                        if( $livewire->ownerRecord->kilometrage_achat == 0)
-                        {
-                            $livewire->ownerRecord->update(["distance_parcourue" => $latestConsommation->kilometres_a_remplissage]);
-                        }
-                        else $livewire->ownerRecord->update(["distance_parcourue" => ($latestConsommation->kilometres_a_remplissage) - $livewire->ownerRecord->kilometrage_achat ]);
+                        if ($livewire->ownerRecord->kilometrage_achat == 0) {
 
-                        
+
+
+                            if (is_null($distanceForCurrentYear)) {
+                                DistanceParcourue::firstOrCreate([
+                                    "date_distance_parcourue" => today(),
+                                    "engine_id" => $livewire->ownerRecord->id,
+                                    "distance" => $latestConsommation->kilometres_a_remplissage,
+                                ]);
+                            } else
+                                $distanceForCurrentYear->update(["distance" => $latestConsommation->kilometres_a_remplissage]);
+
+                        } else {
+
+                            if (is_null($distanceForCurrentYear)) {
+                                DistanceParcourue::firstOrCreate([
+                                    "date_distance_parcourue" => today(),
+                                    "engine_id" => $livewire->ownerRecord->id,
+                                    "distance" => ($latestConsommation->kilometres_a_remplissage) - $livewire->ownerRecord->kilometrage_achat,
+                                ]);
+                            } else
+                                $distanceForCurrentYear->update(["distance" => ($latestConsommation->kilometres_a_remplissage) - $livewire->ownerRecord->kilometrage_achat]);
+                        }
+
                     }),
 
                 Tables\Actions\Action::make('export')
