@@ -218,8 +218,6 @@ class EngineResource extends Resource
                             ->label('date_cert_precedent'),
 
                         TextInput::make('numero_carte_grise')
-                            ->disk("medias")
-                            ->directory("cartes")
                             ->label('Numéro de la carte grise')
                             ->required()
                             ->rules([
@@ -245,7 +243,8 @@ class EngineResource extends Resource
                                 FileUpload::make('car_document')
                                     ->maxSize(1024)
                                     ->label('Carte grise de l\'engin')
-                                    ->image()
+                                    ->disk("medias")
+                            ->directory("cartes")
                                     ->enableDownload()
                                     ->enableOpen()
                                     ->required(),

@@ -56,6 +56,13 @@ return [
             'throw' => false,
         ],
 
+        'medias' => [
+            'driver' => 'local',
+            'root'   => public_path('medias'),
+            'url'    => env('APP_URL').'/medias',
+        ],
+
+
     ],
 
     /*

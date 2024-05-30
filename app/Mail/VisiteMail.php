@@ -62,6 +62,7 @@ class VisiteMail extends Mailable
                 'visites.date_expiration',
                 'visites.date_initiale',
                 'engines.tvm_mail_sent',
+                'engines.distance_parcourue',
                 'engines.id',
                 'engines.modele_id',
                 'engines.power',

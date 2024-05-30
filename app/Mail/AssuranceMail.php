@@ -66,6 +66,7 @@ class AssuranceMail extends Mailable
             ->distinct('engines.id')
             ->groupBy(
                 'assurances.date_fin',
+                'engines.distance_parcourue',
                 'assurances.date_debut',
                 'engines.id',
                 'engines.modele_id',

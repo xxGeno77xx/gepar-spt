@@ -61,6 +61,7 @@ class ListEngines extends ListRecords
                 'date_fin',
                 'engines.modele_id',
                 'engines.power',
+                'engines.distance_parcourue',
                 'engines.departement_id',
                 'engines.price',
                 'engines.circularization_date',

@@ -5,8 +5,9 @@
     use App\Models\Departement;
     use App\Models\Carburant;
     use App\Models\ConsommationCarburant;
+    
     use App\Support\Database\TypesClass;
-
+    use App\Support\Database\CarburantsClass;
  
   
 
@@ -74,26 +75,10 @@
         "Transports à 2 roues" => $transportADeuxRoues->count(),
         "Tricycles motorisés" => $tricyclesMotorises->count()
     ];
+ 
+    
+    
 
-     $Kilometrage = ConsommationCarburant::where('engine_id', $this->record->id)
-            ->orderByDesc('id')
-            ->first()
-            ->kilometres_a_remplissage ?? $this->record->kilometrage_achat;
-
-
-
-        // dd($enginesPerCarburant);
-     // dd($categoriesCollection);
-
-    // ===========================================
-    // $FraisDeReparation = Reparation::where('engine_id', $this->record->id)->sum('cout_reparation');
-
-    // $Kilometrage = ConsommationCarburant::where('engine_id', $this->record->id)
-    //     ->orderByDesc('id')
-    //     ->first()
-    //     ->kilometres_a_remplissage ?? $this->record->kilometrage_achat;
-
-    // $nombreDeReparations = Reparation::where('engine_id', $this->record->id)?->count();
     //================================================
 
 @endphp
@@ -223,7 +208,7 @@
             text-align: left;
         }
         .subtitle {
-            color: purple;
+            color: rgb(0, 55, 235);
         }
         table {
             width: 100%;
@@ -239,7 +224,7 @@
             background-color: #f2f2f2;
         }
         .highlight {
-            background-color: #ffff99;
+            background-color: #ffa600;
         }
     </style>
 </head>
@@ -265,7 +250,7 @@
                 <tr>
                     <td>{{Departement::find($departementId)->sigle_centre}}</td>
                     <td>{{$enginesPerDepartment[$key]}}</td>
-                    <td>{{($enginesPerDepartment[$key]/$allEnginesCount)*100}} %</td>
+                    <td>{{(round($enginesPerDepartment[$key]/$allEnginesCount*100,2))}} %</td>
                 </tr>
                 @endforeach
                 
@@ -303,7 +288,7 @@
                     <td>{{Carburant::find($carburantID)->type_carburant}}</td>
                     <td><strong>-</strong></td>
                     <td>{{$enginesPerCarburant[$key]}}</td>
-                    <td>{{($enginesPerCarburant[$key]/$allEnginesCount)*100}} %</td>
+                    <td>{{(round(($enginesPerCarburant[$key]/$allEnginesCount*100),2))}} %</td>
                 </tr>
                 @endforeach
                 
@@ -333,7 +318,7 @@
             <thead>
                 <tr>
                     <th>CATEGORIE</th>
-                    <th>KILOMETRAGE</th>
+                    <th>DISTANCE PARCOURUE</th>
                     <th>NOMBRE</th>
                     <th>PART</th>
                 </tr>
@@ -343,9 +328,9 @@
                 @foreach ($categoriesEngins as  $key => $categorie )
                 <tr>
                     <td>{{$key}}</td>
-                    <td><strong>-</strong></td>
+                    <td><strong>{{ $categoriesCollection->offsetGet($loop->iteration-1)->sum("distance_parcourue")}} </strong></td>
                     <td>{{$categorie}}</td>
-                    <td>{{($categorie/$allEnginesCount)*100}} %</td>
+                    <td>{{(round(($categorie/$allEnginesCount*100), 2))}} %</td>
                 </tr>
                 @endforeach
                 

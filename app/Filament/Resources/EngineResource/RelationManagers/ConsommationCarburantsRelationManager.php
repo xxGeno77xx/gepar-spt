@@ -306,6 +306,13 @@ class ConsommationCarburantsRelationManager extends RelationManager
 
                         }
 
+                        if( $livewire->ownerRecord->kilometrage_achat == 0)
+                        {
+                            $livewire->ownerRecord->update(["distance_parcourue" => $latestConsommation->kilometres_a_remplissage]);
+                        }
+                        else $livewire->ownerRecord->update(["distance_parcourue" => ($latestConsommation->kilometres_a_remplissage) - $livewire->ownerRecord->kilometrage_achat ]);
+
+                        
                     }),
 
                 Tables\Actions\Action::make('export')

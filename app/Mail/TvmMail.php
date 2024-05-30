@@ -40,6 +40,7 @@ class TvmMail extends Mailable
             ->distinct('engines.id')
             ->groupBy(
                 'tvms.date_fin',
+                'engines.distance_parcourue',
                 'tvms.date_debut',
                 'engines.tvm_mail_sent',
                 'engines.id',

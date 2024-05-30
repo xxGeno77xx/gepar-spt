@@ -86,7 +86,9 @@ return new class extends Migration
 
             $table->string('date_cert_precedent')->nullable();
 
-            $table->string('kilometrage_achat')->nullable();
+            $table->integer('kilometrage_achat')->nullable();
+
+            $table->integer('distance_parcourue')->nullable();
 
             $table->string('numero_carte_grise')
                 ->unique()
