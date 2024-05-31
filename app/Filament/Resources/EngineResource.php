@@ -243,8 +243,6 @@ class EngineResource extends Resource
                                 FileUpload::make('car_document')
                                     ->maxSize(1024)
                                     ->label('Carte grise de l\'engin')
-                                    ->disk("medias")
-                            ->directory("cartes")
                                     ->enableDownload()
                                     ->enableOpen()
                                     ->required(),
