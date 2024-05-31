@@ -175,7 +175,9 @@ class ConsommationCarburantsRelationManager extends RelationManager
                 Grid::make(2)
                     ->schema([
                         Forms\Components\TextInput::make('carte_recharge_id')
-                            ->label('Carte de recharge'),
+                            ->label('Carte de recharge')
+                            ->visible(fn($get) => $get("especes") == 1 ? false : true)
+                            ->required(fn($get) => $get("especes") == 1 ? false : true),
 
                         Forms\Components\TextInput::make('observation'),
                     ]),
@@ -314,7 +316,6 @@ class ConsommationCarburantsRelationManager extends RelationManager
                         }
 
                         if ($livewire->ownerRecord->kilometrage_achat == 0) {
-
 
 
                             if (is_null($distanceForCurrentYear)) {

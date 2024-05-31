@@ -44,12 +44,9 @@ class OrdreMissionPdfController extends Controller
             ->stream('Ordre-de-route N° '.$order->id.'.pdf');
     }
 
-    public function dashboardEtat()
+    public function dashboardEtat($annee)
     {
-
-        $currentYear = Carbon::parse(now())->format('Y');
-
-        return Pdf::loadView('dashboardEtat')
-            ->stream('Situation annuelle '.$currentYear.'.pdf');
+        return Pdf::loadView('dashboardEtat', ['annee' => $annee])
+            ->stream('Situation annuelle_'.$annee.'.pdf');
     }
 }

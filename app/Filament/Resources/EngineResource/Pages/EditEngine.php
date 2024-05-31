@@ -72,18 +72,13 @@ class EditEngine extends EditRecord
                 //             ->schema([
                 //                 MarkdownEditor::make('description'),
                 //             ]),
-                //         Step::make('Visibility')
-                //             ->description('Control who can view it')
-                //             ->schema([
-                //                 Toggle::make('is_visible')
-                //                     ->label('Visible to customers.')
-                //                     ->default(true),
-                //             ]),
+                       
 
                 //     ])
 
                 //     ->action(function (?Engin $record) {
 
+                //         dd($this->record->update);
                 //         redirect('/engines');
                 //         Notification::make()
                 //             ->title('Retrait du patrimoine')
