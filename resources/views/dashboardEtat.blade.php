@@ -9,7 +9,7 @@
     use App\Support\Database\TypesClass;
     use App\Support\Database\CarburantsClass;
     use App\Support\Database\StatesClass;
-
+    use Illuminate\Support\Facades\DB;
 
     //=======engines and categories====================
     $allEnginesCount = Engine::where('state', '<>', StatesClass::Deactivated()->value)
@@ -106,8 +106,7 @@
         ->whereYear('created_at', $annee)
         ->sum('quantite');
 
-
-        //===collections===============
+    //===collections===============
     $consoCollection = [
         $vehiculesAutomobilesConso,
         $vehiculeUtilitairesLourdsConso,
@@ -156,192 +155,134 @@
         'Transports à 2 roues' => $transportADeuxRoues->count(),
         'Tricycles motorisés' => $tricyclesMotorises->count(),
     ];
+
+    // ===========================individuals===============================================================
+    $vehiculesAutomobilesIndividuels = Engine::whereIn('engines.id', $vehiculesAutomobilesIDs)
+        ->leftjoin('distance_parcourues', function ($join) use ($annee) {
+            $join
+                ->on('distance_parcourues.engine_id', 'engines.id')
+                ->select('distance')
+                ->whereYear('date_distance_parcourue', $annee);
+        })
+        ->join('consommation_carburants', 'consommation_carburants.engine_id', 'engines.id')
+        ->rightjoin('consommation_carburants', function($join) use ($annee){
+            $join->on( 'consommation_carburants.engine_id', 'engines.id')
+                ->whereYear('consommation_carburants.created_at', $annee) ;
+        })
+        ->join('carburants', 'carburants.id', 'engines.carburant_id')
+        ->select(
+            'engines.plate_number',
+            'distance',
+            DB::raw('SUM(consommation_carburants.quantite) as total_quantite'),
+            'type_carburant',
+        )
+        ->groupBy('engines.id', 'engines.plate_number', 'distance', 'type_carburant')
+        ->get();
+
+
+        $vehiculeUtilitairesLegersIndividuels = Engine::whereIn('engines.id', $vehiculeUtilitairesLegersIDs)
+        ->leftjoin('distance_parcourues', function ($join) use ($annee) {
+            $join
+                ->on('distance_parcourues.engine_id', 'engines.id')
+                ->select('distance')
+                ->whereYear('date_distance_parcourue', $annee);
+        })
+        ->join('consommation_carburants', 'consommation_carburants.engine_id', 'engines.id')
+        ->rightjoin('consommation_carburants', function($join) use ($annee){
+            $join->on( 'consommation_carburants.engine_id', 'engines.id')
+                ->whereYear('consommation_carburants.created_at', $annee) ;
+        })
+        ->join('carburants', 'carburants.id', 'engines.carburant_id')
+        ->select(
+            'engines.plate_number',
+            'distance',
+            DB::raw('SUM(consommation_carburants.quantite) as total_quantite'),
+            'type_carburant',
+        )
+        ->groupBy('engines.id', 'engines.plate_number', 'distance', 'type_carburant')
+        ->get();
+
+
+        $vehiculeUtilitairesLourdsIndividuels = Engine::whereIn('engines.id', $vehiculeUtilitairesLourdsIDs)
+        ->leftjoin('distance_parcourues', function ($join) use ($annee) {
+            $join
+                ->on('distance_parcourues.engine_id', 'engines.id')
+                ->select('distance')
+                ->whereYear('date_distance_parcourue', $annee);
+        })
+        ->join('consommation_carburants', 'consommation_carburants.engine_id', 'engines.id')
+        ->rightjoin('consommation_carburants', function($join) use ($annee){
+            $join->on( 'consommation_carburants.engine_id', 'engines.id')
+                ->whereYear('consommation_carburants.created_at', $annee) ;
+        })
+        ->join('carburants', 'carburants.id', 'engines.carburant_id')
+        ->select(
+            'engines.plate_number',
+            'distance',
+            DB::raw('SUM(consommation_carburants.quantite) as total_quantite'),
+            'type_carburant',
+        )
+        ->groupBy('engines.id', 'engines.plate_number', 'distance', 'type_carburant')
+        ->get();
+
+
+
+  $transportADeuxRouesIndividuels = Engine::whereIn('engines.id', $transportADeuxRouesIDs)
+        ->leftjoin('distance_parcourues', function ($join) use ($annee) {
+            $join
+                ->on('distance_parcourues.engine_id', 'engines.id')
+                ->select('distance')
+                ->whereYear('date_distance_parcourue', $annee);
+        })
+        ->join('consommation_carburants', 'consommation_carburants.engine_id', 'engines.id')
+        ->rightjoin('consommation_carburants', function($join) use ($annee){
+            $join->on( 'consommation_carburants.engine_id', 'engines.id')
+                ->whereYear('consommation_carburants.created_at', $annee) ;
+        })
+        ->join('carburants', 'carburants.id', 'engines.carburant_id')
+        ->select(
+            'engines.plate_number',
+            'distance',
+            DB::raw('SUM(consommation_carburants.quantite) as total_quantite'),
+            'type_carburant',
+        )
+        ->groupBy('engines.id', 'engines.plate_number', 'distance', 'type_carburant')
+        ->get();
+
+
+        $tricyclesMotorisesIndividuels = Engine::whereIn('engines.id', $tricyclesMotorisesIDs)
+        ->whereDate('engines.created_at', '<=', $annee . '/12/31/')
+        ->leftjoin('distance_parcourues', function ($join) use ($annee) {
+            $join
+                ->on('distance_parcourues.engine_id', 'engines.id')
+                ->select('distance')
+                ->whereYear('date_distance_parcourue', $annee);
+        })
+        ->rightjoin('consommation_carburants', function($join) use ($annee){
+            $join->on( 'consommation_carburants.engine_id', 'engines.id')
+                ->whereYear('consommation_carburants.created_at', $annee) ;
+        })
+
+        ->join('carburants', 'carburants.id', 'engines.carburant_id')
+        ->select(
+            'engines.plate_number',
+            'distance',
+            DB::raw('SUM(consommation_carburants.quantite) as total_quantite'),
+            'type_carburant',
+        )
+        ->whereYear('consommation_carburants.created_at', $annee) 
+        ->groupBy('engines.id', 'engines.plate_number', 'distance', 'type_carburant')
+        ->get();
+
 @endphp
 
 
-
 <!DOCTYPE html>
 <html lang="fr">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nombre total de voitures en 2017</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            /*background-color: #f9f9f9;*/
-            color: #333;
-            margin: 0;
-            padding: 0;
-        }
-
-        .container {
-            width: 90%;
-            margin: 20px auto;
-            background-color: #fff;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .title {
-            text-align: left;
-        }
-
-        .subtitle {
-            color: rgb(0, 55, 235);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th,
-        td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: center;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-
-        .highlight {
-            background-color: #ffa600;
-        }
-    </style>
-</head>
-
-<body>
-    <div class="title">
-        <h1>Situation globale du parc automobile de la SPT</h1>
-        <h2>1. Engins</h2>
-        <h3 class="subtitle">1a. Nombre total d'engins en {{ now()->format('Y') }}</h3>
-    </div>
-    <p>Le tableau ci-dessous donne le nombre total d'engins par département.</p>
-    <table>
-        <thead>
-            <tr>
-                <th>DEPARTEMENT</th>
-                <th>NOMBRE</th>
-                <th>POURC.</th>
-            </tr>
-        </thead>
-        <tbody>
-
-            @foreach ($departementsWithEnginesIDs as $key => $departementId)
-                <tr>
-                    <td>{{ Departement::find($departementId)->sigle_centre }}</td>
-                    <td>{{ $enginesPerDepartment[$key] }}</td>
-                    <td>{{ round(($enginesPerDepartment[$key] / $allEnginesCount) * 100, 2) }} %</td>
-                </tr>
-            @endforeach
-
-
-            <tr class="highlight">
-                <td><strong>TOTAL</strong></td>
-                <td><strong>{{ $allEnginesCount }}</strong></td>
-                <td><strong>100%</strong></td>
-            </tr>
-            <tr>
-
-            </tr>
-        </tbody>
-    </table>
-
-    <div class="title">
-        <br>
-        <h3 class="subtitle">1b. Carburants utilisés</h3>
-    </div>
-
-    <p>Cette partie traite des différents types de véhicules en fonction du type de carburant.</p>
-    <table>
-        <thead>
-            <tr>
-                <th>CARBURANT</th>
-                <th>KILOMETRAGE</th>
-                <th>NOMBRE</th>
-                <th>POURC.</th>
-            </tr>
-        </thead>
-        <tbody>
-
-            @foreach ($typesCarburantWithEngineRecords as $key => $carburantID)
-                <tr>
-                    <td>{{ Carburant::find($carburantID)->type_carburant }}</td>
-                    <td><strong>-</strong></td>
-                    <td>{{ $enginesPerCarburant[$key] }}</td>
-                    <td>{{ round(($enginesPerCarburant[$key] / $allEnginesCount) * 100, 2) }} %</td>
-                </tr>
-            @endforeach
-
-
-            <tr class="highlight">
-                <td><strong>TOTAL</strong></td>
-                <td><strong>-</strong></td>
-                <td><strong>{{ $allEnginesCount }}</strong></td>
-                <td><strong>100%</strong></td>
-            </tr>
-            <tr>
-
-            </tr>
-        </tbody>
-    </table>
-
-
-    {{-- ++++++++++++++++++++++++ --}}
-
-    <div class="title">
-        <br>
-        <h3 class="subtitle">1c. Catégories d'engins</h3>
-    </div>
-
-    <p>Cette partie traite des différents types de véhicules en fonction de leurs catégories .</p>
-    <table>
-        <thead>
-            <tr>
-                <th>CATEGORIE</th>
-                <th>DISTANCE PARCOURUE</th>
-                <th>NOMBRE</th>
-                <th>POURC.</th>
-            </tr>
-        </thead>
-        <tbody>
-
-            @foreach ($categoriesEngins as $key => $categorie)
-                <tr>
-                    <td>{{ $key }}</td>
-                    <td> {{ $distancesCollection[$loop->iteration - 1] }} </td>
-                    <td> {{ $categorie }} </td>
-                    <td>{{ round(($categorie / $allEnginesCount) * 100, 2) }} %</td>
-                </tr>
-            @endforeach
-
-
-            <tr class="highlight">
-                <td><strong>TOTAL</strong></td>
-                <td><strong>-</strong></td>
-                <td><strong>{{ $allEnginesCount }}</strong></td>
-                <td><strong>100%</strong></td>
-            </tr>
-
-        </tbody>
-    </table>
-
-
-</body>
-
-</html>
-
-<!DOCTYPE html>
-<html lang="fr">
-
-<head>
-    <meta charset="UTF-8">
-    <title>Facture</title>
+    <title>Situation annuelle {{now()->format("d-m-Y")}}</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -394,6 +335,10 @@
             text-align: right;
             padding-right: 8px;
         }
+
+        h6 {
+            page-break-before: always;
+        }
     </style>
 </head>
 
@@ -440,6 +385,8 @@
             </td>
         </tr>
     </table> --}}
+
+    <h3>Toutes les catégories</h3>
     <table class="invoice-details">
         <thead>
             <tr>
@@ -471,6 +418,101 @@
 
         </tbody>
     </table>
-</body>
+    <h6></h6>
+    <br>
+    <h3>Véhicules automobiles (4 roues dont le poids < 3.5 t)</h3>
 
+    <table class="invoice-details">
+        <thead>
+            <tr>
+                <th>Numéro de plaque</th>
+                <th>Distances parcourues</th>
+                <th>Consommation(L)</th>
+                <th>Carburant</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($vehiculesAutomobilesIndividuels as $key => $engine)
+                <tr>
+                    <td>{{ $engine->plate_number }}</td>
+                    <td> {{ $engine->distance }} </td>
+                    <td> {{ $engine->total_quantite }} </td>
+                    <td> {{ $engine->type_carburant }} </td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+
+
+    <h6></h6>
+    <h3>Véhicules utilitaires légers (4 roues dont le poids < 3.5 t)</h3>
+
+    <table class="invoice-details">
+        <thead>
+            <tr>
+                <th>Numéro de plaque</th>
+                <th>Distances parcourues</th>
+                <th>Consommation(L)</th>
+                <th>Carburant</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($vehiculeUtilitairesLegersIndividuels as $key => $engine)
+                <tr>
+                    <td>{{ $engine->plate_number }}</td>
+                    <td> {{ $engine->distance }} </td>
+                    <td> {{ $engine->total_quantite }} </td>
+                    <td> {{ $engine->type_carburant }} </td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+    <h6></h6>
+<h3>Véhicules utilitaires lourds (4 roues dont le poids < 3.5 t)</h3>
+
+    <table class="invoice-details">
+        <thead>
+            <tr>
+                <th>Numéro de plaque</th>
+                <th>Distances parcourues</th>
+                <th>Consommation(L)</th>
+                <th>Carburant</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($vehiculeUtilitairesLourdsIndividuels as $key => $engine)
+                <tr>
+                    <td>{{ $engine->plate_number }}</td>
+                    <td> {{ $engine->distance }} </td>
+                    <td> {{ $engine->total_quantite }} </td>
+                    <td> {{ $engine->type_carburant }} </td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+    <h6></h6>
+<h3>Tricycles motorisés</h3>
+
+    <table class="invoice-details">
+        <thead>
+            <tr>
+                <th>Numéro de plaque</th>
+                <th>Distances parcourues</th>
+                <th>Consommation(L)</th>
+                <th>Carburant</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($tricyclesMotorisesIndividuels as $key => $engine)
+                <tr>
+                    <td>{{ $engine->plate_number }}</td>
+                    <td> {{ $engine->distance }} </td>
+                    <td> {{ $engine->total_quantite }} </td>
+                    <td> {{ $engine->type_carburant }} </td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+    <h6></h6>
+</body>
 </html>

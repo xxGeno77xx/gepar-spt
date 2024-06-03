@@ -36,6 +36,8 @@ class ConsommationSeeder extends Seeder
                 'engine_id' => 1,
                 'date_prise' => Carbon::parse($next_timestamp)->format('Y-m-d'),
                 'carburant_id' => 1,
+                'prix_unitaire' => 700,
+                'montant_total' => 700* mt_rand(1, 200),
                 'carte_recharge_id' => mt_rand(1, 200),
                 'chauffeur_id' => 1,
                 'observation' => 'ok',
