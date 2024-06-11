@@ -2,14 +2,15 @@
 
 namespace App\Filament\Resources\TypeResource\Pages;
 
-use App\Filament\Resources\TypeResource;
 use App\Models\Type;
-use App\Support\Database\PermissionsClass;
-use App\Support\Database\StatesClass;
-use Database\Seeders\RolesPermissionsSeeder;
-use Filament\Notifications\Notification;
 use Filament\Pages\Actions;
+use App\Support\Database\RolesEnum;
+use App\Support\Database\StatesClass;
+use App\Filament\Resources\TypeResource;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use App\Support\Database\PermissionsClass;
+use Database\Seeders\RolesPermissionsSeeder;
 
 class EditType extends EditRecord
 {
@@ -46,7 +47,9 @@ class EditType extends EditRecord
 
         // $userPermission = $user->hasAnyPermission([PermissionsClass::departements_create()->value]);
 
-        $userRole = $user->hasRole([RolesPermissionsSeeder::SuperAdmin]);
+        $userRole = $user->hasAnyRole([RolesPermissionsSeeder::SuperAdmin],
+        RolesEnum::Chef_parc()->value,
+        RolesEnum::Dpl()->value );
 
         abort_if(! $userRole, 403, __("Vous n'avez pas access à cette page"));
     }
