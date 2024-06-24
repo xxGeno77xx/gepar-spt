@@ -58,9 +58,9 @@ class AssurancesASurveiller extends BaseWidget
             ->where('assurances.state', $activated)
             ->whereNull('assurances.deleted_at')
             ->whereNull('engines.deleted_at')
-            ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
+            // ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
             ->join('centre', 'engines.departement_id', 'centre.code_centre')
-            ->join('marques', 'modeles.marque_id', '=', 'marques.id')
+            ->join('marques', 'engines.marque_id', '=', 'marques.id')
             ->select('engines.*', 'marques.logo as logo', 'assurances.date_debut as date_debut', 'assurances.date_fin as date_fin')
             ->where('engines.state', '<>', StatesClass::Deactivated()->value)
             ->distinct('engines.id')
@@ -68,8 +68,8 @@ class AssurancesASurveiller extends BaseWidget
                 'assurances.date_fin',
                 'assurances.date_debut',
                 'engines.id',
+                'engines.marque_id',
                 'engines.tvm_mail_sent',
-                'engines.modele_id',
                 'engines.power',
                 'engines.distance_parcourue',
                 'engines.departement_id',
@@ -104,7 +104,6 @@ class AssurancesASurveiller extends BaseWidget
                 'engines.created_at',
                 'engines.updated_at',
                 'sigle_centre',
-                'nom_modele',
                 'nom_marque',
                 'logo',
                 'remainder'

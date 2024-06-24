@@ -37,9 +37,9 @@ class VisistesASurveiller extends BaseWidget
             ->where('visites.state', $activated)
             ->whereNull('visites.deleted_at')
             ->whereNull('engines.deleted_at')
-            ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
+            // ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
             ->join('centre', 'engines.departement_id', 'centre.code_centre')
-            ->join('marques', 'modeles.marque_id', '=', 'marques.id')
+            ->join('marques', 'engines.marque_id', '=', 'marques.id')
             ->select('engines.*', /*'centre.sigle',*/ 'marques.logo as logo', 'visites.date_initiale as date_initiale', 'visites.date_expiration as date_expiration')
             ->where('engines.state', '<>', StatesClass::Deactivated()->value)
             ->distinct('engines.id')
@@ -49,7 +49,7 @@ class VisistesASurveiller extends BaseWidget
                 'engines.distance_parcourue',
                 'engines.tvm_mail_sent',
                 'engines.id',
-                'engines.modele_id',
+                'engines.marque_id',
                 'engines.power',
                 'engines.departement_id',
                 'engines.price',
@@ -83,7 +83,6 @@ class VisistesASurveiller extends BaseWidget
                 'engines.created_at',
                 'engines.updated_at',
                 'sigle_centre',
-                'nom_modele',
                 'nom_marque',
                 'logo',
                 'remainder'

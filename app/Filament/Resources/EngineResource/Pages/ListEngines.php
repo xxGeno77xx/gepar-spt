@@ -41,8 +41,8 @@ class ListEngines extends ListRecords
                     ->where('visites.state', StatesClass::Activated()->value)
                     ->whereRaw('visites.id = (SELECT MAX(id) FROM visites WHERE engine_id = engines.id AND visites.state = ?)', [StatesClass::Activated()->value]);
             })
-            ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
-            ->join('marques', 'modeles.marque_id', '=', 'marques.id')
+            // ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
+            ->join('marques', 'engines.marque_id', '=', 'marques.id')
             ->join('centre', 'engines.departement_id', 'centre.code_centre')
             ->where('engines.state', '<>', StatesClass::Deactivated()->value)
             ->select(
@@ -59,7 +59,7 @@ class ListEngines extends ListRecords
                 'date_expiration',
                 'engines.tvm_mail_sent',
                 'date_fin',
-                'engines.modele_id',
+                'engines.marque_id',
                 'engines.power',
                 'engines.distance_parcourue',
                 'engines.departement_id',
@@ -67,7 +67,7 @@ class ListEngines extends ListRecords
                 'engines.circularization_date',
                 'engines.date_aquisition',
                 'engines.plate_number',
-                'modeles.nom_modele',
+                'marques.nom_marque',
                 'engines.type_id',
                 'engines.car_document',
                 'engines.carburant_id',
@@ -95,7 +95,6 @@ class ListEngines extends ListRecords
                 'engines.created_at',
                 'engines.updated_at',
                 'sigle_centre',
-                'nom_modele',
                 'nom_marque',
                 'logo',
                 'remainder'

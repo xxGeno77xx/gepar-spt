@@ -14,7 +14,7 @@ return new class extends Migration
 
     public function up(): void
     {
-        Schema::dropIfExists('type_reparations');
+        // Schema::dropIfExists('type_reparations');
 
         Schema::create('type_reparations', function (Blueprint $table) {
             $table->id();

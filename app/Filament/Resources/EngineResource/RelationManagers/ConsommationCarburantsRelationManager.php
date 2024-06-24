@@ -351,14 +351,13 @@ class ConsommationCarburantsRelationManager extends RelationManager
                     ->disablePdf()
                     ->extraViewData(function (RelationManager $livewire, $action) {
 
-                        $OwnerEngine = $livewire->ownerRecord->join('modeles', 'modeles.id', 'engines.modele_id')
-                            ->leftJoin('marques', 'marques.id', 'modeles.marque_id')
+                        $OwnerEngine = $livewire->ownerRecord
+                            ->leftJoin('marques', 'marques.id', 'engines.marque_id')
                             ->leftJoin('centre', 'centre.code_centre', 'engines.departement_id')
                             ->leftJoin('types_engins', 'engines.type_id', 'types_engins.id')
                             ->leftJoin('carburants', 'carburants.id', 'engines.carburant_id')
                             ->select([
                                 'engines.*',
-                                'modeles.nom_modele as modele',
                                 'marques.nom_marque as marque',
                                 'types_engins.nom_type as type',
                                 'carburants.type_carburant as carburant',
@@ -386,7 +385,6 @@ class ConsommationCarburantsRelationManager extends RelationManager
                         return [
 
                             'plate_number' => $livewire->ownerRecord->plate_number,
-                            'modele' => $OwnerEngine->modele,
                             'marque' => $OwnerEngine->marque,
                             'type' => $OwnerEngine->type,
                             'carburant' => $OwnerEngine->carburant,

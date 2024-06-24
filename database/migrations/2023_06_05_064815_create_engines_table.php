@@ -15,13 +15,13 @@ return new class extends Migration
     public function up(): void
     {
 
-        Schema::dropIfExists('engines');
+        // Schema::dropIfExists('engines');
 
         Schema::create('engines', function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedBigInteger('modele_id');
-            $table->foreign('modele_id')->references('id')->on('modeles');
+            $table->unsignedBigInteger('marque_id');
+            $table->foreign('marque_id')->references('id')->on('marques');
 
             $table->integer('power');
 
@@ -60,7 +60,7 @@ return new class extends Migration
             $table->string('numero_chassis')
                 ->unique();
 
-            $table->integer('moteur');
+            $table->string('moteur');
 
             $table->string('carosserie');
 

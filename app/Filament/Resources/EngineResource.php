@@ -14,6 +14,7 @@ use App\Models\Direction;
 use App\Models\Division;
 use App\Models\Engine;
 use App\Models\Engine as Engin;
+use App\Models\Marque;
 use App\Models\Modele;
 use App\Models\Type;
 use App\Support\Database\CommonInfos;
@@ -160,11 +161,11 @@ class EngineResource extends Resource
                                             };
                                         },
                                     ]),
-                                TextInput::make('moteur')->label('Moteur')->numeric()->required(),
+                                TextInput::make('moteur')->label('Moteur')->required(),
 
                                 TextInput::make('carosserie')->label('Carosserie')->required(),
 
-                                ColorPicker::make('couleur')->label('Couleur')->required(),
+                                TextInput::make('couleur')->label('Couleur')->required(),
 
                             ]),
 
@@ -183,10 +184,13 @@ class EngineResource extends Resource
 
                                 TextInput::make('poids_total_roulant')
                                     ->label('Poids total roulant')
+                                    ->default(0)
+                                    ->disabled()
+                                    ->placeholder(0)
                                     ->numeric(),
 
                                 TextInput::make('charge_utile')
-                                    ->label('Charge à vide')
+                                    ->label('Charge utile')
                                     ->numeric()
                                     ->required(),
 
@@ -202,9 +206,9 @@ class EngineResource extends Resource
 
                             ]),
 
-                        Select::make('modele_id')
-                            ->label('Modèle')
-                            ->options(Modele::where('state', StatesClass::Activated()->value)->pluck('nom_modele', 'id'))
+                        Select::make('marque_id')
+                            ->label('Marque')
+                            ->options(Marque::where('state', StatesClass::Activated()->value)->pluck('nom_marque', 'id'))
                             ->searchable()
                             ->required(),
 

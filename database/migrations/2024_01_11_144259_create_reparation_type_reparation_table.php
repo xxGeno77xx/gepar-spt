@@ -13,7 +13,7 @@ return new class extends Migration
 
     public function up(): void
     {
-        Schema::dropIfExists('reparation_type_reparation');
+        // Schema::dropIfExists('reparation_type_reparation');
 
         Schema::create('reparation_type_reparation', function (Blueprint $table) {
             $table->id();

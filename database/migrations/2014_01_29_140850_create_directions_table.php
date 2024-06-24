@@ -13,17 +13,17 @@ return new class extends Migration
 
     public function up(): void
     {
-        Schema::create('directions', function (Blueprint $table) {
+        // Schema::create('directions', function (Blueprint $table) {
 
-            $table->id();
+        //     $table->id();
 
-            $table->string('sigle_direction');
+        //     $table->string('sigle_direction');
 
-            $table->string('libelle');
+        //     $table->string('libelle');
 
-            $table->softDeletes();
-            $table->timestamps();
-        });
+        //     $table->softDeletes();
+        //     $table->timestamps();
+        // });
     }
 
     /**

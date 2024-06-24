@@ -8,6 +8,10 @@ use Spatie\Enum\Enum;
  * @method static self Transport_a_deux_roues()
  * @method static self Tricycle_motorises()
  * @method static self Bus()
+ * @method static self Cargo()
+ * @method static self Fourgonette()
+ * @method static self Camion()
+ * @method static self Camionnette()
  */
 class TypesClass extends Enum
 {
@@ -17,7 +21,7 @@ class TypesClass extends Enum
 
             $traductions = [
 
-                'Transport_a_deux_roues' => 'Transport à deux roues',
+                'Transport_a_deux_roues' => 'Moto',
                 'Tricycle_motorises' => 'Tricycle motorisés',
             ];
 

@@ -11,7 +11,7 @@ Voici les détails de vos engins:
 @foreach ($mailableEngines as $engine)    
 Engin N°{{$loop->iteration}}<br>
 Numéro de plaque: {{$engine->plate_number}}<br>
-Marque: {{$engine->nom_marque}}({{$engine->nom_modele}})<br>
+Marque: {{$engine->nom_marque}}<br>
 Assurance: du {{Carbon::parse($engine->date_debut)->format('d-m-Y')}} au {{Carbon::parse($engine->date_fin)->format('d-m-Y')}}
 
 @php

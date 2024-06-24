@@ -31,7 +31,7 @@ class EnginesSeeder extends Seeder
 
         foreach ($plates as $key => $plate) {
             Engine::firstOrCreate([
-                'modele_id' => mt_rand(1, 21),
+                'marque' => mt_rand(1,3),
                 'power' => mt_rand(1, 100),
                 'plate_number' => $plate,
                 'type_id' => mt_rand(1, 2),
