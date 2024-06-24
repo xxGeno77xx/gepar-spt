@@ -171,6 +171,17 @@ class RolesPermissionsSeeder extends Seeder
             PermissionsClass::Types_read()->value,
             PermissionsClass::Types_update()->value,
 
+            PermissionsClass::marques_read()->value,
+            PermissionsClass::marques_update()->value,
+            PermissionsClass::Marques_create()->value,
+            PermissionsClass::Marques_delete()->value,
+
+
+            PermissionsClass::modeles_read()->value,
+            PermissionsClass::modeles_update()->value,
+            PermissionsClass::Modeles_create()->value,
+            PermissionsClass::Modeles_delete()->value,
+
         ];
 
         (Role::where('name', RolesEnum::Dpl()->value))->first()->syncPermissions($DdplPermissions);

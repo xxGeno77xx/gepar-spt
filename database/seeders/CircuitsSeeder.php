@@ -77,7 +77,7 @@ class CircuitsSeeder extends Seeder
         ];
 
         Circuit::create([
-            'name' => CircuitsEnums::circuit_de_division()->value,
+            'name' => CircuitsEnums::circuit_particulier()->value,
             'steps' => $circuitParticulier,
         ]);
 
