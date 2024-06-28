@@ -62,9 +62,9 @@ class SendTvmMails extends Command
 
             // (Mail::to($notifiedUsers)->send(new VisiteMail($visiteMail->mailableEngines)));
 
-            $this->info('The command was successful, Visite notif sent!!!');
+            $this->info('The command was successful, tvm notif sent!!!');
         } else {
-            $this->info('The command successfull but no Visite notif to be sent!!!');
+            $this->info('The command successfull but no tvm notif to be sent!!!');
         }
 
     }

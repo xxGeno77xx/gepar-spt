@@ -9,6 +9,8 @@ class Circuit extends Model
 {
     use HasFactory;
 
+    protected $connection = 'oracle';
+
     protected $casts = [
         'steps' => 'array',
     ];

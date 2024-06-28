@@ -8,6 +8,7 @@ use App\Support\Database\RolesEnum;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Mail;
 
 class sendAssurancesMailsCommand extends Command
 {
@@ -34,6 +35,8 @@ class sendAssurancesMailsCommand extends Command
 
         $notifiedUsers = User::Role(RolesEnum::Dpl()->value)->get();
 
+        $me = User::find(1);
+
         if (count($assuranceMail->mailableEngines) >= 1) {
 
             Notification::make('alerte')
@@ -59,7 +62,7 @@ class sendAssurancesMailsCommand extends Command
 
                 ->sendToDatabase($notifiedUsers);
 
-            // (Mail::to($notifiedUsers)->send(new VisiteMail($visiteMail->mailableEngines)));
+            Mail::to($notifiedUsers)->send($assuranceMail);
 
             $this->info('The command was successful, Assurance notif sent!!!');
         } else {

@@ -256,10 +256,10 @@ class OrdreDeMissionResource extends Resource
 
                 Filter::make('Chauffeur')
                     ->form([
-                    Select::make('chauffeur_id')
-                        ->searchable()
-                        ->label('Chauffeur')
-                        ->options(Chauffeur::pluck('fullname', 'id')),
+                        Select::make('chauffeur_id')
+                            ->searchable()
+                            ->label('Chauffeur')
+                            ->options(Chauffeur::pluck('fullname', 'id')),
 
                     ])->query(function (Builder $query, array $data): Builder {
                         return $query

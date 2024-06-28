@@ -176,7 +176,6 @@ class RolesPermissionsSeeder extends Seeder
             PermissionsClass::Marques_create()->value,
             PermissionsClass::Marques_delete()->value,
 
-
             PermissionsClass::modeles_read()->value,
             PermissionsClass::modeles_update()->value,
             PermissionsClass::Modeles_create()->value,
@@ -264,8 +263,6 @@ class RolesPermissionsSeeder extends Seeder
 
         (Role::where('name', RolesEnum::Diga()->value))->first()->syncPermissions($diGAPermissions);
 
-
-
         //Delegues division Permissions
 
         $deleguesDivisionsPermissions = [
@@ -279,10 +276,9 @@ class RolesPermissionsSeeder extends Seeder
 
         (Role::where('name', RolesEnum::Delegue_Division()->value))->first()->syncPermissions($deleguesDivisionsPermissions);
 
+        //Delegues direction Permissions
 
-          //Delegues direction Permissions
-
-          $deleguesDirectionPermissions = [
+        $deleguesDirectionPermissions = [
 
             PermissionsClass::Reparation_create()->value,
             PermissionsClass::Reparation_read()->value,

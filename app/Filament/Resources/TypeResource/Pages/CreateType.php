@@ -2,12 +2,12 @@
 
 namespace App\Filament\Resources\TypeResource\Pages;
 
-use Filament\Pages\Actions\Action;
-use App\Support\Database\RolesEnum;
 use App\Filament\Resources\TypeResource;
 use App\Support\Database\PermissionsClass;
-use Filament\Resources\Pages\CreateRecord;
+use App\Support\Database\RolesEnum;
 use Database\Seeders\RolesPermissionsSeeder;
+use Filament\Pages\Actions\Action;
+use Filament\Resources\Pages\CreateRecord;
 
 class CreateType extends CreateRecord
 {
@@ -22,8 +22,8 @@ class CreateType extends CreateRecord
         // $userPermission = $user->hasAnyPermission([PermissionsClass::departements_create()->value]);
 
         $userRole = $user->hasAnyRole([RolesPermissionsSeeder::SuperAdmin],
-        RolesEnum::Chef_parc()->value,
-        RolesEnum::Dpl()->value );
+            RolesEnum::Chef_parc()->value,
+            RolesEnum::Dpl()->value);
 
         abort_if(! $userRole, 403, __("Vous n'avez pas access à cette page"));
     }

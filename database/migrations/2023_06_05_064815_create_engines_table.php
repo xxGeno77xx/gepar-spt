@@ -20,8 +20,8 @@ return new class extends Migration
         Schema::create('engines', function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedBigInteger('marque_id');
-            $table->foreign('marque_id')->references('id')->on('marques');
+            $table->unsignedBigInteger('modele_id');
+            $table->foreign('modele_id')->references('id')->on('modeles');
 
             $table->integer('power');
 
@@ -61,8 +61,6 @@ return new class extends Migration
                 ->unique();
 
             $table->string('moteur');
-
-            $table->string('carosserie');
 
             $table->integer('pl_ass')->nullable();
 

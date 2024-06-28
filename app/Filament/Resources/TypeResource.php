@@ -18,6 +18,8 @@ use Illuminate\Contracts\Database\Eloquent\Builder;
 
 class TypeResource extends Resource
 {
+    protected static ?string $label = "Types d'engins (carosseries)";
+
     protected static ?string $model = Type::class;
 
     protected static ?string $navigationGroup = 'Flotte automobile';

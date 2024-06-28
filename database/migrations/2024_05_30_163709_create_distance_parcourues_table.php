@@ -9,16 +9,15 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
+    protected $connection = 'oracle';
 
-     protected $connection = 'oracle';
-     
     public function up(): void
     {
         Schema::create('distance_parcourues', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger("engine_id");
-            $table->integer("distance");
-            $table->date("date_distance_parcourue");
+            $table->unsignedBigInteger('engine_id');
+            $table->integer('distance');
+            $table->date('date_distance_parcourue');
             $table->timestamps();
         });
     }

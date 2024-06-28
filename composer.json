@@ -19,6 +19,7 @@
         "phpsa/filament-authentication": "^2.4",
         "spatie/enum": "^3.13",
         "spatie/laravel-permission": "^5.10",
+        "stevebauman/purify": "^6.2",
         "yajra/laravel-oci8": "10"
     },
     "require-dev": {

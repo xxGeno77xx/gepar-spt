@@ -3,27 +3,26 @@
 namespace App\Filament\Resources\ReparationResource\Pages;
 
 use Actions\Action;
-use App\Mail\VisiteMail;
+use App\Filament\Resources\ReparationResource;
+use App\Mail\ReparationMail;
+use App\Models\Circuit;
+use App\Models\DepartementUser;
+use App\Models\Engine;
+use App\Models\Reparation;
 use App\Models\Role;
 use App\Models\User;
-use App\Models\Engine;
-use App\Models\Circuit;
-use App\Models\Reparation;
-use Filament\Pages\Actions;
-use App\Mail\ReparationMail;
-use App\Models\DepartementUser;
-use App\Support\Database\RolesEnum;
-use Illuminate\Support\Facades\Mail;
-use Filament\Forms\Components\Hidden;
-use Filament\Pages\Actions\EditAction;
 use App\Support\Database\CircuitsEnums;
-use Filament\Notifications\Notification;
-use Filament\Resources\Pages\ViewRecord;
 use App\Support\Database\PermissionsClass;
-use Filament\Forms\Components\MarkdownEditor;
-use App\Filament\Resources\ReparationResource;
 use App\Support\Database\ReparationValidationStates;
+use App\Support\Database\RolesEnum;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\MarkdownEditor;
 use Filament\Notifications\Actions\Action as NotificationActions;
+use Filament\Notifications\Notification;
+use Filament\Pages\Actions;
+use Filament\Pages\Actions\EditAction;
+use Filament\Resources\Pages\ViewRecord;
+use Illuminate\Support\Facades\Mail;
 
 class ViewReparation extends ViewRecord
 {
@@ -35,7 +34,7 @@ class ViewReparation extends ViewRecord
             return [
 
                 EditAction::make('edit')
-                    ->visible(fn($record) => ($record->validation_state == 'nextValue' || $record->validation_step == 100 || $record->validation_state == ReparationValidationStates::Rejete()->value) ? false : true),
+                    ->visible(fn ($record) => ($record->validation_state == 'nextValue' || $record->validation_step == 100 || $record->validation_state == ReparationValidationStates::Rejete()->value) ? false : true),
 
                 Actions\Action::make('tranfert')
                     ->label('Transférer vers la DIGA')
@@ -78,13 +77,13 @@ class ViewReparation extends ViewRecord
                                     $directeurGeneralId = (Role::where('name', RolesEnum::Directeur_general()->value)->first())->id;
 
                                     $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
-        
+
                                     $slicedArray = array_slice($roleIds, $firstOccurenceOfRole + 1);
 
                                     $secondOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $slicedArray)) + $firstOccurenceOfRole + 1; //second array key where role occurs
-        
+
                                     $firstOccurenceOfDirecteurGeneral = array_search($directeurGeneralId, $roleIds); // first array key where role occurs
-        
+
                                     $sliceForSecondDgRole = array_slice($roleIds, $firstOccurenceOfDirecteurGeneral + 1);
 
                                     $secondOccurenceOfDgInOriginalRolesArray = (array_search($directeurGeneralId, $sliceForSecondDgRole)) + $firstOccurenceOfDirecteurGeneral + 1;
@@ -364,7 +363,7 @@ class ViewReparation extends ViewRecord
                             $user = auth()->user();
 
                             if (array_key_exists($this->record->validation_step, $roleIds)) {    // ensure array key is not off limits
-        
+
                                 $indice = $roleIds[$this->record->validation_step];
 
                                 $requiredRole = Role::where('id', $indice)->first();
@@ -385,7 +384,7 @@ class ViewReparation extends ViewRecord
 
                                     ])
                                 ) {   // if require role is in list (array) and user has the role
-        
+
                                     if ($requiredRole == Role::where('name', RolesEnum::Directeur_general()->value)->first()) {
 
                                         if (($user->hasRole(RolesEnum::Directeur_general()->value)) || ($user->hasRole(RolesEnum::Interimaire_DG()->value))) {
@@ -446,7 +445,6 @@ class ViewReparation extends ViewRecord
 
                             $destinataire = User::role($NextdestinataireRole)->first();
 
-
                             if ($destinataire) {
 
                                 if ($NextdestinataireRole) {
@@ -455,19 +453,15 @@ class ViewReparation extends ViewRecord
 
                                         $realDestination = User::role($NextdestinataireRole)->where('departement_id', $concernedEngine->departement_id)->first();
 
-                                        $mailDestinator = User::role($NextdestinataireRole)->where('departement_id', $concernedEngine->departement_id)->where("notification", true)->first();
+                                        $mailDestinator = User::role($NextdestinataireRole)->where('departement_id', $concernedEngine->departement_id)->where('notification', true)->first();
 
-                                        
-
-                                        if($mailDestinator)
-                                        {
+                                        if ($mailDestinator) {
                                             Mail::to($mailDestinator)->send(new ReparationMail($this->record));
                                         }
-                                        
 
                                         Notification::make()
                                             ->title('Demande de validation')
-                                            ->body('Réparation pour l\'engin immatriculé ' . $concernedEngine->plate_number . ' en attente de validation')
+                                            ->body('Réparation pour l\'engin immatriculé '.$concernedEngine->plate_number.' en attente de validation')
                                             ->actions([
                                                 NotificationActions::make('voir')
                                                     ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
@@ -487,7 +481,7 @@ class ViewReparation extends ViewRecord
                                     ) {
                                         Notification::make()
                                             ->title('Nouvelle demande')
-                                            ->body('Réparation pour l\'engin immatriculé ' . $concernedEngine->plate_number . ' en attente de validation')
+                                            ->body('Réparation pour l\'engin immatriculé '.$concernedEngine->plate_number.' en attente de validation')
                                             ->actions([
                                                 NotificationActions::make('voir')
                                                     ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
@@ -496,14 +490,12 @@ class ViewReparation extends ViewRecord
                                             ])
                                             ->sendToDatabase($destinataire);
 
-                                        $mailDestinator = User::role($NextdestinataireRole)->where("notification", true)->pluck("email");
- 
-                                        if($mailDestinator)
-                                        {
+                                        $mailDestinator = User::role($NextdestinataireRole)->where('notification', true)->pluck('email');
+
+                                        if ($mailDestinator) {
                                             (Mail::to($mailDestinator)->send(new ReparationMail($this->record)));
                                         }
-                                                
- 
+
                                     }
                                 }
 
@@ -524,7 +516,7 @@ class ViewReparation extends ViewRecord
 
                         if ($user->hasRole(Role::where('name', RolesEnum::Chef_parc()->value)->first()->name)) {
 
-                            if (!$this->record->facture || !$this->record->ref_proforma || !$this->record->cout_reparation) {
+                            if (! $this->record->facture || ! $this->record->ref_proforma || ! $this->record->cout_reparation) {
 
                                 Notification::make()
                                     ->title('Attention')
@@ -538,24 +530,24 @@ class ViewReparation extends ViewRecord
                         }
 
                         //from here  check to oblige budget to set bon de commande before validating
-        
+
                         if ($this->record) {
 
                             $searchedRoleId = (Role::where('name', RolesEnum::Directeur_general()->value)->first())->id;
 
                             $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
-        
+
                             $slicedArray = array_slice($roleIds, $firstOccurenceOfRole + 1);
 
                             $secondOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $slicedArray)) + $firstOccurenceOfRole + 1;
 
                             $arrayDivided = array_chunk($roleIds, $secondOccurenceOfRoleInOriginalRolesArray + 1, true); //  cut form second match of dg role
-        
+
                             $ArrayToUse = array_flip($arrayDivided[1]);  //flip array to get keys
-        
+
                             if ($user->hasRole(Role::where('name', RolesEnum::Budget()->value)->first()->name) && in_array($this->record->validation_step, $ArrayToUse)) {
 
-                                if (!$this->record->bon_commande) {
+                                if (! $this->record->bon_commande) {
 
                                     Notification::make()
                                         ->title('Attention')
@@ -570,14 +562,14 @@ class ViewReparation extends ViewRecord
                         }
 
                         //to here  check to oblige budget to set bon de commande before validating
-        
+
                         //from here check to see if date fin is set before validation
                         if ($this->record) {
 
                             $searchedRoleId = (Role::where('name', RolesEnum::Chef_parc()->value)->first())->id;
 
                             $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
-        
+
                             $slicedArray = array_slice($roleIds, $firstOccurenceOfRole + 1);
 
                             $secondOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $slicedArray)) + $firstOccurenceOfRole + 1;
@@ -587,10 +579,10 @@ class ViewReparation extends ViewRecord
                             $thirdOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $secondSlicedArray)) + $secondOccurenceOfRoleInOriginalRolesArray + 1;
 
                             $arrayDivided = array_chunk($roleIds, $thirdOccurenceOfRoleInOriginalRolesArray + 1, true); //  cut form second match of dg role
-        
+
                             if ($user->hasRole(Role::where('name', RolesEnum::Chef_parc()->value)->first()->name) && ($this->record->validation_step == array_key_last($roleIds))) {
 
-                                if (!$this->record->date_fin) {
+                                if (! $this->record->date_fin) {
 
                                     Notification::make()
                                         ->title('Attention')
@@ -605,11 +597,11 @@ class ViewReparation extends ViewRecord
                         }
 
                         //to here check to see if date fin is set before validation
-        
+
                         $currentKey = $this->record->validation_step; // key in array
-        
+
                         $currentvalue = $roleIds[$this->record->validation_step]; // value of the key array
-        
+
                         $a = 0;
                         for ($i = 0; $i < count($roleIds); $i++) {
 
@@ -684,7 +676,7 @@ class ViewReparation extends ViewRecord
                             $user = auth()->user();
 
                             if (array_key_exists($this->record->validation_step, $roleIds)) {    // ensure array key is not off limits
-        
+
                                 $indice = $roleIds[$this->record->validation_step];
 
                                 $requiredRole = Role::where('id', $indice)->first();
@@ -705,7 +697,7 @@ class ViewReparation extends ViewRecord
 
                                     ])
                                 ) {   // if require role is in list (array) and user has the role
-        
+
                                     if ($requiredRole == Role::where('name', RolesEnum::Directeur_general()->value)->first()) {
 
                                         if (($user->hasRole(RolesEnum::Directeur_general()->value)) || ($user->hasRole(RolesEnum::Interimaire_DG()->value))) {

@@ -9,7 +9,8 @@ Voici les détails de vos engins:
 @foreach ($mailableEngines as $engine) <br>   
 Engin N°{{$loop->iteration}} <br> 
 Numéro de plaque: {{$engine->plate_number}} <br> 
-Marque: {{$engine->nom_marque}} <br> 
+{{-- Marque: {{$engine->nom_marque}} ({{$engine->nom_modele}}) --}}
+ <br> 
 Visite technique: du {{Carbon::parse($engine->date_initiale)->format('d-m-Y')}} au {{Carbon::parse($engine->date_expiration)->format('d-m-Y')}}
 
 

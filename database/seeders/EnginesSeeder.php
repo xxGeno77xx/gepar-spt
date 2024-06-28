@@ -31,7 +31,7 @@ class EnginesSeeder extends Seeder
 
         foreach ($plates as $key => $plate) {
             Engine::firstOrCreate([
-                'marque' => mt_rand(1,3),
+                'modele_id' => mt_rand(1, 3),
                 'power' => mt_rand(1, 100),
                 'plate_number' => $plate,
                 'type_id' => mt_rand(1, 2),
@@ -44,7 +44,7 @@ class EnginesSeeder extends Seeder
                 'tvm_mail_sent' => 0,
                 'created_at' => now(),
                 'updated_at' => now(),
-                'carosserie' => 'Bâchée',
+                // 'carosserie' => 'Bâchée',
                 'pl_ass' => 04,
                 'poids_total_en_charge' => 955,
                 'poids_a_vide' => 950,

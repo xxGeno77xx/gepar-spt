@@ -14,9 +14,9 @@ use Illuminate\Support\Facades\DB;
 
 class AssuranceMail extends Mailable
 {
-    public $mailableEngines;
-
     use Queueable, SerializesModels;
+
+    public $mailableEngines;
 
     /**
      * Create a new message instance.
@@ -58,9 +58,9 @@ class AssuranceMail extends Mailable
             ->where('engines.assurances_mail_sent', '=', 0)
             ->whereNull('assurances.deleted_at')
             ->whereNull('engines.deleted_at')
-            // ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
-            ->join('divisions', 'engines.departement_id', 'divisions.id')
-            ->join('marques', 'engines.marque_id', '=', 'marques.id')
+            ->leftjoin('modeles', 'engines.modele_id', '=', 'modeles.id')
+            ->leftjoin('centre', 'engines.departement_id', 'centre.code_centre')
+            ->leftjoin('marques', 'modeles.marque_id', '=', 'marques.id')
             ->select('engines.*', 'marques.logo as logo', 'assurances.date_debut as date_debut', 'assurances.date_fin as date_fin')
             ->where('engines.state', '<>', StatesClass::Deactivated()->value)
             ->distinct('engines.id')
@@ -69,7 +69,7 @@ class AssuranceMail extends Mailable
                 'engines.distance_parcourue',
                 'assurances.date_debut',
                 'engines.id',
-                'engines.marque_id',
+                'engines.modele_id',
                 'engines.power',
                 'engines.departement_id',
                 'engines.price',
@@ -81,10 +81,11 @@ class AssuranceMail extends Mailable
                 'engines.carburant_id',
                 'engines.assurances_mail_sent',
                 'engines.visites_mail_sent',
+                'engines.tvm_mail_sent',
                 'engines.state',
                 'engines.numero_chassis',
                 'engines.moteur',
-                'engines.carosserie',
+                // 'engines.carosserie',
                 'engines.pl_ass',
                 'engines.matricule_precedent',
                 'engines.poids_total_en_charge',
@@ -102,8 +103,9 @@ class AssuranceMail extends Mailable
                 'engines.deleted_at',
                 'engines.created_at',
                 'engines.updated_at',
-                'sigle_division',
+                'sigle_centre',
                 'nom_marque',
+                'nom_modele',
                 'logo',
                 'remainder'
 

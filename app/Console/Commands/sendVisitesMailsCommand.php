@@ -81,6 +81,8 @@ class sendVisitesMailsCommand extends Command
 
                 ->sendToDatabase($notifiedUsers);
 
+            Mail::to($notifiedUsers)->send($visiteMail);
+
             $this->info('The command was successful, Visite notif sent!!!');
         } else {
             $this->info('The command successfull but no Visite notif to be sent!!!');

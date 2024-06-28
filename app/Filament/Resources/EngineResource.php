@@ -23,7 +23,6 @@ use App\Support\Database\StatesClass;
 use App\Tables\Columns\DepartementColumn;
 use Closure;
 use Filament\Forms\Components\Card;
-use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
@@ -39,6 +38,7 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class EngineResource extends Resource
 {
@@ -137,7 +137,7 @@ class EngineResource extends Resource
                                     ->required(),
 
                                 TextInput::make('pl_ass')
-                                    ->label('pl_ass')
+                                    ->label('Places assises')
                                     ->numeric()
                                     ->required(),
 
@@ -161,11 +161,20 @@ class EngineResource extends Resource
                                             };
                                         },
                                     ]),
-                                TextInput::make('moteur')->label('Moteur')->required(),
+                                TextInput::make('moteur')
+                                    ->label('Moteur')
+                                    ->required(),
 
-                                TextInput::make('carosserie')->label('Carosserie')->required(),
+                                Select::make('type_id')
+                                    ->label('Carosserie')
+                                    ->options(Type::where('state', StatesClass::Activated()->value)->pluck('nom_type', 'id'))
+                                    ->searchable()
+                                    ->placeholder('-')
+                                    ->required(),
 
-                                TextInput::make('couleur')->label('Couleur')->required(),
+                                TextInput::make('couleur')
+                                    ->label('Couleur')
+                                    ->required(),
 
                             ]),
 
@@ -206,17 +215,30 @@ class EngineResource extends Resource
 
                             ]),
 
-                        Select::make('marque_id')
-                            ->label('Marque')
-                            ->options(Marque::where('state', StatesClass::Activated()->value)->pluck('nom_marque', 'id'))
+                        Select::make('modele_id')
+                            ->label('Modèle')
+                            ->preload(false)
+                            ->allowHtml()
                             ->searchable()
-                            ->required(),
+                            ->required()
+                            ->getSearchResultsUsing(function (string $search) {
+                                $models = Modele::join('marques', 'modeles.marque_id', 'marques.id')
+                                    ->whereRaw('LOWER(nom_modele) LIKE ?', ['%'.strtolower($search).'%'])
+                                    ->orWhereRaw('LOWER(nom_marque) LIKE ?', ['%'.strtolower($search).'%'])
+                                    ->select('nom_modele', 'modeles.id as id', 'marques.logo', 'marque_id')->limit(50)->get();
 
-                        Select::make('type_id')
-                            ->label("Type d'engin")
-                            ->options(Type::where('state', StatesClass::Activated()->value)->pluck('nom_type', 'id'))
-                            ->searchable()
-                            ->required(),
+                                return $models->mapWithKeys(function ($modele) {
+
+                                    return [$modele->getKey() => static::getCleanOptionString($modele)];
+
+                                })->toArray();
+                            })
+                            ->getOptionLabelUsing(function ($value): string {
+
+                                $modele = Modele::find($value);
+
+                                return static::getCleanOptionString($modele);
+                            }),
 
                         Datepicker::make('date_cert_precedent')
                             ->label('date_cert_precedent'),
@@ -224,6 +246,7 @@ class EngineResource extends Resource
                         TextInput::make('numero_carte_grise')
                             ->label('Numéro de la carte grise')
                             ->required()
+                            ->columnSpanFull()
                             ->rules([
                                 function ($record) {
                                     return function (string $attribute, $value, Closure $fail) use ($record) {
@@ -246,7 +269,9 @@ class EngineResource extends Resource
                             ->schema([
                                 FileUpload::make('car_document')
                                     ->maxSize(1024)
+                                    ->preserveFilenames()
                                     ->label('Carte grise de l\'engin')
+                                    ->disk('public')
                                     ->enableDownload()
                                     ->enableOpen()
                                     ->required(),
@@ -332,7 +357,7 @@ class EngineResource extends Resource
                 Hidden::make('visites_mail_sent')
                     ->default(0),
 
-                    Hidden::make('tvm_mail_sent')
+                Hidden::make('tvm_mail_sent')
                     ->default(0),
 
                 Hidden::make('state')->default(StatesClass::Activated()->value),
@@ -439,10 +464,10 @@ class EngineResource extends Resource
                             ->searchable()
                             ->label('Etat')
                             ->options([
-                                StatesClass::Activated()->value =>  'En état',
-                                StatesClass::Repairing()->value=> 'En réparation',
-                            ])
-                            
+                                StatesClass::Activated()->value => 'En état',
+                                StatesClass::Repairing()->value => 'En réparation',
+                            ]),
+
                     ])->query(function (Builder $query, array $data): Builder {
                         return $query
                             ->when(
@@ -453,12 +478,11 @@ class EngineResource extends Resource
                     ->indicateUsing(function (array $data): ?string {
                         if (! $data['etat']) {
                             return null;
+                        } elseif ($data['etat'] == StatesClass::Activated()->value) {
+                            return 'Etat: '.StatesClass::Activated()->value;
+                        } else {
+                            return 'Etat: '.StatesClass::Repairing()->value;
                         }
-                        else if($data['etat'] == StatesClass::Activated()->value)
-                        {
-                            return 'Etat: '. StatesClass::Activated()->value;
-                        }
-                        else return 'Etat: '. StatesClass::Repairing()->value;
 
                     }),
 
@@ -487,11 +511,11 @@ class EngineResource extends Resource
 
             ])
             ->actions([
-                    Tables\Actions\ViewAction::make(),
-                    Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
+                Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                    // Tables\Actions\DeleteBulkAction::make(),
+                // Tables\Actions\DeleteBulkAction::make(),
             ]);
 
     }
@@ -526,5 +550,17 @@ class EngineResource extends Resource
             PermissionsClass::engines_update()->value,
             PermissionsClass::engines_create()->value,
         ]);
+    }
+
+    public static function getCleanOptionString(Model $model): string
+    {
+        $marque = Marque::where('id', $model?->marque_id)->first();
+
+        return
+                view('filament.components.model-select')
+                    ->with('nom_modele', $model?->nom_modele)
+                    ->with('logo', $marque->logo)
+                    ->with('marque', $marque->nom_marque)
+                    ->render();
     }
 }

@@ -8,6 +8,7 @@ use App\Models\Visite;
 use App\Support\Database\CommonInfos;
 use App\Support\Database\PermissionsClass;
 use App\Support\Database\StatesClass;
+use Carbon\Carbon;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Hidden;
@@ -50,6 +51,8 @@ class VisiteResource extends Resource
                         DatePicker::make('date_initiale')
                             ->before('date_expiration')
                             ->label('Date initiale')
+                            ->reactive()
+                            ->afterStateUpdated(fn ($get, $set) => $set('date_expiration', Carbon::parse($get('date_initiale'))->addYears(1)))
                             ->required(),
 
                         DatePicker::make('date_expiration')

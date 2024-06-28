@@ -52,9 +52,9 @@ class VisiteMail extends Mailable
             ->where('visites.state', $activated)
             ->whereNull('visites.deleted_at')
             ->whereNull('engines.deleted_at')
-            // ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
+            ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
             ->join('centre', 'engines.departement_id', 'centre.code_centre')
-            ->join('marques', 'engines.marque_id', '=', 'marques.id')
+            ->join('marques', 'modeles.marque_id', '=', 'marques.id')
             ->select('engines.*', /*'centre.sigle',*/ 'marques.logo as logo', 'visites.date_initiale as date_initiale', 'visites.date_expiration as date_expiration')
             ->where('engines.state', '<>', StatesClass::Deactivated()->value)
             ->distinct('engines.id')
@@ -64,7 +64,7 @@ class VisiteMail extends Mailable
                 'engines.tvm_mail_sent',
                 'engines.distance_parcourue',
                 'engines.id',
-                'engines.marque_id',
+                'engines.modele_id',
                 'engines.power',
                 'engines.departement_id',
                 'engines.price',
@@ -79,7 +79,7 @@ class VisiteMail extends Mailable
                 'engines.state',
                 'engines.numero_chassis',
                 'engines.moteur',
-                'engines.carosserie',
+                // 'engines.carosserie',
                 'engines.pl_ass',
                 'engines.matricule_precedent',
                 'engines.poids_total_en_charge',
@@ -99,13 +99,13 @@ class VisiteMail extends Mailable
                 'engines.updated_at',
                 'sigle_centre',
                 'nom_marque',
+                'nom_modele',
                 'logo',
                 'remainder'
 
             )
             ->distinct()->get();
 
-       
     }
 
     /**

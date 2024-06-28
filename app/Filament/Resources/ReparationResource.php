@@ -112,9 +112,9 @@ class ReparationResource extends Resource
                                                         RolesEnum::Dpl()->value,
                                                         RolesEnum::Budget()->value,
                                                         RolesEnum::Interimaire_DG()->value,
-                                                        RolesPermissionsSeeder::SuperAdmin
+                                                        RolesPermissionsSeeder::SuperAdmin,
                                                     ])
-                                                ) {  
+                                                ) {
                                                     return Engine::whereNot('state', StatesClass::Deactivated()->value)->pluck('plate_number', 'id');
                                                 } elseif (
                                                     $loggedUser->hasAnyRole([
@@ -344,6 +344,7 @@ class ReparationResource extends Resource
                                     } elseif (auth()->user()->hasAnyRole([RolesEnum::Directeur_general()->value, RolesEnum::Delegue_Direction_Generale()->value])) {
 
                                         return 3; // circuit de  Direction Générale
+
                                     } elseif (auth()->user()->hasAnyRole([RolesEnum::Directeur()->value, RolesEnum::Delegue_Direction()->value])) {
 
                                         return 2; // circuit de Direction
@@ -393,8 +394,8 @@ class ReparationResource extends Resource
                                 Section::make('Devis')
                                     ->schema([
                                         FileUpload::make('facture')
-                                        ->disk("medias")
-                            ->directory("proforma")
+                                            ->disk('medias')
+                                            ->directory('proforma')
                                             ->required(function ($record) {
                                                 if ($record) {
 
@@ -467,8 +468,8 @@ class ReparationResource extends Resource
                                             ->enableOpen(),
 
                                         FileUpload::make('bon_commande')
-                                        ->disk("medias")
-                            ->directory("bons")
+                                            ->disk('medias')
+                                            ->directory('bons')
                                             ->label('Bon de commande')
                                             ->required(function ($record) {
                                                 if ($record) {
@@ -1839,7 +1840,7 @@ class ReparationResource extends Resource
                             ->when(
                                 $data['appreciation'],
                                 function (Builder $query, $status) use ($data) {
-                                    $search =  $data['appreciation'];
+                                    $search = $data['appreciation'];
 
                                     return $query->where('appreciation', $search);
                                 }
@@ -1847,15 +1848,12 @@ class ReparationResource extends Resource
                     })->indicateUsing(function (array $data): ?string {
                         if (! $data['appreciation']) {
                             return null;
+                        } elseif ($data['appreciation'] == AppreciationClass::Insatisfaisant()->value) {
+                            return 'Appreciation: '.AppreciationClass::Insatisfaisant()->value;
+                        } else {
+                            return 'Appreciation: '.AppreciationClass::Satisfaisant()->value;
                         }
-                        else if($data['appreciation'] == AppreciationClass::Insatisfaisant()->value)
-                        {
-                            return  'Appreciation: '. AppreciationClass::Insatisfaisant()->value;
-                        }
-
-                         else return 'Appreciation: ' . AppreciationClass::Satisfaisant()->value;
                     }),
-
 
             ])
             ->actions([

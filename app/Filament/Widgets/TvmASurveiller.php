@@ -39,9 +39,9 @@ class TvmASurveiller extends BaseWidget
             ->where('tvms.state', $activated)
             ->whereNull('tvms.deleted_at')
             ->whereNull('engines.deleted_at')
-            // ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
+            ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
             ->join('centre', 'engines.departement_id', 'centre.code_centre')
-            ->join('marques', 'engines.marque_id', '=', 'marques.id')
+            ->join('marques', 'modeles.marque_id', '=', 'marques.id')
             ->select('engines.*', /*'centre.sigle',*/ 'marques.logo as logo', 'tvms.date_debut as date_debut', 'tvms.date_fin as date_fin')
             ->where('engines.state', '<>', StatesClass::Deactivated()->value)
             ->distinct('engines.id')
@@ -51,7 +51,7 @@ class TvmASurveiller extends BaseWidget
                 'engines.distance_parcourue',
                 'engines.tvm_mail_sent',
                 'engines.id',
-                'engines.marque_id',
+                'engines.modele_id',
                 'engines.power',
                 'engines.departement_id',
                 'engines.price',
@@ -66,7 +66,7 @@ class TvmASurveiller extends BaseWidget
                 'engines.state',
                 'engines.numero_chassis',
                 'engines.moteur',
-                'engines.carosserie',
+                // 'engines.carosserie',
                 'engines.pl_ass',
                 'engines.matricule_precedent',
                 'engines.poids_total_en_charge',
@@ -84,8 +84,9 @@ class TvmASurveiller extends BaseWidget
                 'engines.deleted_at',
                 'engines.created_at',
                 'engines.updated_at',
-                'sigle_centre', 
+                'sigle_centre',
                 'nom_marque',
+                'nom_modele',
                 'logo',
                 'remainder'
 
