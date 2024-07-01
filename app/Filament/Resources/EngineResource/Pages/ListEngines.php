@@ -2,12 +2,15 @@
 
 namespace App\Filament\Resources\EngineResource\Pages;
 
-use App\Filament\Resources\EngineResource;
-use App\Support\Database\PermissionsClass;
-use App\Support\Database\StatesClass;
+use App\Models\Role;
+use Database\Seeders\RolesPermissionsSeeder;
 use Filament\Pages\Actions;
+use App\Support\Database\RolesEnum;
+use App\Support\Database\StatesClass;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\EngineResource;
+use App\Support\Database\PermissionsClass;
 
 class ListEngines extends ListRecords
 {
@@ -30,77 +33,23 @@ class ListEngines extends ListRecords
 
     protected function getTableQuery(): Builder
     {
-        return static::getResource()::getEloquentQuery()
-            ->leftJoin('assurances', function ($join) {
-                $join->on('engines.id', '=', 'assurances.engine_id')
-                    ->where('assurances.state', StatesClass::Activated()->value)
-                    ->whereRaw('assurances.id = (SELECT MAX(id) FROM assurances WHERE engine_id = engines.id AND assurances.state = ?)', [StatesClass::Activated()->value]);
-            })
-            ->leftJoin('visites', function ($join) {
-                $join->on('engines.id', '=', 'visites.engine_id')
-                    ->where('visites.state', StatesClass::Activated()->value)
-                    ->whereRaw('visites.id = (SELECT MAX(id) FROM visites WHERE engine_id = engines.id AND visites.state = ?)', [StatesClass::Activated()->value]);
-            })
-            ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
-            ->join('marques', 'modeles.marque_id', '=', 'marques.id')
-            ->join('centre', 'engines.departement_id', 'centre.code_centre')
-            ->where('engines.state', '<>', StatesClass::Deactivated()->value)
-            ->select(
-                'engines.*',
-                'centre.sigle_centre',
-                'marques.nom_marque',
-                'marques.logo',
-                'assurances.date_fin as date_fin',
-                'visites.date_expiration as date_expiration',
-                /*'users.name', /*'chauffeurs.name as chauffeur'*/
-            )
-            ->groupBy(
-                'engines.id',
-                'date_expiration',
-                'engines.tvm_mail_sent',
-                'date_fin',
-                'engines.modele_id',
-                'engines.power',
-                'engines.distance_parcourue',
-                'engines.departement_id',
-                'engines.price',
-                'engines.circularization_date',
-                'engines.date_aquisition',
-                'engines.plate_number',
-                'marques.nom_marque',
-                'engines.type_id',
-                'engines.car_document',
-                'engines.carburant_id',
-                'engines.assurances_mail_sent',
-                'engines.visites_mail_sent',
-                'engines.state',
-                'engines.numero_chassis',
-                'engines.moteur',
-                // 'engines.carosserie',
-                'engines.pl_ass',
-                'engines.matricule_precedent',
-                'engines.poids_total_en_charge',
-                'engines.poids_a_vide',
-                'engines.poids_total_roulant',
-                'engines.charge_utile',
-                'engines.largeur',
-                'engines.surface',
-                'engines.couleur',
-                'engines.date_cert_precedent',
-                'engines.kilometrage_achat',
-                'engines.numero_carte_grise',
-                'engines.user_id',
-                'engines.updated_at_user_id',
-                'engines.deleted_at',
-                'engines.created_at',
-                'engines.updated_at',
-                'sigle_centre',
-                'nom_marque',
-                'nom_modele',
-                'engines.modele_id',
-                'logo',
-                'remainder'
-            );
+        $loggedUser = auth()->user();
+
+        $seeAll = [
+            RolesEnum::Dpl()->value,
+            RolesEnum::Chef_parc()->value,
+            RolesPermissionsSeeder::SuperAdmin,
+        ];
+
+        $specific = Role::whereNotIn("name", $seeAll)->pluck("name")->toArray();
+
+        if($loggedUser->hasAnyRole($specific))
+        {
+            return  $this->specificQuery();
+        }
+        else
+
+       return $this->seeAllQuery();
     }
 
     protected function authorizeAccess(): void
@@ -115,5 +64,46 @@ class ListEngines extends ListRecords
     protected function shouldPersistTableFiltersInSession(): bool
     {
         return true;
+    }
+
+
+    public function specificQuery()
+    {
+        return $this->baseQuery()->where("engines.departement_id", auth()->user()->departement_id);
+    }
+
+
+    public function seeAllQuery()
+    {
+        return $this->baseQuery();
+    }
+
+    public function baseQuery()
+    {
+        return static::getResource()::getEloquentQuery()
+        ->leftJoin('assurances', function ($join) {
+            $join->on('engines.id', '=', 'assurances.engine_id')
+                ->where('assurances.state', StatesClass::Activated()->value)
+                ->whereRaw('assurances.id = (SELECT MAX(id) FROM assurances WHERE engine_id = engines.id AND assurances.state = ?)', [StatesClass::Activated()->value]);
+        })
+        ->leftJoin('visites', function ($join) {
+            $join->on('engines.id', '=', 'visites.engine_id')
+                ->where('visites.state', StatesClass::Activated()->value)
+                ->whereRaw('visites.id = (SELECT MAX(id) FROM visites WHERE engine_id = engines.id AND visites.state = ?)', [StatesClass::Activated()->value]);
+        })
+        ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
+        ->join('marques', 'modeles.marque_id', '=', 'marques.id')
+        ->join('centre', 'engines.departement_id', 'centre.code_centre')
+        ->where('engines.state', '<>', StatesClass::Deactivated()->value)
+        ->select(
+            "engines.id",
+            "engines.plate_number",
+            'centre.sigle_centre',
+            'marques.logo',
+            'assurances.date_fin as date_fin',
+            'visites.date_expiration as date_expiration',
+            'engines.state',
+            'engines.departement_id'
+        );
     }
 }
