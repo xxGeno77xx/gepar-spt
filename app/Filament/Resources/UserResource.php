@@ -61,11 +61,11 @@ class UserResource extends Resource
                 Card::make()
                     ->schema([
                         TextInput::make('name')
-                            ->label(strval(__('filament-authentication::filament-authentication.field.user.name')))
+                            ->label('Prénom')
                             ->required(),
 
                         TextInput::make('lastname')
-                            ->label('Prénom'),
+                            ->label('Nom de famille'),
 
                         TextInput::make('email')
                             ->required()
@@ -90,6 +90,7 @@ class UserResource extends Resource
 
                         //removed super admin from roles list here
                         Select::make('roles')
+                            ->required()
                             ->multiple()
                             ->relationship('roles', 'name')
                             // line below removes super admin role from roles list when attributing roles to newly created users
@@ -98,7 +99,8 @@ class UserResource extends Resource
                             ->label(strval(__('filament-authentication::filament-authentication.field.user.roles'))),
 
                         TextInput::make('username')
-                            ->label("Nom d'utilisateur"),
+                            ->label("Nom d'utilisateur")
+                            ->required(),
 
                         Select::make('departement')
                             ->label('Centre')
@@ -117,6 +119,7 @@ class UserResource extends Resource
 
                 Select::make('departement_id')
                     ->label('Appartenance')
+                    ->required()
                     ->options(Departement::pluck('sigle_centre', 'code_centre'))
                     ->searchable()
                     ->preload(),

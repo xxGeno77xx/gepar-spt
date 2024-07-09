@@ -56,4 +56,6 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->belongsToMany(Departement::class);
     }
+
+    protected $table = 'GEPAR.USERS';
 }

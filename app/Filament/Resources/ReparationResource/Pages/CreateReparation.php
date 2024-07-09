@@ -129,7 +129,7 @@ class CreateReparation extends CreateRecord
 
             $data['circuit_id'] = 2; // circuit de Direction
 
-        } elseif (auth()->user()->hasAnyRole([RolesEnum::Chef_Division()->value, RolesEnum::Delegue_Division()->value])) {
+        } elseif (auth()->user()->hasAnyRole([RolesEnum::Chef_Division()->value, RolesEnum::Delegue_Division()->value, RolesEnum::Chef_parc()->value])) {
 
             $data['circuit_id'] = 1; // circuit de Division
         }

@@ -10,7 +10,7 @@ class Departement extends Model
 {
     use HasFactory;
 
-    protected $table = 'CENTRE';
+    protected $table = 'compta_ana.centre';
 
     public $timestamps = false;
 

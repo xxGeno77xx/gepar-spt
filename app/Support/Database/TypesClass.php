@@ -12,6 +12,7 @@ use Spatie\Enum\Enum;
  * @method static self Fourgonette()
  * @method static self Camion()
  * @method static self Camionnette()
+ * @method static self Voiture()
  */
 class TypesClass extends Enum
 {

@@ -25,8 +25,10 @@ class EditReparation extends EditRecord
     protected static string $resource = ReparationResource::class;
 
 
-    public function getHeaderActions(): array{
-        return [DeleteAction::make()];
+    public function getActions(): array{
+        return [ 
+            
+        ];
     }
 
     protected function authorizeAccess(): void
@@ -106,24 +108,6 @@ class EditReparation extends EditRecord
             ]);
         }
 
-
- // systematically update circuit upon change if step is at start
-        // if($reparation->validation_step == 0)
-
-        // {
-        //     $circuit = Circuit::where('id', $reparation->circuit_id )->first()->steps;
-
-        //         foreach ($circuit as $key => $item) {
-
-        //             $roleIds[] = $item['role_id'];
-        //         }
-
-        //         $reparation->update([
-        //             "validation_state" => $roleIds[0]
-        //         ]);
-            
-        // }
-       
     }
 
 

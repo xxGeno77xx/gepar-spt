@@ -16,12 +16,15 @@ use App\Models\Engine;
 use App\Models\Engine as Engin;
 use App\Models\Marque;
 use App\Models\Modele;
+use App\Models\Role;
 use App\Models\Type;
 use App\Support\Database\CommonInfos;
 use App\Support\Database\PermissionsClass;
+use App\Support\Database\RolesEnum;
 use App\Support\Database\StatesClass;
 use App\Tables\Columns\DepartementColumn;
 use Closure;
+use Database\Seeders\RolesPermissionsSeeder;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
@@ -52,7 +55,23 @@ class EngineResource extends Resource
 
     protected static function getNavigationBadge(): ?string
     {
-        return static::getModel()::count();
+
+        $loggedUser = auth()->user();
+
+        $seeAll = [
+            RolesEnum::Dpl()->value,
+            RolesEnum::Chef_parc()->value,
+            RolesPermissionsSeeder::SuperAdmin,
+        ];
+
+        $specific = Role::whereNotIn('name', $seeAll)->pluck('name')->toArray();
+
+        if ($loggedUser->hasAnyRole($specific)) {
+            return static::getModel()::where('engines.departement_id', auth()->user()->departement_id)->count();
+        } else {
+            return static::getModel()::count();
+        }
+
     }
 
     public static function form(Form $form): Form

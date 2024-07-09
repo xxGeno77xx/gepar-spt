@@ -2,15 +2,15 @@
 
 namespace App\Filament\Resources\EngineResource\Pages;
 
+use App\Filament\Resources\EngineResource;
 use App\Models\Role;
-use Database\Seeders\RolesPermissionsSeeder;
-use Filament\Pages\Actions;
+use App\Support\Database\PermissionsClass;
 use App\Support\Database\RolesEnum;
 use App\Support\Database\StatesClass;
+use Database\Seeders\RolesPermissionsSeeder;
+use Filament\Pages\Actions;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\EngineResource;
-use App\Support\Database\PermissionsClass;
 
 class ListEngines extends ListRecords
 {
@@ -21,7 +21,8 @@ class ListEngines extends ListRecords
     protected function getActions(): array
     {
         return [
-            Actions\CreateAction::make()->label('Ajouter un engin'),
+            Actions\CreateAction::make()
+                ->label('Ajouter un engin'),
         ];
 
     }
@@ -41,15 +42,13 @@ class ListEngines extends ListRecords
             RolesPermissionsSeeder::SuperAdmin,
         ];
 
-        $specific = Role::whereNotIn("name", $seeAll)->pluck("name")->toArray();
+        $specific = Role::whereNotIn('name', $seeAll)->pluck('name')->toArray();
 
-        if($loggedUser->hasAnyRole($specific))
-        {
-            return  $this->specificQuery();
+        if ($loggedUser->hasAnyRole($specific)) {
+            return $this->specificQuery();
+        } else {
+            return $this->seeAllQuery();
         }
-        else
-
-       return $this->seeAllQuery();
     }
 
     protected function authorizeAccess(): void
@@ -66,12 +65,10 @@ class ListEngines extends ListRecords
         return true;
     }
 
-
     public function specificQuery()
     {
-        return $this->baseQuery()->where("engines.departement_id", auth()->user()->departement_id);
+        return $this->baseQuery()->where('engines.departement_id', auth()->user()->departement_id);
     }
-
 
     public function seeAllQuery()
     {
@@ -81,29 +78,28 @@ class ListEngines extends ListRecords
     public function baseQuery()
     {
         return static::getResource()::getEloquentQuery()
-        ->leftJoin('assurances', function ($join) {
-            $join->on('engines.id', '=', 'assurances.engine_id')
-                ->where('assurances.state', StatesClass::Activated()->value)
-                ->whereRaw('assurances.id = (SELECT MAX(id) FROM assurances WHERE engine_id = engines.id AND assurances.state = ?)', [StatesClass::Activated()->value]);
-        })
-        ->leftJoin('visites', function ($join) {
-            $join->on('engines.id', '=', 'visites.engine_id')
-                ->where('visites.state', StatesClass::Activated()->value)
-                ->whereRaw('visites.id = (SELECT MAX(id) FROM visites WHERE engine_id = engines.id AND visites.state = ?)', [StatesClass::Activated()->value]);
-        })
-        ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
-        ->join('marques', 'modeles.marque_id', '=', 'marques.id')
-        ->join('centre', 'engines.departement_id', 'centre.code_centre')
-        ->where('engines.state', '<>', StatesClass::Deactivated()->value)
-        ->select(
-            "engines.id",
-            "engines.plate_number",
-            'centre.sigle_centre',
-            'marques.logo',
-            'assurances.date_fin as date_fin',
-            'visites.date_expiration as date_expiration',
-            'engines.state',
-            'engines.departement_id'
-        );
+            ->leftJoin('assurances', function ($join) {
+                $join->on('engines.id', '=', 'assurances.engine_id')
+                    ->where('assurances.state', StatesClass::Activated()->value)
+                    ->whereRaw('assurances.id = (SELECT MAX(id) FROM assurances WHERE engine_id = engines.id AND assurances.state = ?)', [StatesClass::Activated()->value]);
+            })
+            ->leftJoin('visites', function ($join) {
+                $join->on('engines.id', '=', 'visites.engine_id')
+                    ->where('visites.state', StatesClass::Activated()->value)
+                    ->whereRaw('visites.id = (SELECT MAX(id) FROM visites WHERE engine_id = engines.id AND visites.state = ?)', [StatesClass::Activated()->value]);
+            })
+            ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
+            ->join('marques', 'modeles.marque_id', '=', 'marques.id')
+            ->join('centre', 'engines.departement_id', 'centre.code_centre')
+            ->where('engines.state', '<>', StatesClass::Deactivated()->value)
+            ->select(
+                'engines.id',
+                'engines.plate_number',
+                'marques.logo',
+                'assurances.date_fin as date_fin',
+                'visites.date_expiration as date_expiration',
+                'engines.state',
+                'engines.departement_id'
+            );
     }
 }

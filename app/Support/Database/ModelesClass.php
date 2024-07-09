@@ -18,7 +18,8 @@ use Spatie\Enum\Enum;
  * @method static self Toyota_Mirai()
  * @method static self Toyota_Crown()
  * @method static self Toyota_Hilux()
- *                                    =====================================================
+ * @method static self Toyota_RAV4()
+ *                                   =====================================================
  * @method static self Ford_B-Max()
  * @method static self Ford_C-Max()
  * @method static self Ford_Tourneo()

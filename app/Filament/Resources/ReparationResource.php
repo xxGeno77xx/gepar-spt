@@ -110,6 +110,7 @@ class ReparationResource extends Resource
                                                         RolesEnum::Chef_parc()->value,
                                                         RolesEnum::Diga()->value,
                                                         RolesEnum::Dpl()->value,
+                                                        RolesEnum::Chef_parc()->value,
                                                         RolesEnum::Budget()->value,
                                                         RolesEnum::Interimaire_DG()->value,
                                                         RolesPermissionsSeeder::SuperAdmin,
@@ -153,7 +154,17 @@ class ReparationResource extends Resource
                                                         ->whereNot('state', StatesClass::Deactivated()->value)
                                                         ->pluck('plate_number', 'id');
 
-                                                } else {
+                                                } elseif ($loggedUser->hasAnyRole([
+                                                    RolesEnum::Directeur_general()->value,
+                                                    RolesEnum::Chef_parc()->value,
+                                                    RolesEnum::Diga()->value,
+                                                    RolesEnum::Dpl()->value,
+                                                    RolesEnum::Chef_parc()->value,
+                                                    RolesEnum::Budget()->value,
+                                                    RolesEnum::Interimaire_DG()->value,
+                                                    RolesPermissionsSeeder::SuperAdmin,
+
+                                                ])) {
                                                     return Engine::whereNot('state', StatesClass::Deactivated()->value)->pluck('plate_number', 'id');
                                                 }
                                             }
@@ -1646,6 +1657,11 @@ class ReparationResource extends Resource
                 // TextColumn::make('id'),
                 TextColumn::make('plate_number')
                     ->label('Numéro de plaque')
+                    ->searchable()
+                    ->sortable(),
+
+                TextColumn::make('departement_id')
+                    ->label('Centre')
                     ->searchable()
                     ->sortable(),
 
