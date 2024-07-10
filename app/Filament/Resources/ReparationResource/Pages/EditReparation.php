@@ -58,34 +58,46 @@ class EditReparation extends EditRecord
             {
                 abort(403, "Vous ne pouvez plus modifier une réparation déjà achevée");
             } 
- 
             
             elseif (($this->record->validation_step != 0)) // if is not in starting step
 
             {
+
+                if(!$user->hasAnyRole([RolesEnum::Chef_parc()->value, RolesEnum::Dpl()->value ]))
+                {
+
+                    $currentStep = $this->record->validation_step;
+
+                    $requiredRoleID = Role::find($roleIds[ $currentStep])->id;
+
+
+                    abort_unless(
+                        $user->hasRole(Role::where("id", $requiredRoleID)->get()), 403, "Vous n'avez pas les permissions pour modifier une demande en cours de validation"
+                    );
+                }
                
-                $chefParcRoleId = (Role::where("name", RolesEnum::Directeur_general()->value)->first())->id;
+                // $chefParcRoleId = (Role::where("name", RolesEnum::Directeur()->value)->first())->id;
 
-                $firstOccurenceOfRole = array_search($chefParcRoleId, $roleIds); // first array key where role occurs
+                // $firstOccurenceOfRole = array_search($chefParcRoleId, $roleIds); // first array key where role occurs
 
-                $arrayKeys = array_keys($roleIds); //get array keys
+                // $arrayKeys = array_keys($roleIds); //get array keys
 
-                $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole + 1);
+                // $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole + 1);
 
                 
 
-                abort_unless(
-                    $user->hasAnyRole([
-                        RolesEnum::Chef_parc()->value,
-                        RolesEnum::Dpl()->value,
-                        RolesEnum::Budget()->value,
-                        RolesEnum::Directeur_general()->value,
-                        RolesEnum::Interimaire_DG()->value,
-                        RolesEnum::Diga()->value,
-                    ]) && (in_array($this->record->validation_step, $indicesDesired)),
-                    403,
-                    "Vous n'avez pas les permissions pour modifier une demande en cours de validation"
-                );
+                // abort_unless(
+                //     $user->hasAnyRole([
+                //         RolesEnum::Chef_parc()->value,
+                //         RolesEnum::Dpl()->value,
+                //         RolesEnum::Budget()->value,
+                //         RolesEnum::Directeur_general()->value,
+                //         RolesEnum::Interimaire_DG()->value,
+                //         RolesEnum::Diga()->value,
+                //     ]) && (in_array($this->record->validation_step, $indicesDesired)),
+                //     403,
+                //     "Vous n'avez pas les permissions pour modifier une demande en cours de validation"
+                // );
             }
 
 
@@ -110,36 +122,6 @@ class EditReparation extends EditRecord
 
     }
 
-
-    public function beforeSave()
-    {
-    
-        $reparation = $this->record;
-
-        // if ($reparation->validation_step == 0) {
-
-        //     $circuit = Circuit::where('id', $this->data["circuit_id"])->first()->steps;
-
-        //     if ($reparation->circuit_id != $this->data["circuit_id"]) {
-
-        //         foreach ($circuit as $key => $item) {
-
-        //             $roleIds[] = $item['role_id'];
-        //         }
-
-        //         $reparation->update([
-        //             "validation_state" => $roleIds[0]
-        //         ]);
-        //     } else {
-
-        //         Notification::make()
-        //             ->title('Attention')
-        //             ->warning()->body("Vous ne pouvez pas modifier cette réparation à cette étape de validation")
-        //             ->send();
-        //     } ;
-        // }
-
-    }
 
     protected function getRedirectUrl(): string
     {

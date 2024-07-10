@@ -152,7 +152,7 @@ class Login extends Component implements HasForms
 
             if ($userToLogIn->login_attempts >= $authenticationLimit) {
                 $userToLogIn->update([
-                    'state' => StatesClass::Activated()->value,
+                    'state' => StatesClass::Deactivated()->value,
                     'login_attempts' => 0,
                 ]);
                 throw ValidationException::withMessages([

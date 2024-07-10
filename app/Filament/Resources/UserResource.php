@@ -11,6 +11,7 @@ use App\Support\Database\PermissionsClass;
 use App\Support\Database\StatesClass;
 use Database\Seeders\RolesPermissionsSeeder;
 use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -109,6 +110,8 @@ class UserResource extends Resource
                             ->searchable()
                             ->required()
                             ->preload(),
+
+                        Hidden::make('state')->default(StatesClass::Activated()->value),
 
                     ])->columns(2),
                 Toggle::make('notification')
