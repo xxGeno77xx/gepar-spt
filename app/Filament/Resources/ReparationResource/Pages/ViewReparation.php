@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\ReparationResource\Pages;
 
 use App\Filament\Resources\ReparationResource;
+use App\Functions\ControlFunctions;
 use App\Mail\ReparationMail;
 use App\Models\Circuit;
 use App\Models\DepartementUser;
@@ -226,19 +227,9 @@ class ViewReparation extends ViewRecord
 
                         if ($this->record) {
 
-                            $searchedRoleId = (Role::where('name', RolesEnum::Directeur_general()->value)->first())->id;
+                            $budgetRoleKey = ControlFunctions::getNthOccurrenceOfRequiredRole($this->record, RolesEnum::Budget()->value, 1);
 
-                            $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
-
-                            $slicedArray = array_slice($roleIds, $firstOccurenceOfRole + 1);
-
-                            $secondOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $slicedArray)) + $firstOccurenceOfRole + 1;
-
-                            $arrayDivided = array_chunk($roleIds, $secondOccurenceOfRoleInOriginalRolesArray + 1, true); //  cut form second match of dg role
-
-                            $ArrayToUse = array_flip($arrayDivided[1]);  //flip array to get keys
-
-                            if ($user->hasRole(Role::where('name', RolesEnum::Budget()->value)->first()->name) && in_array($this->record->validation_step, $ArrayToUse)) {
+                            if ($user->hasRole(Role::where('name', RolesEnum::Budget()->value)->first()->name) && ($this->record->validation_step ==  $budgetRoleKey  )) {
 
                                 if (! $this->record->bon_commande) {
 
@@ -254,24 +245,9 @@ class ViewReparation extends ViewRecord
                             }
                         }
 
-                        //to here  check to oblige budget to set bon de commande before validating
 
                         //from here check to see if date fin is set before validation
                         if ($this->record) {
-
-                            $searchedRoleId = (Role::where('name', RolesEnum::Chef_parc()->value)->first())->id;
-
-                            $firstOccurenceOfRole = array_search($searchedRoleId, $roleIds); // first array key where role occurs
-
-                            $slicedArray = array_slice($roleIds, $firstOccurenceOfRole + 1);
-
-                            $secondOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $slicedArray)) + $firstOccurenceOfRole + 1;
-
-                            $secondSlicedArray = array_slice($roleIds, $secondOccurenceOfRoleInOriginalRolesArray + 1);
-
-                            $thirdOccurenceOfRoleInOriginalRolesArray = (array_search($searchedRoleId, $secondSlicedArray)) + $secondOccurenceOfRoleInOriginalRolesArray + 1;
-
-                            $arrayDivided = array_chunk($roleIds, $thirdOccurenceOfRoleInOriginalRolesArray + 1, true); //  cut form second match of dg role
 
                             if ($user->hasRole(Role::where('name', RolesEnum::Chef_parc()->value)->first()->name) && ($this->record->validation_step == array_key_last($roleIds))) {
 

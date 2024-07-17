@@ -58,4 +58,5 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     protected $table = 'GEPAR.USERS';
+
 }

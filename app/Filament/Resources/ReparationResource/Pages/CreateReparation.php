@@ -2,23 +2,25 @@
 
 namespace App\Filament\Resources\ReparationResource\Pages;
 
-use App\Filament\Resources\ReparationResource;
-use App\Models\Circuit;
-use App\Models\Departement;
-use App\Models\DepartementUser;
-use App\Models\Engine;
-use App\Models\Reparation;
 use App\Models\Role;
 use App\Models\User;
-use App\Support\Database\PermissionsClass;
-use App\Support\Database\ReparationValidationStates;
-use App\Support\Database\RolesEnum;
-use App\Support\Database\StatesClass;
-use Database\Seeders\RolesPermissionsSeeder;
-use Filament\Notifications\Actions\Action as NotificationActions;
-use Filament\Notifications\Notification;
+use App\Models\Engine;
+use App\Models\Circuit;
+use App\Models\Reparation;
+use App\Models\Departement;
+use App\Mail\ReparationMail;
+use App\Models\DepartementUser;
 use Filament\Pages\Actions\Action;
+use App\Support\Database\RolesEnum;
+use Illuminate\Support\Facades\Mail;
+use App\Support\Database\StatesClass;
+use Filament\Notifications\Notification;
+use App\Support\Database\PermissionsClass;
 use Filament\Resources\Pages\CreateRecord;
+use Database\Seeders\RolesPermissionsSeeder;
+use App\Filament\Resources\ReparationResource;
+use App\Support\Database\ReparationValidationStates;
+use Filament\Notifications\Actions\Action as NotificationActions;
 
 class CreateReparation extends CreateRecord
 {
@@ -164,6 +166,8 @@ class CreateReparation extends CreateRecord
 
         $destinataire = User::role($destinataireRole)->first();
 
+        
+
         if ($destinataire) {
 
             if (in_array($destinataireRole, [RolesEnum::Directeur()->value, RolesEnum::Chef_division()->value]) && $destinataire->departement_id == $concernedEngine->departement_id) {
@@ -181,6 +185,15 @@ class CreateReparation extends CreateRecord
                     ])
                     ->sendToDatabase($realDestination);
 
+                    try{
+                        Mail::to($destinataire)->send(new ReparationMail($this->record)); 
+                    }catch(\Exception $e){
+                       Notification::make("erreur")
+                        ->body("Erreur lors de l'envoi du mail au validateur. Veuillez le contacter pour l'informer")
+                        ->send();
+                    }
+                    
+
             } elseif ($destinataireRole == RolesEnum::Directeur_general()->value) {
                 Notification::make()
                     ->title('Nouvelle demande')
@@ -192,6 +205,17 @@ class CreateReparation extends CreateRecord
                             ->color('primary'),
                     ])
                     ->sendToDatabase($destinataire);
+
+                    try{
+
+                        Mail::to($destinataire)->send(new ReparationMail($this->record)); 
+
+                    }catch(\Exception $e){
+                        
+                       Notification::make("erreur")
+                        ->body("Erreur lors de l'envoi du mail au validateur. Veuillez le contacter pour l'informer")
+                        ->send();
+                    }
             }
         }
 

@@ -193,26 +193,87 @@ class ReparationResource extends Resource
 
                                         if ($record) {
                                             $remainingSteps = ControlFunctions::getIndicesAfterNthOccurrence($record, RolesEnum::Chef_parc()->value, 1);
-                
+
                                             if (in_array($record->validation_step, $remainingSteps)) {
                                                 return true;
                                             }
-                
+
                                             return false;
                                         }
                                     })
                                     ->required(function ($record) {
-                
+
                                         if ($record) {
                                             $remainingSteps = ControlFunctions::getIndicesAfterNthOccurrence($record, RolesEnum::Chef_parc()->value, 1);
-                
+
                                             if (in_array($record->validation_step, $remainingSteps)) {
                                                 return true;
                                             }
-                
+
                                             return false;
                                         }
                                     }),
+
+                                Select::make('appreciation')
+                                    ->searchable()
+                                    ->columnSpanFull()
+                                    ->options(AppreciationClass::toArray())
+                                    ->visible(function ($record) {
+
+                                        if ($record) {
+                                            $remainingSteps = ControlFunctions::getIndicesAfterNthOccurrence($record, RolesEnum::Chef_parc()->value, 1);
+
+                                            if (in_array($record->validation_step, $remainingSteps)) {
+                                                return true;
+                                            }
+
+                                            return false;
+                                        }
+                                    })
+                                    ->required(function ($record) {
+
+                                        if ($record) {
+                                            $remainingSteps = ControlFunctions::getIndicesAfterNthOccurrence($record, RolesEnum::Chef_parc()->value, 1);
+
+                                            if (in_array($record->validation_step, $remainingSteps)) {
+                                                return true;
+                                            }
+
+                                            return false;
+                                        }
+                                    }),
+
+
+                                RichEditor::make('rapport_final')
+                                    ->columnSpanFull()
+                                    ->label('Rapport de fin de réparation')
+                                    ->disableAllToolbarButtons()
+                                    ->placeholder('Vos observations concernant la réparation')
+                                    ->visible(function ($record) {
+
+                                        if ($record) {
+                                            $remainingSteps = ControlFunctions::getIndicesAfterNthOccurrence($record, RolesEnum::Chef_parc()->value, 1);
+
+                                            if (in_array($record->validation_step, $remainingSteps)) {
+                                                return true;
+                                            }
+
+                                            return false;
+                                        }
+                                    })
+                                    ->required(function ($record) {
+
+                                        if ($record) {
+                                            $remainingSteps = ControlFunctions::getIndicesAfterNthOccurrence($record, RolesEnum::Chef_parc()->value, 1);
+
+                                            if (in_array($record->validation_step, $remainingSteps)) {
+                                                return true;
+                                            }
+
+                                            return false;
+                                        }
+                                    }),
+
 
                                 Hidden::make('circuit_id')->default(function () {
                                     $userCentresCollection = DepartementUser::where('user_id', auth()->user()->id)->get();
@@ -301,7 +362,7 @@ class ReparationResource extends Resource
                                             ->visible(function ($record) {
 
                                                 if ($record) {
-                                                    
+
                                                     $remainingSteps = ControlFunctions::getIndicesAfterNthOccurrence($record, RolesEnum::Budget()->value, 1);
 
                                                     if (in_array($record->validation_step, $remainingSteps)) {
@@ -315,8 +376,8 @@ class ReparationResource extends Resource
 
                                         Grid::make(2)
                                             ->schema([
-                                                TextInput::make('cout_reparation')
-                                                    ->label('Cout total de la révision')
+                                                TextInput::make('main_oeuvre')
+                                                    ->label('Main d\'oeuvre')
                                                     ->numeric()
                                                     ->minValue(0)
                                                     ->required(),
@@ -324,38 +385,19 @@ class ReparationResource extends Resource
                                                 TextInput::make('ref_proforma')
                                                     ->label('Référence du devis')
                                                     ->required(),
+
+                                                    TextInput::make('cout_reparation')
+                                                    ->label('Cout total de la révision')
+                                                    ->columnSpanFull()
+                                                    ->required()
+                                                    ->numeric()
+                                                    ->minValue(0)
+                                                    ->required(),
                                             ]),
                                     ]),
                             ]),
 
-                        RichEditor::make('rapport_final')
-                            ->label('Rapport de fin de réparation')
-                            ->disableAllToolbarButtons()
-                            ->placeholder('Vos observations concernant la réparation')
-                            ->visible(function ($record) {
 
-                                if ($record) {
-                                    $remainingSteps = ControlFunctions::getIndicesAfterNthOccurrence($record, RolesEnum::Chef_parc()->value, 1);
-        
-                                    if (in_array($record->validation_step, $remainingSteps)) {
-                                        return true;
-                                    }
-        
-                                    return false;
-                                }
-                            })
-                            ->required(function ($record) {
-        
-                                if ($record) {
-                                    $remainingSteps = ControlFunctions::getIndicesAfterNthOccurrence($record, RolesEnum::Chef_parc()->value, 1);
-        
-                                    if (in_array($record->validation_step, $remainingSteps)) {
-                                        return true;
-                                    }
-        
-                                    return false;
-                                }
-                            }),
 
                         Section::make('Travaux à faire')
                             ->schema([
@@ -475,33 +517,7 @@ class ReparationResource extends Resource
                     ->columnSpanFull()
                     ->placeholder('Détails de la révision'),
 
-                Select::make('appreciation')
-                    ->searchable()
-                    ->options(AppreciationClass::toArray())
-                    ->visible(function ($record) {
 
-                        if ($record) {
-                            $remainingSteps = ControlFunctions::getIndicesAfterNthOccurrence($record, RolesEnum::Chef_parc()->value, 1);
-
-                            if (in_array($record->validation_step, $remainingSteps)) {
-                                return true;
-                            }
-
-                            return false;
-                        }
-                    })
-                    ->required(function ($record) {
-
-                        if ($record) {
-                            $remainingSteps = ControlFunctions::getIndicesAfterNthOccurrence($record, RolesEnum::Chef_parc()->value, 1);
-
-                            if (in_array($record->validation_step, $remainingSteps)) {
-                                return true;
-                            }
-
-                            return false;
-                        }
-                    }),
 
                 Hidden::make('user_id')->default(auth()->user()->id),
 

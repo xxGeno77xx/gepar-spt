@@ -45,6 +45,8 @@ return new class extends Migration
 
             $table->integer('cout_reparation')->nullable();
 
+            $table->integer('main_oeuvre')->nullable();
+
             $table->enum('state', [
                 StatesClass::Activated()->value,
                 StatesClass::Deactivated()->value,
