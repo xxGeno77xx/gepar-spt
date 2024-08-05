@@ -98,7 +98,10 @@ class Login extends Component implements HasForms
             return null;
         }
 
-        $userToLogIn = User::where('username', $data['username'])->first();
+        // $userToLogIn = User::where('username', $data['username'])->first();
+
+        $userToLogIn = User::whereRaw("UPPER(username) = ?", strtoupper($data['username']))->first();
+
 
         if (! $userToLogIn) {
 
