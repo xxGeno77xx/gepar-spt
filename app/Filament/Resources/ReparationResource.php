@@ -67,14 +67,14 @@ class ReparationResource extends Resource
 
                                 Placeholder::make('motif_rejet')
                                     ->label(new HtmlString('<p style="color: red; font-size: 1.2rem;">Motif du rejet</p>'))
-                                    ->content(fn ($record) => $record->motif_rejet ? $record->motif_rejet : ''),
+                                    ->content(fn($record) => $record->motif_rejet ? $record->motif_rejet : ''),
 
                                 Placeholder::make('rejete_par')
                                     ->label(new HtmlString('<p style="color: red; font-size: 1.2rem;">Rejeté par</p>'))
-                                    ->content(fn ($record) => $record->rejete_par ? User::find($record->rejete_par)->name : ''),
+                                    ->content(fn($record) => $record->rejete_par ? User::find($record->rejete_par)->name : ''),
                             ]),
                     ])
-                    ->visible(fn ($record) => $record && $record->motif_rejet ? true : false),
+                    ->visible(fn($record) => $record && $record->motif_rejet ? true : false),
 
                 Card::make()
                     ->schema([
@@ -289,15 +289,15 @@ class ReparationResource extends Resource
                                     if ((auth()->user()->hasAnyRole([RolesEnum::Chef_Division()->value, RolesEnum::Delegue_Division()->value])) && (array_intersect($userCentresIds, $dirGeneDivisions))) {
 
                                         return 4; // circuit particulier
-
+                        
                                     } elseif (auth()->user()->hasAnyRole([RolesEnum::Directeur_general()->value, RolesEnum::Delegue_Direction_Generale()->value])) {
 
                                         return 3; // circuit de  Direction Générale
-
+                        
                                     } elseif (auth()->user()->hasAnyRole([RolesEnum::Directeur()->value, RolesEnum::Delegue_Direction()->value])) {
 
                                         return 2; // circuit de Direction
-
+                        
                                     } elseif (auth()->user()->hasAnyRole([RolesEnum::Chef_Division()->value, RolesEnum::Delegue_Division()->value])) {
 
                                         return 1; // circuit de Division
@@ -313,31 +313,31 @@ class ReparationResource extends Resource
                             ])->columns(2),
 
                         Section::make('Informations du prestataire')
-                            ->description(fn ($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('raison_social_fr') : '')
+                            ->description(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('raison_social_fr') : '')
                             ->collapsible()
                             ->schema([
                                 Grid::make(3)
                                     ->schema([
                                         Placeholder::make('Raison sociale')
-                                            ->content(fn ($get) => $get('prestataire_id') && (Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('nom_fr')) ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('nom_fr') : '-'),
+                                            ->content(fn($get) => $get('prestataire_id') && (Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('nom_fr')) ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('nom_fr') : '-'),
 
                                         Placeholder::make('Adresse')
-                                            ->content(fn ($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('adr_fr') : '-'),
+                                            ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('adr_fr') : '-'),
 
                                         Placeholder::make('Contact_1')
-                                            ->content(fn ($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('tel_fr') : '-'),
+                                            ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('tel_fr') : '-'),
 
                                         Placeholder::make('Contact_2')
-                                            ->content(fn ($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('tel2_frs') : '-'),
+                                            ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('tel2_frs') : '-'),
 
                                         Placeholder::make('Secteur d\'activité')
-                                            ->content(fn ($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('sect_activ') : '-'),
+                                            ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('sect_activ') : '-'),
 
                                         Placeholder::make('Ville')
-                                            ->content(fn ($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('ville_fr') : '-'),
+                                            ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('ville_fr') : '-'),
 
                                         Placeholder::make('Numéro de compte')
-                                            ->content(fn ($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('numero_compte') : '-'),
+                                            ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('numero_compte') : '-'),
                                     ]),
 
                                 Section::make('Devis')
@@ -400,7 +400,7 @@ class ReparationResource extends Resource
 
                                 Select::make('révisions')
                                     ->label('Type de la réparation')
-                                    ->relationship('typeReparations', 'libelle', fn (Builder $query) => $query->where('state', StatesClass::Activated()->value))
+                                    ->relationship('typeReparations', 'libelle', fn(Builder $query) => $query->where('state', StatesClass::Activated()->value))
                                     ->multiple()
                                     ->searchable()
                                     ->preload(true)
@@ -421,7 +421,7 @@ class ReparationResource extends Resource
                                                             ->numeric()
                                                             ->minValue(1)
                                                             ->reactive()
-                                                            ->afterStateUpdated(fn ($state, callable $set, $get) => $set('montant', $state * $get('Prix_unitaire'))),
+                                                            ->afterStateUpdated(fn($state, callable $set, $get) => $set('montant', $state * $get('Prix_unitaire'))),
 
                                                         TextInput::make('Prix_unitaire')
                                                             ->numeric()
@@ -429,7 +429,7 @@ class ReparationResource extends Resource
                                                             ->minValue(1)
                                                             ->reactive()
                                                             ->integer()
-                                                            ->afterStateUpdated(fn ($state, callable $set, $get) => $set('montant', $state * $get('nombre'))),
+                                                            ->afterStateUpdated(fn($state, callable $set, $get) => $set('montant', $state * $get('nombre'))),
 
                                                         TextInput::make('montant')
                                                             ->suffix('FCFA')
@@ -451,9 +451,22 @@ class ReparationResource extends Resource
                         ->label('Avis de la DIGA')
                         ->disableAllToolbarButtons()
                         ->placeholder('Observations de la DIGA')
+                        ->disabled(function ($record) {
+
+                            if ($record) {
+                                
+                                if (auth()->user()->hasAnyRole([RolesEnum::Diga()->value])) {  
+                                    return false;
+                                };
+
+                                return true;
+                            }
+
+                        })
                         ->visible(function ($record) {
 
                             if ($record) {
+
                                 $remainingSteps = ControlFunctions::getIndicesAfterNthOccurrence($record, RolesEnum::Diga()->value, 1);
 
                                 if (in_array($record->validation_step, $remainingSteps)) {
@@ -480,6 +493,18 @@ class ReparationResource extends Resource
                         ->label('Avis du Directeur Général / Intérimaire')
                         ->disableAllToolbarButtons()
                         ->placeholder('Observations du Directeur général')
+                        ->disabled(function ($record) {
+
+                            if ($record) {
+                                
+                                if (auth()->user()->hasAnyRole([RolesEnum::Directeur_general()->value, RolesEnum::Interimaire_DG()->value])) {  
+                                    return false;
+                                };
+
+                                return true;
+                            }
+
+                        })
                         ->visible(function ($record) {
 
                             if ($record) {
@@ -564,7 +589,7 @@ class ReparationResource extends Resource
                         } else {
                             $validator = (Role::find($state))->name;
 
-                            return 'En attente de validation de: '.$validator;
+                            return 'En attente de validation de: ' . $validator;
                         }
 
                     })
@@ -602,16 +627,16 @@ class ReparationResource extends Resource
                         return $query
                             ->when(
                                 $data['date_from'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('date_lancement', '>=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('date_lancement', '>=', $date),
                             )
                             ->when(
                                 $data['date_to'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('date_lancement', '<=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('date_lancement', '<=', $date),
                             );
                     })
                     ->indicateUsing(function (array $data): ?string {
                         if (($data['date_from']) && ($data['date_from'])) {
-                            return 'Date d\'envoi en réparation:  '.Carbon::parse($data['date_from'])->format('d-m-Y').' au '.Carbon::parse($data['date_to'])->format('d-m-Y');
+                            return 'Date d\'envoi en réparation:  ' . Carbon::parse($data['date_from'])->format('d-m-Y') . ' au ' . Carbon::parse($data['date_to'])->format('d-m-Y');
                         }
 
                         return null;
@@ -635,11 +660,11 @@ class ReparationResource extends Resource
                                 }
                             );
                     })->indicateUsing(function (array $data): ?string {
-                        if (! $data['prestataire_id']) {
+                        if (!$data['prestataire_id']) {
                             return null;
                         }
 
-                        return 'Prestataire: '.Prestataire::where('code_fr', $data['prestataire_id'])->value('raison_social_fr');
+                        return 'Prestataire: ' . Prestataire::where('code_fr', $data['prestataire_id'])->value('raison_social_fr');
                     }),
 
                 SelectFilter::make('Type de la réparation')
@@ -664,12 +689,12 @@ class ReparationResource extends Resource
                                 }
                             );
                     })->indicateUsing(function (array $data): ?string {
-                        if (! $data['appreciation']) {
+                        if (!$data['appreciation']) {
                             return null;
                         } elseif ($data['appreciation'] == AppreciationClass::Insatisfaisant()->value) {
-                            return 'Appreciation: '.AppreciationClass::Insatisfaisant()->value;
+                            return 'Appreciation: ' . AppreciationClass::Insatisfaisant()->value;
                         } else {
-                            return 'Appreciation: '.AppreciationClass::Satisfaisant()->value;
+                            return 'Appreciation: ' . AppreciationClass::Satisfaisant()->value;
                         }
                     }),
 

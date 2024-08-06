@@ -245,7 +245,9 @@ class EngineResource extends Resource
                                 $models = Modele::join('marques', 'modeles.marque_id', 'marques.id')
                                     ->whereRaw('LOWER(nom_modele) LIKE ?', ['%'.strtolower($search).'%'])
                                     ->orWhereRaw('LOWER(nom_marque) LIKE ?', ['%'.strtolower($search).'%'])
-                                    ->select('nom_modele', 'modeles.id as id', 'marques.logo', 'marque_id')->limit(100)->get();
+                                    ->select('nom_modele', 'modeles.id as id', 'marques.logo', 'marque_id')
+                                    ->limit(100)
+                                    ->get();
 
                                 return $models->mapWithKeys(function ($modele) {
 

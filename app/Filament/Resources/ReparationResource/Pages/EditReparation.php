@@ -78,29 +78,7 @@ class EditReparation extends EditRecord
                         $user->hasRole(Role::where("id", $requiredRoleID)->get()) || (($requiredRoleID == $dgRoleID) && $user->hasRole(RolesEnum::Interimaire_DG()->value)), 403, "Vous n'avez pas les permissions pour modifier une demande en cours de validation"
                     );
                 }
-               
-                // $chefParcRoleId = (Role::where("name", RolesEnum::Directeur()->value)->first())->id;
 
-                // $firstOccurenceOfRole = array_search($chefParcRoleId, $roleIds); // first array key where role occurs
-
-                // $arrayKeys = array_keys($roleIds); //get array keys
-
-                // $indicesDesired = array_slice($arrayKeys, $firstOccurenceOfRole + 1);
-
-                
-
-                // abort_unless(
-                //     $user->hasAnyRole([
-                //         RolesEnum::Chef_parc()->value,
-                //         RolesEnum::Dpl()->value,
-                //         RolesEnum::Budget()->value,
-                //         RolesEnum::Directeur_general()->value,
-                //         RolesEnum::Interimaire_DG()->value,
-                //         RolesEnum::Diga()->value,
-                //     ]) && (in_array($this->record->validation_step, $indicesDesired)),
-                //     403,
-                //     "Vous n'avez pas les permissions pour modifier une demande en cours de validation"
-                // );
             }
 
 
