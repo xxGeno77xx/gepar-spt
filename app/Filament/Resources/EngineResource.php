@@ -241,10 +241,11 @@ class EngineResource extends Resource
                             ->searchable()
                             ->required()
                             ->getSearchResultsUsing(function (string $search) {
+
                                 $models = Modele::join('marques', 'modeles.marque_id', 'marques.id')
                                     ->whereRaw('LOWER(nom_modele) LIKE ?', ['%'.strtolower($search).'%'])
                                     ->orWhereRaw('LOWER(nom_marque) LIKE ?', ['%'.strtolower($search).'%'])
-                                    ->select('nom_modele', 'modeles.id as id', 'marques.logo', 'marque_id')->limit(50)->get();
+                                    ->select('nom_modele', 'modeles.id as id', 'marques.logo', 'marque_id')->limit(100)->get();
 
                                 return $models->mapWithKeys(function ($modele) {
 
@@ -575,11 +576,10 @@ class EngineResource extends Resource
     {
         $marque = Marque::where('id', $model?->marque_id)->first();
 
-        return
-                view('filament.components.model-select')
-                    ->with('nom_modele', $model?->nom_modele)
-                    ->with('logo', $marque->logo)
-                    ->with('marque', $marque->nom_marque)
-                    ->render();
+        return view('filament.components.model-select')
+            ->with('nom_modele', $model?->nom_modele)
+            ->with('logo', $marque->logo)
+            ->with('marque', $marque->nom_marque)
+            ->render();
     }
 }

@@ -70,9 +70,12 @@ class EditReparation extends EditRecord
 
                     $requiredRoleID = Role::find($roleIds[ $currentStep])->id;
 
+                    $dgRoleID =  Role::where('name',RolesEnum::Directeur_general()->value)->first()->id;
+
+              
 
                     abort_unless(
-                        $user->hasRole(Role::where("id", $requiredRoleID)->get()), 403, "Vous n'avez pas les permissions pour modifier une demande en cours de validation"
+                        $user->hasRole(Role::where("id", $requiredRoleID)->get()) || (($requiredRoleID == $dgRoleID) && $user->hasRole(RolesEnum::Interimaire_DG()->value)), 403, "Vous n'avez pas les permissions pour modifier une demande en cours de validation"
                     );
                 }
                

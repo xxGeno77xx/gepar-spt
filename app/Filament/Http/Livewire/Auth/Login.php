@@ -100,8 +100,7 @@ class Login extends Component implements HasForms
 
         // $userToLogIn = User::where('username', $data['username'])->first();
 
-        $userToLogIn = User::whereRaw("UPPER(username) = ?", strtoupper($data['username']))->first();
-
+        $userToLogIn = User::whereRaw('UPPER(username) = ?', strtoupper($data['username']))->first();
 
         if (! $userToLogIn) {
 
@@ -222,6 +221,7 @@ class Login extends Component implements HasForms
             TextInput::make('email')
                 ->label(__('Adresse mail'))
                 ->required()
+                ->unique()
                 ->regex('/.*@laposte\.tg$/')
                 ->email()
                 ->visible(fn ($get) => $get('new_user') == 1 ? true : false)

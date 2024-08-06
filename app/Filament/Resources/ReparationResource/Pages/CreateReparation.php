@@ -2,25 +2,25 @@
 
 namespace App\Filament\Resources\ReparationResource\Pages;
 
+use App\Filament\Resources\ReparationResource;
+use App\Mail\ReparationMail;
+use App\Models\Circuit;
+use App\Models\Departement;
+use App\Models\DepartementUser;
+use App\Models\Engine;
+use App\Models\Reparation;
 use App\Models\Role;
 use App\Models\User;
-use App\Models\Engine;
-use App\Models\Circuit;
-use App\Models\Reparation;
-use App\Models\Departement;
-use App\Mail\ReparationMail;
-use App\Models\DepartementUser;
-use Filament\Pages\Actions\Action;
-use App\Support\Database\RolesEnum;
-use Illuminate\Support\Facades\Mail;
-use App\Support\Database\StatesClass;
-use Filament\Notifications\Notification;
 use App\Support\Database\PermissionsClass;
-use Filament\Resources\Pages\CreateRecord;
-use Database\Seeders\RolesPermissionsSeeder;
-use App\Filament\Resources\ReparationResource;
 use App\Support\Database\ReparationValidationStates;
+use App\Support\Database\RolesEnum;
+use App\Support\Database\StatesClass;
+use Database\Seeders\RolesPermissionsSeeder;
 use Filament\Notifications\Actions\Action as NotificationActions;
+use Filament\Notifications\Notification;
+use Filament\Pages\Actions\Action;
+use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Support\Facades\Mail;
 
 class CreateReparation extends CreateRecord
 {
@@ -115,9 +115,9 @@ class CreateReparation extends CreateRecord
         }
 
         $dirGeneDivisions = [
-            Departement::where('sigle_centre', 'CI')->first()->code_centre,
-            Departement::where('sigle_centre', 'DSC')->first()->code_centre,
-            // Departement::where('sigle_centre', 'DFC')->first()->code_centre,  conformité
+            Departement::where('sigle_centre', 'CI')->first()->code_centre, // Cellule informatique
+            Departement::where('sigle_centre', 'DSC')->first()->code_centre, // Secretariat central
+            // Departement::where('sigle_centre', 'DFC')->first()->code_centre,  Conformité
         ];
 
         if ((auth()->user()->hasAnyRole([RolesEnum::Chef_Division()->value, RolesEnum::Delegue_Division()->value])) && (array_intersect($userCentresIds, $dirGeneDivisions))) {
@@ -127,6 +127,7 @@ class CreateReparation extends CreateRecord
         } elseif (auth()->user()->hasAnyRole([RolesEnum::Directeur_general()->value, RolesEnum::Delegue_Direction_Generale()->value])) {
 
             $data['circuit_id'] = 3; // circuit de  Direction Générale
+            
         } elseif (auth()->user()->hasAnyRole([RolesEnum::Directeur()->value, RolesEnum::Delegue_Direction()->value])) {
 
             $data['circuit_id'] = 2; // circuit de Direction
@@ -166,8 +167,6 @@ class CreateReparation extends CreateRecord
 
         $destinataire = User::role($destinataireRole)->first();
 
-        
-
         if ($destinataire) {
 
             if (in_array($destinataireRole, [RolesEnum::Directeur()->value, RolesEnum::Chef_division()->value]) && $destinataire->departement_id == $concernedEngine->departement_id) {
@@ -185,14 +184,13 @@ class CreateReparation extends CreateRecord
                     ])
                     ->sendToDatabase($realDestination);
 
-                    try{
-                        Mail::to($destinataire)->send(new ReparationMail($this->record)); 
-                    }catch(\Exception $e){
-                       Notification::make("erreur")
+                try {
+                    Mail::to($destinataire)->send(new ReparationMail($this->record));
+                } catch (\Exception $e) {
+                    Notification::make('erreur')
                         ->body("Erreur lors de l'envoi du mail au validateur. Veuillez le contacter pour l'informer")
                         ->send();
-                    }
-                    
+                }
 
             } elseif ($destinataireRole == RolesEnum::Directeur_general()->value) {
                 Notification::make()
@@ -206,16 +204,16 @@ class CreateReparation extends CreateRecord
                     ])
                     ->sendToDatabase($destinataire);
 
-                    try{
+                try {
 
-                        Mail::to($destinataire)->send(new ReparationMail($this->record)); 
+                    Mail::to($destinataire)->send(new ReparationMail($this->record));
 
-                    }catch(\Exception $e){
-                        
-                       Notification::make("erreur")
+                } catch (\Exception $e) {
+
+                    Notification::make('erreur')
                         ->body("Erreur lors de l'envoi du mail au validateur. Veuillez le contacter pour l'informer")
                         ->send();
-                    }
+                }
             }
         }
 

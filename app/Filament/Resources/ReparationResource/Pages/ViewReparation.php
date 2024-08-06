@@ -229,7 +229,7 @@ class ViewReparation extends ViewRecord
 
                             $budgetRoleKey = ControlFunctions::getNthOccurrenceOfRequiredRole($this->record, RolesEnum::Budget()->value, 1);
 
-                            if ($user->hasRole(Role::where('name', RolesEnum::Budget()->value)->first()->name) && ($this->record->validation_step ==  $budgetRoleKey  )) {
+                            if ($user->hasRole(Role::where('name', RolesEnum::Budget()->value)->first()->name) && ($this->record->validation_step == $budgetRoleKey)) {
 
                                 if (! $this->record->bon_commande) {
 
@@ -244,7 +244,6 @@ class ViewReparation extends ViewRecord
 
                             }
                         }
-
 
                         //from here check to see if date fin is set before validation
                         if ($this->record) {

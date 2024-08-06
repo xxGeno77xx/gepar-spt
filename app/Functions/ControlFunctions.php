@@ -52,7 +52,8 @@ class ControlFunctions
         $returnArray = array_slice(array_keys($array), $nthOccurrenceIndex);
 
         array_push($returnArray, 100);
+
         // Retourner les indices restants après la n-ième occurrence (indice de la nième occurence inclus)
-        return  $returnArray ;
+        return $returnArray;
     }
 }
