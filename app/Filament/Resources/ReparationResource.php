@@ -2,48 +2,50 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ReparationResource\Pages;
-use App\Functions\ControlFunctions;
-use App\Models\Circuit;
-use App\Models\Departement;
-use App\Models\DepartementUser;
-use App\Models\Direction;
-use App\Models\Division;
-use App\Models\Engine;
-use App\Models\Prestataire;
-use App\Models\Reparation;
+use Carbon\Carbon;
 use App\Models\Role;
 use App\Models\User;
-use App\Support\Database\AppreciationClass;
-use App\Support\Database\CommonInfos;
-use App\Support\Database\PermissionsClass;
-use App\Support\Database\ReparationValidationStates;
-use App\Support\Database\RolesEnum;
-use App\Support\Database\StatesClass;
-use App\Tables\Columns\PrestataireColumn;
-use Carbon\Carbon;
-use Database\Seeders\RolesPermissionsSeeder;
-use Filament\Forms\Components\Builder as FilamentBuilder;
-use Filament\Forms\Components\Card;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\RichEditor;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Resources\Form;
-use Filament\Resources\Resource;
-use Filament\Resources\Table;
 use Filament\Tables;
+use App\Models\Engine;
+use App\Models\Circuit;
+use App\Models\Division;
+use App\Models\Direction;
+use App\Models\Reparation;
+use App\Models\Departement;
+use App\Models\Prestataire;
+use Filament\Resources\Form;
+use Filament\Resources\Table;
+use App\Models\DepartementUser;
+use Filament\Resources\Resource;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\HtmlString;
+use App\Functions\ControlFunctions;
+use App\Support\Database\RolesEnum;
+use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Grid;
+use Filament\Tables\Filters\Filter;
+use App\Support\Database\CommonInfos;
+use App\Support\Database\StatesClass;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\TagsColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\TextInput;
+use App\Tables\Columns\DepartementColumn;
+use App\Tables\Columns\PrestataireColumn;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\RichEditor;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\HtmlString;
+use App\Support\Database\PermissionsClass;
+use Filament\Forms\Components\Placeholder;
+use App\Support\Database\AppreciationClass;
+use Database\Seeders\RolesPermissionsSeeder;
+use App\Filament\Resources\ReparationResource\Pages;
+use App\Support\Database\ReparationValidationStates;
+use Filament\Forms\Components\Builder as FilamentBuilder;
 
 class ReparationResource extends Resource
 {
@@ -557,10 +559,15 @@ class ReparationResource extends Resource
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('departement_id')
+                TextColumn::make('engine.departement_id')
                     ->label('Centre')
+                    ->formatStateUsing(fn($state) => (DB::table("centre")->where("code_centre", $state)->first()->sigle_centre) )
                     ->searchable()
                     ->sortable(),
+
+                    // DepartementColumn::make('departement_id')
+                    // ->label('Centre')
+                    // ->tooltip(fn ($record) => Departement::find($record->departement_id)->libelle),
 
                 TextColumn::make('date_lancement')
                     ->label('Date d\'envoi en réparation')
