@@ -223,7 +223,7 @@ class ViewReparation extends ViewRecord
 
                                 if ($NextdestinataireRole) {
 
-                                    if (in_array($NextdestinataireRole, [RolesEnum::Directeur()->value, RolesEnum::Chef_division()->value]) && $destinataire->departement_id == $concernedEngine->departement_id) {
+                                    if (in_array($NextdestinataireRole, [RolesEnum::Directeur()->value, RolesEnum::Chef_division()->value])) {
 
                                         $realDestination = User::role($NextdestinataireRole)->where('departement_id', $concernedEngine->departement_id)->first();
 
@@ -267,7 +267,7 @@ class ViewReparation extends ViewRecord
 
                                         if ($NextdestinataireRole == RolesEnum::Directeur_general()->value)
                                         {
-                                            $endpoint = User::Role([RolesEnum::Directeur_general()->value, RolesEnum::Interimaire_DG()->value]);
+                                            $endpoint = User::Role([RolesEnum::Directeur_general()->value, RolesEnum::Interimaire_DG()->value])->get();
 
                                             Notification::make()
                                             ->title('Nouvelle demande')
@@ -382,25 +382,25 @@ class ViewReparation extends ViewRecord
                         }
 
                         // Diga avis check
-                        if ($this->record) {
+                        // if ($this->record) {
 
-                            $budgetRoleKey = ControlFunctions::getNthOccurrenceOfRequiredRole($this->record, RolesEnum::Diga()->value, 1);
+                        //     $budgetRoleKey = ControlFunctions::getNthOccurrenceOfRequiredRole($this->record, RolesEnum::Diga()->value, 1);
 
-                            if ($user->hasRole(Role::where('name', RolesEnum::Diga()->value)->first()->name) && ($this->record->validation_step == $budgetRoleKey)) {
+                        //     if ($user->hasRole(Role::where('name', RolesEnum::Diga()->value)->first()->name) && ($this->record->validation_step == $budgetRoleKey)) {
 
-                                if (! $this->record->avis_diga) {
+                        //         if (! $this->record->avis_diga) {
 
-                                    Notification::make()
-                                        ->title('Attention')
-                                        ->warning()
-                                        ->body('Donnez votre avis avant de poursuivre!!!')
-                                        ->send();
+                        //             Notification::make()
+                        //                 ->title('Attention')
+                        //                 ->warning()
+                        //                 ->body('Donnez votre avis avant de poursuivre!!!')
+                        //                 ->send();
 
-                                    $this->halt();
-                                }
+                        //             $this->halt();
+                        //         }
 
-                            }
-                        }
+                        //     }
+                        // }
                         //check to oblige suivi budgetaire
                         if ($this->record) {
 
