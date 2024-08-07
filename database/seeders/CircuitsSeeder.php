@@ -16,6 +16,7 @@ class CircuitsSeeder extends Seeder
 
         $circuitDeDivision = [
             ['role_id' => 5], // Chef division
+            ['role_id' => 8], // Budget
             ['role_id' => 7], // Directeur
             ['role_id' => 13], // DIGA
             ['role_id' => 9], // Directeur général
@@ -30,7 +31,7 @@ class CircuitsSeeder extends Seeder
         ]);
 
         $circuitdeDirection = [
-
+            ['role_id' => 8], // Budget
             ['role_id' => 7], // Directeur
             ['role_id' => 13], // DIGA
             ['role_id' => 9], // Directeur général
@@ -46,6 +47,7 @@ class CircuitsSeeder extends Seeder
 
         $circuitDeLaDirectionGenerale = [
 
+            ['role_id' => 8], // Budget
             ['role_id' => 13], // DIGA
             ['role_id' => 9], // Directeur général
             ['role_id' => 8], // Budget
@@ -61,6 +63,7 @@ class CircuitsSeeder extends Seeder
         $circuitParticulier = [  // circuits où  le DG est à la fois le directeur de département
 
             ['role_id' => 5], // Chef division
+            ['role_id' => 8], // Budget
             ['role_id' => 13], // DIGA
             ['role_id' => 9], // Directeur général
             ['role_id' => 8], // Budget
