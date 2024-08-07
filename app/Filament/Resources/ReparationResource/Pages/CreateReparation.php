@@ -11,6 +11,7 @@ use App\Models\Engine;
 use App\Models\Reparation;
 use App\Models\Role;
 use App\Models\User;
+use App\Support\Database\CircuitsEnums;
 use App\Support\Database\PermissionsClass;
 use App\Support\Database\ReparationValidationStates;
 use App\Support\Database\RolesEnum;
@@ -63,7 +64,6 @@ class CreateReparation extends CreateRecord
 
     protected function beforeCreate(): void
     {
-
         $newRaparation = $this->data;
 
         $latestReparation = Reparation::select(['engine_id', 'created_at', 'date_fin'])
@@ -74,7 +74,7 @@ class CreateReparation extends CreateRecord
             ->first();
 
         if ($latestReparation) {
-            if (! $latestReparation->date_fin) {
+            if (!$latestReparation->date_fin) {
                 Notification::make()
                     ->warning()
                     ->title('Attention!')
@@ -86,7 +86,7 @@ class CreateReparation extends CreateRecord
             }
         }
 
-        if (! is_null($newRaparation['date_fin'])) {
+        if (!is_null($newRaparation['date_fin'])) {
 
         }
 
@@ -122,20 +122,22 @@ class CreateReparation extends CreateRecord
 
         if ((auth()->user()->hasAnyRole([RolesEnum::Chef_Division()->value, RolesEnum::Delegue_Division()->value])) && (array_intersect($userCentresIds, $dirGeneDivisions))) {
 
-            $data['circuit_id'] = 4; // circuit particulier
+            $data['circuit_id'] = Circuit::where("name", CircuitsEnums::circuit_particulier()->value)->first()->id;   // circuit particulier
 
         } elseif (auth()->user()->hasAnyRole([RolesEnum::Directeur_general()->value, RolesEnum::Delegue_Direction_Generale()->value])) {
 
-            $data['circuit_id'] = 3; // circuit de  Direction Générale
-            
+            $data['circuit_id'] = Circuit::where("name", CircuitsEnums::circuit_de_la_direction_generale()->value)->first()->id; // circuit de  Direction Générale
+
         } elseif (auth()->user()->hasAnyRole([RolesEnum::Directeur()->value, RolesEnum::Delegue_Direction()->value])) {
 
-            $data['circuit_id'] = 2; // circuit de Direction
+            $data['circuit_id'] = Circuit::where("name", CircuitsEnums::circuit_de_direction()->value)->first()->id; // circuit de Direction
 
         } elseif (auth()->user()->hasAnyRole([RolesEnum::Chef_Division()->value, RolesEnum::Delegue_Division()->value, RolesEnum::Chef_parc()->value])) {
 
-            $data['circuit_id'] = 1; // circuit de Division
+            $data['circuit_id'] = Circuit::where("name", CircuitsEnums::circuit_de_division()->value)->first()->id; // circuit de Division
         }
+
+
 
         $circuit = Circuit::where('id', $data['circuit_id'])->first()->steps;
 
@@ -165,17 +167,20 @@ class CreateReparation extends CreateRecord
 
         $destinataireRole = Role::find($roleIds[0])->name;
 
-        $destinataire = User::role($destinataireRole)->first();
+         $destinataire = User::role($destinataireRole)->where('departement_id', $concernedEngine->departement_id)->first(); //dd( $destinataire,  $destinataireRole);
 
         if ($destinataire) {
 
-            if (in_array($destinataireRole, [RolesEnum::Directeur()->value, RolesEnum::Chef_division()->value]) && $destinataire->departement_id == $concernedEngine->departement_id) {
+
+
+            if (in_array($destinataireRole, [RolesEnum::Directeur()->value, RolesEnum::Chef_division()->value])) {
+
 
                 $realDestination = User::role($destinataireRole)->where('departement_id', $concernedEngine->departement_id)->first();
 
                 Notification::make()
                     ->title('Nouvelle demande')
-                    ->body('Demande de réparation pour l\'engin immatriculé '.$concernedEngine->plate_number.'')
+                    ->body('Demande de réparation pour l\'engin immatriculé ' . $concernedEngine->plate_number . '')
                     ->actions([
                         NotificationActions::make('voir')
                             ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
@@ -193,9 +198,11 @@ class CreateReparation extends CreateRecord
                 }
 
             } elseif ($destinataireRole == RolesEnum::Directeur_general()->value) {
+
+                $destinataire = User::Role([ RolesEnum::Directeur_general()->value, RolesEnum::Interimaire_DG()->value]);
                 Notification::make()
                     ->title('Nouvelle demande')
-                    ->body('Demande de réparation pour l\'engin immatriculé '.$concernedEngine->plate_number.'')
+                    ->body('Demande de réparation pour l\'engin immatriculé ' . $concernedEngine->plate_number . '')
                     ->actions([
                         NotificationActions::make('voir')
                             ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
@@ -214,7 +221,37 @@ class CreateReparation extends CreateRecord
                         ->body("Erreur lors de l'envoi du mail au validateur. Veuillez le contacter pour l'informer")
                         ->send();
                 }
+            } elseif (
+                in_array($destinataireRole, [
+                    RolesEnum::Directeur_general()->value,
+                    RolesEnum::Interimaire_DG()->value,
+                    RolesEnum::Diga()->value,
+                    RolesEnum::Chef_parc()->value,
+                    RolesEnum::Budget()->value,
+                ])
+            ) {
+
+                $realDestination = User::role($destinataireRole)->get();
+                Notification::make()
+                    ->title('Nouvelle demande')
+                    ->body('Demande de réparation pour l\'engin immatriculé ' . $concernedEngine->plate_number . '')
+                    ->actions([
+                        NotificationActions::make('voir')
+                            ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
+                            ->button()
+                            ->color('primary'),
+                    ])
+                    ->sendToDatabase($realDestination);
+
+                try {
+                    Mail::to($destinataire)->send(new ReparationMail($this->record));
+                } catch (\Exception $e) {
+                    Notification::make('erreur')
+                        ->body("Erreur lors de l'envoi du mail au validateur. Veuillez le contacter pour l'informer")
+                        ->send();
+                }
             }
+            ;
         }
 
     }

@@ -56,4 +56,9 @@ class ControlFunctions
         // Retourner les indices restants après la n-ième occurrence (indice de la nième occurence inclus)
         return $returnArray;
     }
+
+    public static function sendErrorNotificationOnMail($record)
+    {
+        
+    }
 }

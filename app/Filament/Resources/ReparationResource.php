@@ -365,7 +365,7 @@ class ReparationResource extends Resource
 
                                                 if ($record) {
 
-                                                    $remainingSteps = ControlFunctions::getIndicesAfterNthOccurrence($record, RolesEnum::Budget()->value, 2);
+                                                    $remainingSteps = ControlFunctions::getIndicesAfterNthOccurrence($record, RolesEnum::Budget()->value, 2); 
 
                                                     if (in_array($record->validation_step, $remainingSteps)) {
                                                         return true;
@@ -404,8 +404,9 @@ class ReparationResource extends Resource
 
                                 Grid::make(2)
                                     ->schema([
-                                        Radio::make("Budgets")
+                                        Radio::make("budget")
                                             ->label("BUDGETS: ")
+                                            ->required()
                                             ->inline()
                                             ->options([
                                                 "Exploitation" => "Exploitation",
@@ -415,6 +416,7 @@ class ReparationResource extends Resource
 
                                         TextInput::make("exercice")
                                             ->numeric()
+                                            ->required()
                                             ->minValue(now()->format("Y"))
                                     ]),
                                 Grid::make(3)
@@ -423,10 +425,11 @@ class ReparationResource extends Resource
                                             ->label(strtoupper("references du projet"))
                                             ->schema([
 
-                                                TextInput::make("type")
-                                                    ->label("Type "),
+                                                TextInput::make("type_budget")
+                                                    ->label("Type ")
+                                                    ->required(),
 
-                                                TextInput::make("numero")
+                                                TextInput::make("num_budget")
                                                     ->label("N° "),
                                             ])
                                     ]),
@@ -435,7 +438,8 @@ class ReparationResource extends Resource
                                     ->label(strtoupper("Inscription du projet au budget"))
                                     ->schema([
 
-                                        Radio::make("")
+                                        Radio::make("insc_budget")
+                                            ->label("")
                                             ->inline()
                                             ->options([
                                                 "OUI" => "OUI",
@@ -450,54 +454,63 @@ class ReparationResource extends Resource
                                             ->schema([
                                                 TextInput::make("compte_imputation")
                                                     ->label("Numero de compte ")
-                                                    ->reactive()
-                                                    ->debounce('1000ms'),
+                                                    ->required()
+                                                    
+                                            ->required(),
 
-                                                Placeholder::make("libelle")
-                                                    ->label("Libellé")
-                                                    ->content(function(Callable $get) {
 
-                                                        if($get("compte_imputation"))
-                                                        {
-                                                            $compte = DB::table("mbudget.fournisseur")->where("numero_compte", $get("compte_imputation"))->first();
+                                                    Placeholder::make("libelle")
+                                                    ->content("A completer"),
 
-                                                            if(!is_null($compte))
-                                                            {
-                                                                return  $compte->raison_social_fr;
-                                                            }
-                                                            return new HtmlString("<i>Compte inexistant</i>"); 
-                                                        }
-                                                       
-                                                    }),
+                                               
                                             ]),
 
                                         Grid::make(3)
                                             ->schema([
                                                 TextInput::make("dispo_prov")
                                                     ->label("Disponibilité provisoire")
-                                                        ->numeric(),
+                                                        ->numeric()
+                                                        ->required(),
 
-                                                TextInput::make("montant")
+                                                TextInput::make("montant_proj")
                                                     ->label("Montant du projet")
-                                                        ->numeric(),
+                                                        ->numeric()
+                                                        ->required(),
 
-                                                TextInput::make("dispo_pro_apres_engag")
+                                                TextInput::make("dispo_prov_apre")
                                                     ->label("Disponibilité provisoire après engagement du projet")
-                                                    ->numeric(),
+                                                    ->numeric()
+                                                    ->required(),
                                             ]),
 
                                     ]),
 
-                                Fieldset::make("fournisseur")
-                                    ->label(strtoupper("compte fournisseur"))
-                                    ->schema([
-                                        TextInput::make("Numero")
-                                            ->label("Numero de compte")
-                                            ->numeric(),
+                                // Fieldset::make("fournisseur")
+                                //     ->label(strtoupper("compte fournisseur"))
+                                //     ->schema([
+                                //         TextInput::make("numero")
+                                //             ->label("Numero de compte")
+                                //             ->numeric()
+                                //             ->reactive()
+                                //             ->required(),
 
-                                        TextInput::make("libelle")
-                                            ->label("Libellé"),
-                                    ])
+                                //             Placeholder::make("libelle")
+                                //             ->label("Libellé")
+                                //             ->content(function(Callable $get) {
+
+                                //                 if($get("numero"))
+                                //                 {
+                                //                     $compte = DB::table("mbudget.fournisseur")->where("numero_compte", $get("numero"))->first();
+
+                                //                     if(!is_null($compte))
+                                //                     {
+                                //                         return  $compte->raison_social_fr;
+                                //                     }
+                                //                     return new HtmlString("<i>Compte inexistant</i>"); 
+                                //                 }
+                                               
+                                //             }),
+                                //     ])
 
 
                             ])
@@ -597,18 +610,6 @@ class ReparationResource extends Resource
 
                                 return false;
                             }
-                        })
-                        ->required(function ($record) {
-
-                            if ($record) {
-                                $remainingSteps = ControlFunctions::getIndicesAfterNthOccurrence($record, RolesEnum::Diga()->value, 1);
-
-                                if (in_array($record->validation_step, $remainingSteps)) {
-                                    return true;
-                                }
-
-                                return false;
-                            }
                         }),
 
                     RichEditor::make('avis_dg')
@@ -628,18 +629,6 @@ class ReparationResource extends Resource
 
                         })
                         ->visible(function ($record) {
-
-                            if ($record) {
-                                $remainingSteps = ControlFunctions::getIndicesAfterNthOccurrence($record, RolesEnum::Directeur_general()->value, 1);
-
-                                if (in_array($record->validation_step, $remainingSteps)) {
-                                    return true;
-                                }
-
-                                return false;
-                            }
-                        })
-                        ->required(function ($record) {
 
                             if ($record) {
                                 $remainingSteps = ControlFunctions::getIndicesAfterNthOccurrence($record, RolesEnum::Directeur_general()->value, 1);

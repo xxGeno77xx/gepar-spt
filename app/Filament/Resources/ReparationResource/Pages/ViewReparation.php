@@ -230,7 +230,18 @@ class ViewReparation extends ViewRecord
                                         $mailDestinator = User::role($NextdestinataireRole)->where('departement_id', $concernedEngine->departement_id)->where('notification', true)->first();
 
                                         if ($mailDestinator) {
-                                            Mail::to($mailDestinator)->send(new ReparationMail($this->record));
+
+                                            try{
+                                                Mail::to($mailDestinator)->send(new ReparationMail($this->record));
+                                            }
+                                            catch(\Exception $e){
+
+                                                NotificationActions::make('voir')
+                                                ->body("Erreur lors de l'envoi du mail")
+                                                ->color('danger')
+                                                ->send();
+                                            }
+                                            
                                         }
 
                                         Notification::make()
@@ -253,7 +264,12 @@ class ViewReparation extends ViewRecord
                                             RolesEnum::Budget()->value,
                                         ])
                                     ) {
-                                        Notification::make()
+
+                                        if ($NextdestinataireRole == RolesEnum::Directeur_general()->value)
+                                        {
+                                            $endpoint = User::Role([RolesEnum::Directeur_general()->value, RolesEnum::Interimaire_DG()->value]);
+
+                                            Notification::make()
                                             ->title('Nouvelle demande')
                                             ->body('Réparation pour l\'engin immatriculé '.$concernedEngine->plate_number.' en attente de validation')
                                             ->actions([
@@ -262,7 +278,21 @@ class ViewReparation extends ViewRecord
                                                     ->button()
                                                     ->color('primary'),
                                             ])
-                                            ->sendToDatabase($destinataire);
+                                            ->sendToDatabase($endpoint);
+                                        }
+
+                                      else{
+                                        Notification::make()
+                                        ->title('Nouvelle demande')
+                                        ->body('Réparation pour l\'engin immatriculé '.$concernedEngine->plate_number.' en attente de validation')
+                                        ->actions([
+                                            NotificationActions::make('voir')
+                                                ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
+                                                ->button()
+                                                ->color('primary'),
+                                        ])
+                                        ->sendToDatabase($destinataire);
+                                      }
 
                                         $mailDestinator = User::role($NextdestinataireRole)->where('notification', true)->pluck('email');
 
@@ -304,10 +334,9 @@ class ViewReparation extends ViewRecord
                         }
 
                         //from here  check to oblige budget to set bon de commande before validating
-
                         if ($this->record) {
 
-                            $budgetRoleKey = ControlFunctions::getNthOccurrenceOfRequiredRole($this->record, RolesEnum::Budget()->value, 1);
+                            $budgetRoleKey = ControlFunctions::getNthOccurrenceOfRequiredRole($this->record, RolesEnum::Budget()->value, 2);
 
                             if ($user->hasRole(Role::where('name', RolesEnum::Budget()->value)->first()->name) && ($this->record->validation_step == $budgetRoleKey)) {
 
@@ -326,6 +355,53 @@ class ViewReparation extends ViewRecord
                         }
 
                         //from here check to see if date fin is set before validation
+
+
+
+
+                        //check to oblige suivi budgetaire
+
+                        if ($this->record) {
+
+                            $budgetRoleKey = ControlFunctions::getNthOccurrenceOfRequiredRole($this->record, RolesEnum::Budget()->value, 1);
+
+                            if ($user->hasRole(Role::where('name', RolesEnum::Budget()->value)->first()->name) && ($this->record->validation_step == $budgetRoleKey)) {
+
+                                if (! $this->record->compte_imputation) {
+
+                                    Notification::make()
+                                        ->title('Attention')
+                                        ->warning()
+                                        ->body('Vous devez saisir les informations du suivi budgétaire pour continuer!!!')
+                                        ->send();
+
+                                    $this->halt();
+                                }
+
+                            }
+                        }
+
+                        // Diga avis check
+                        if ($this->record) {
+
+                            $budgetRoleKey = ControlFunctions::getNthOccurrenceOfRequiredRole($this->record, RolesEnum::Diga()->value, 1);
+
+                            if ($user->hasRole(Role::where('name', RolesEnum::Diga()->value)->first()->name) && ($this->record->validation_step == $budgetRoleKey)) {
+
+                                if (! $this->record->avis_diga) {
+
+                                    Notification::make()
+                                        ->title('Attention')
+                                        ->warning()
+                                        ->body('Donnez votre avis avant de poursuivre!!!')
+                                        ->send();
+
+                                    $this->halt();
+                                }
+
+                            }
+                        }
+                        //check to oblige suivi budgetaire
                         if ($this->record) {
 
                             if ($user->hasRole(Role::where('name', RolesEnum::Chef_parc()->value)->first()->name) && ($this->record->validation_step == array_key_last($roleIds))) {
