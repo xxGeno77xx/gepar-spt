@@ -41,7 +41,6 @@ class ListEngines extends ListRecords
             RolesEnum::Chef_parc()->value,
             RolesPermissionsSeeder::SuperAdmin,
         ];
-
         $specific = Role::whereNotIn('name', $seeAll)->pluck('name')->toArray();
 
         if ($loggedUser->hasAnyRole($specific)) {
@@ -55,7 +54,7 @@ class ListEngines extends ListRecords
     {
         $user = auth()->user();
 
-        $userPermission = $user->hasAnyPermission([PermissionsClass::engines_read()->value]);
+        $userPermission = $user->hasAnyPermission([PermissionsClass::engines_read()->value, PermissionsClass::Engines_update()->value , PermissionsClass::Engines_create()->value]);
 
         abort_if(! $userPermission, 403, __("Vous n'avez pas access à cette page"));
     }
