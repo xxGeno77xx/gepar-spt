@@ -75,27 +75,28 @@ class ReparationResource extends Resource
                                     ->searchable()
                                     ->dehydrated(fn() => auth()->user()->hasAnyRole([RolesEnum::Dpl()->value, RolesEnum::Chef_parc()->value]))
                                     ->visible(fn() => auth()->user()->hasAnyRole([RolesEnum::Dpl()->value, RolesEnum::Chef_parc()->value]))
+                                    ->required(fn() => auth()->user()->hasAnyRole([RolesEnum::Dpl()->value, RolesEnum::Chef_parc()->value]))
                                     ->hiddenOn("edit"),
 
-                                    Fieldset::make("desc")
-                                        ->label(new HtmlString("<i style = 'color:orange'>Description des circuits</i>"))
-                                        ->schema([
-                                            Placeholder::make("circuit de division")
+                                Fieldset::make("desc")
+                                    ->label(new HtmlString("<i style = 'color:orange'>Description des circuits</i>"))
+                                    ->schema([
+                                        Placeholder::make("circuit de division")
                                             ->label(new HtmlString("<i style = 'color:orange'>Circuit de Direction</i>"))
                                             ->content(new HtmlString("<i>Réservé aux véhicules directement affectés à une Direction</i>")),
 
-                                            Placeholder::make("circuit de direction")
+                                        Placeholder::make("circuit de direction")
                                             ->label(new HtmlString("<i style = 'color:orange'>Circuit de Division</i>"))
                                             ->content(new HtmlString("<i>Réservé aux véhicules directement affectés à une Division</i>")),
 
-                                            Placeholder::make("circuit de la Direction Générale")
+                                        Placeholder::make("circuit de la Direction Générale")
                                             ->label(new HtmlString("<i style = 'color:orange'>Circuit de la Direction générale</i>"))
                                             ->content(new HtmlString("<i>Réservé aux véhicules directement affectés à la Direction générale</i>")),
 
-                                            Placeholder::make("circuit particulier")
+                                        Placeholder::make("circuit particulier")
                                             ->label(new HtmlString("<i style = 'color:orange'>Circuit particulier</i>"))
                                             ->content(new HtmlString("<i>Réservé aux véhicules affectés aux divisions sous la Direction générale</i>"))
-                                        ])
+                                    ])
 
 
                             ]),
@@ -394,27 +395,45 @@ class ReparationResource extends Resource
                                             ->enableDownload()
                                             ->enableOpen(),
 
-                                        FileUpload::make('bon_commande')
-                                            ->disk('public')
-                                            ->directory('bons')
-                                            ->label('Bon de commande')
-                                            ->required()
-                                            ->enableDownload()
-                                            ->enableOpen()
-                                            ->visible(function ($record) {
+                                        Grid::make(2)
+                                            ->schema([
+                                                TextInput::make('bon_commande')
+                                                    ->label('Bon de commande')
+                                                    ->required()
+                                                    ->visible(function ($record) {
 
-                                                if ($record) {
+                                                        if ($record) {
 
-                                                    $remainingSteps = ControlFunctions::getIndicesAfterNthOccurrence($record, RolesEnum::Budget()->value, 2);
+                                                            $remainingSteps = ControlFunctions::getIndicesAfterNthOccurrence($record, RolesEnum::Budget()->value, 2);
 
-                                                    if (in_array($record->validation_step, $remainingSteps)) {
-                                                        return true;
-                                                    }
+                                                            if (in_array($record->validation_step, $remainingSteps)) {
+                                                                return true;
+                                                            }
 
-                                                    return false;
-                                                }
+                                                            return false;
+                                                        }
 
-                                            }),
+                                                    }),
+
+                                                TextInput::make('facture_def')
+                                                    ->label('Référence facture définitive')
+                                                    ->required()
+                                                    ->visible(function ($record) {
+
+                                                        if ($record) {
+
+                                                            $remainingSteps = ControlFunctions::getIndicesAfterNthOccurrence($record, RolesEnum::Budget()->value, 2);
+
+                                                            if (in_array($record->validation_step, $remainingSteps)) {
+                                                                return true;
+                                                            }
+
+                                                            return false;
+                                                        }
+
+                                                    }),
+                                            ]),
+
 
                                         Grid::make(2)
                                             ->schema([
