@@ -2,29 +2,32 @@
 
 namespace App\Filament\Resources\ReparationResource\Pages;
 
-use App\Filament\Resources\ReparationResource;
-use App\Mail\ReparationMail;
-use App\Models\Circuit;
-use App\Models\Departement;
-use App\Models\DepartementUser;
-use App\Models\Engine;
-use App\Models\Reparation;
 use App\Models\Role;
 use App\Models\User;
-use App\Support\Database\CircuitsEnums;
-use App\Support\Database\PermissionsClass;
-use App\Support\Database\ReparationValidationStates;
-use App\Support\Database\RolesEnum;
-use App\Support\Database\StatesClass;
-use Database\Seeders\RolesPermissionsSeeder;
-use Filament\Notifications\Actions\Action as NotificationActions;
-use Filament\Notifications\Notification;
+use App\Models\Engine;
+use App\Models\Circuit;
+use App\Models\Reparation;
+use App\Models\Departement;
+use App\Mail\ReparationMail;
+use App\Models\DepartementUser;
 use Filament\Pages\Actions\Action;
-use Filament\Resources\Pages\CreateRecord;
+use App\Support\Database\RolesEnum;
 use Illuminate\Support\Facades\Mail;
+use App\Support\Database\StatesClass;
+use Filament\Forms\Components\Select;
+use App\Support\Database\CircuitsEnums;
+use Illuminate\Database\Eloquent\Model;
+use Filament\Notifications\Notification;
+use App\Support\Database\PermissionsClass;
+use Filament\Resources\Pages\CreateRecord;
+use Database\Seeders\RolesPermissionsSeeder;
+use App\Filament\Resources\ReparationResource;
+use App\Support\Database\ReparationValidationStates;
+use Filament\Notifications\Actions\Action as NotificationActions;
 
 class CreateReparation extends CreateRecord
 {
+
     protected static ?string $title = 'Nouvelle maintenance';
 
     protected static string $resource = ReparationResource::class;
@@ -120,7 +123,7 @@ class CreateReparation extends CreateRecord
             // Departement::where('sigle_centre', 'DFC')->first()->code_centre,  Conformité
         ];
 
-        if ((auth()->user()->hasAnyRole([RolesEnum::Chef_Division()->value, RolesEnum::Delegue_Division()->value])) && (array_intersect($userCentresIds, $dirGeneDivisions))) {
+        if ((auth()->user()->hasAnyRole([RolesEnum::Chef_Division()->value, RolesEnum::Delegue_Division()->value, RolesEnum::Interimaire_Chef_division()->value])) && (array_intersect($userCentresIds, $dirGeneDivisions))) {
 
             $data['circuit_id'] = Circuit::where("name", CircuitsEnums::circuit_particulier()->value)->first()->id;   // circuit particulier
 
@@ -128,13 +131,17 @@ class CreateReparation extends CreateRecord
 
             $data['circuit_id'] = Circuit::where("name", CircuitsEnums::circuit_de_la_direction_generale()->value)->first()->id; // circuit de  Direction Générale
 
-        } elseif (auth()->user()->hasAnyRole([RolesEnum::Directeur()->value, RolesEnum::Delegue_Direction()->value])) {
+        } elseif (auth()->user()->hasAnyRole([RolesEnum::Directeur()->value, RolesEnum::Delegue_Direction()->value, RolesEnum::Interimaire_Directeur()->value])) {
 
             $data['circuit_id'] = Circuit::where("name", CircuitsEnums::circuit_de_direction()->value)->first()->id; // circuit de Direction
 
-        } elseif (auth()->user()->hasAnyRole([RolesEnum::Chef_Division()->value, RolesEnum::Delegue_Division()->value, RolesEnum::Chef_parc()->value])) {
+        } elseif (auth()->user()->hasAnyRole([RolesEnum::Chef_Division()->value, RolesEnum::Delegue_Division()->value, RolesEnum::Interimaire_Chef_division()->value ])) {
 
             $data['circuit_id'] = Circuit::where("name", CircuitsEnums::circuit_de_division()->value)->first()->id; // circuit de Division
+
+        }elseif(auth()->user()->hasAnyRole([RolesEnum::Chef_parc()->value, RolesEnum::Dpl()->value])) {
+
+            $data['circuit_id'] = $data["circuit"];
         }
 
 
@@ -167,7 +174,7 @@ class CreateReparation extends CreateRecord
 
         $destinataireRole = Role::find($roleIds[0])->name;
 
-         $destinataire = User::role($destinataireRole)->where('departement_id', $concernedEngine->departement_id)->first(); //dd( $destinataire,  $destinataireRole);
+        $destinataire = User::role($destinataireRole)->where('departement_id', $concernedEngine->departement_id)->first(); //dd( $destinataire,  $destinataireRole);
 
         if ($destinataire) {
 
@@ -199,7 +206,7 @@ class CreateReparation extends CreateRecord
 
             } elseif ($destinataireRole == RolesEnum::Directeur_general()->value) {
 
-                $destinataire = User::Role([ RolesEnum::Directeur_general()->value, RolesEnum::Interimaire_DG()->value]);
+                $destinataire = User::Role([RolesEnum::Directeur_general()->value, RolesEnum::Interimaire_DG()->value]);
                 Notification::make()
                     ->title('Nouvelle demande')
                     ->body('Demande de réparation pour l\'engin immatriculé ' . $concernedEngine->plate_number . '')
@@ -254,5 +261,21 @@ class CreateReparation extends CreateRecord
             ;
         }
 
+    }
+
+
+    protected function handleRecordCreation(array $data): Model
+    {
+        if( auth()->user()->hasAnyRole([RolesEnum::Dpl()->value, RolesEnum::Chef_parc()->value]))
+        {
+            $data = [
+                ...$data,
+                "circuit_id" =>$data["circuit"]
+            ];
+        }
+
+        unset($data["circuit"]);
+        
+        return static::getModel()::create($data);
     }
 }

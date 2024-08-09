@@ -22,8 +22,6 @@ return new class extends Migration
             $table->integer('montant_proj')->nullable();
             $table->integer('dispo_prov_apre')->nullable();
 
-
-
         });
     }
 

@@ -57,8 +57,8 @@ class ControlFunctions
         return $returnArray;
     }
 
-    public static function sendErrorNotificationOnMail($record)
-    {
+    // public static function sendErrorNotificationOnMail($record)
+    // {
         
-    }
+    // }
 }

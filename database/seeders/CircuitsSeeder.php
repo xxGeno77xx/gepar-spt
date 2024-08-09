@@ -21,7 +21,6 @@ class CircuitsSeeder extends Seeder
             ['role_id' => 13], // DIGA
             ['role_id' => 9], // Directeur général
             ['role_id' => 8], // Budget
-            ['role_id' => 9], // Directeur général
             ['role_id' => 6], // Chef parc
         ];
 
@@ -36,7 +35,6 @@ class CircuitsSeeder extends Seeder
             ['role_id' => 13], // DIGA
             ['role_id' => 9], // Directeur général
             ['role_id' => 8], // Budget
-            ['role_id' => 9], // Directeur général
             ['role_id' => 6], // Chef parc
         ];
 
@@ -51,7 +49,6 @@ class CircuitsSeeder extends Seeder
             ['role_id' => 13], // DIGA
             ['role_id' => 9], // Directeur général
             ['role_id' => 8], // Budget
-            ['role_id' => 9], // Directeur général
             ['role_id' => 6], // Chef parc
         ];
 
@@ -67,7 +64,6 @@ class CircuitsSeeder extends Seeder
             ['role_id' => 13], // DIGA
             ['role_id' => 9], // Directeur général
             ['role_id' => 8], // Budget
-            ['role_id' => 9], // Directeur général
             ['role_id' => 6], // Chef parc
         ];
 

@@ -66,6 +66,46 @@ class ReparationResource extends Resource
 
                 Card::make()
                     ->schema([
+
+                        Grid::make(2)
+                            ->schema([
+
+                                Select::make("circuit")
+                                    ->options(Circuit::pluck("name", "id"))
+                                    ->searchable()
+                                    ->dehydrated(fn() => auth()->user()->hasAnyRole([RolesEnum::Dpl()->value, RolesEnum::Chef_parc()->value]))
+                                    ->visible(fn() => auth()->user()->hasAnyRole([RolesEnum::Dpl()->value, RolesEnum::Chef_parc()->value]))
+                                    ->hiddenOn("edit"),
+
+                                    Fieldset::make("desc")
+                                        ->label(new HtmlString("<i style = 'color:orange'>Description des circuits</i>"))
+                                        ->schema([
+                                            Placeholder::make("circuit de division")
+                                            ->label(new HtmlString("<i style = 'color:orange'>Circuit de Direction</i>"))
+                                            ->content(new HtmlString("<i>Réservé aux véhicules directement affectés à une Direction</i>")),
+
+                                            Placeholder::make("circuit de direction")
+                                            ->label(new HtmlString("<i style = 'color:orange'>Circuit de Division</i>"))
+                                            ->content(new HtmlString("<i>Réservé aux véhicules directement affectés à une Division</i>")),
+
+                                            Placeholder::make("circuit de la Direction Générale")
+                                            ->label(new HtmlString("<i style = 'color:orange'>Circuit de la Direction générale</i>"))
+                                            ->content(new HtmlString("<i>Réservé aux véhicules directement affectés à la Direction générale</i>")),
+
+                                            Placeholder::make("circuit particulier")
+                                            ->label(new HtmlString("<i style = 'color:orange'>Circuit particulier</i>"))
+                                            ->content(new HtmlString("<i>Réservé aux véhicules affectés aux divisions sous la Direction générale</i>"))
+                                        ])
+
+
+                            ]),
+                    ])
+                    ->visible(fn() => auth()->user()->hasAnyRole([RolesEnum::Dpl()->value, RolesEnum::Chef_parc()->value])),
+
+
+
+                Card::make()
+                    ->schema([
                         Grid::make(2)
                             ->schema([
 
@@ -365,7 +405,7 @@ class ReparationResource extends Resource
 
                                                 if ($record) {
 
-                                                    $remainingSteps = ControlFunctions::getIndicesAfterNthOccurrence($record, RolesEnum::Budget()->value, 2); 
+                                                    $remainingSteps = ControlFunctions::getIndicesAfterNthOccurrence($record, RolesEnum::Budget()->value, 2);
 
                                                     if (in_array($record->validation_step, $remainingSteps)) {
                                                         return true;
@@ -455,27 +495,27 @@ class ReparationResource extends Resource
                                                 TextInput::make("compte_imputation")
                                                     ->label("Numero de compte ")
                                                     ->required()
-                                                    
-                                            ->required(),
+
+                                                    ->required(),
 
 
-                                                    Placeholder::make("libelle")
+                                                Placeholder::make("libelle")
                                                     ->content("A completer"),
 
-                                               
+
                                             ]),
 
                                         Grid::make(3)
                                             ->schema([
                                                 TextInput::make("dispo_prov")
                                                     ->label("Disponibilité provisoire")
-                                                        ->numeric()
-                                                        ->required(),
+                                                    ->numeric()
+                                                    ->required(),
 
                                                 TextInput::make("montant_proj")
                                                     ->label("Montant du projet")
-                                                        ->numeric()
-                                                        ->required(),
+                                                    ->numeric()
+                                                    ->required(),
 
                                                 TextInput::make("dispo_prov_apre")
                                                     ->label("Disponibilité provisoire après engagement du projet")
@@ -508,7 +548,7 @@ class ReparationResource extends Resource
                                 //                     }
                                 //                     return new HtmlString("<i>Compte inexistant</i>"); 
                                 //                 }
-                                               
+
                                 //             }),
                                 //     ])
 

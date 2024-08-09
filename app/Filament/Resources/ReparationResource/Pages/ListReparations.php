@@ -48,7 +48,7 @@ class ListReparations extends ListRecords
                 ->join('engines', 'reparations.engine_id', 'engines.id')
                 ->leftjoin('fournisseur', 'fournisseur.code_fr', 'reparations.prestataire_id')
                 ->select('engines.plate_number', 'reparations.*')
-                ->where('reparations.state', StatesClass::Activated()->value);
+                ->whereNot('reparations.state', StatesClass::Deactivated()->value);
         } elseif (
             $loggedUser->hasAnyRole([
                 RolesEnum::Directeur()->value,

@@ -239,12 +239,15 @@ class ViewReparation extends ViewRecord
                                                 NotificationActions::make('voir')
                                                 ->body("Erreur lors de l'envoi du mail")
                                                 ->color('danger')
-                                                ->send();
+                                                ->send()
+                                                ->close();
                                             }
                                             
                                         }
 
-                                        Notification::make()
+                                        if( $realDestination){
+
+                                            Notification::make()
                                             ->title('Demande de validation')
                                             ->body('Réparation pour l\'engin immatriculé '.$concernedEngine->plate_number.' en attente de validation')
                                             ->actions([
@@ -252,8 +255,11 @@ class ViewReparation extends ViewRecord
                                                     ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
                                                     ->button()
                                                     ->color('primary'),
+
                                             ])
                                             ->sendToDatabase($realDestination);
+                                        }
+                                        
 
                                     } elseif (
                                         in_array($NextdestinataireRole, [
@@ -266,7 +272,7 @@ class ViewReparation extends ViewRecord
                                     ) {
 
                                         if ($NextdestinataireRole == RolesEnum::Directeur_general()->value)
-                                        {
+                                        {  
                                             $endpoint = User::Role([RolesEnum::Directeur_general()->value, RolesEnum::Interimaire_DG()->value])->get();
 
                                             Notification::make()
@@ -277,11 +283,16 @@ class ViewReparation extends ViewRecord
                                                     ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
                                                     ->button()
                                                     ->color('primary'),
+
+                                                    
                                             ])
                                             ->sendToDatabase($endpoint);
                                         }
 
                                       else{
+
+                                        $destinataire = User::role($NextdestinataireRole)->get();
+
                                         Notification::make()
                                         ->title('Nouvelle demande')
                                         ->body('Réparation pour l\'engin immatriculé '.$concernedEngine->plate_number.' en attente de validation')
@@ -290,6 +301,8 @@ class ViewReparation extends ViewRecord
                                                 ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
                                                 ->button()
                                                 ->color('primary'),
+
+              
                                         ])
                                         ->sendToDatabase($destinataire);
                                       }

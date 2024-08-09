@@ -125,17 +125,32 @@ class ChauffeurResource extends Resource
                 TextColumn::make('fullname')
                     ->searchable()
                     ->label('Nom complet')
-                    ->placeholder('-'),
+                    ->placeholder('-')
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+
+                        return $query->selectRaw('fullname')->whereRaw('LOWER(fullname) LIKE ?', ['%'.strtolower($search).'%']);
+
+                    }),
 
                 BadgeColumn::make('sigle_centre')
                     ->label('Centre')
                     ->color('primary')
-                    ->placeholder('-'),
+                    ->placeholder('-')->searchable(query: function (Builder $query, string $search): Builder {
+
+                        return $query->selectRaw('sigle_centre')->whereRaw('LOWER(sigle_centre) LIKE ?', ['%'.strtolower($search).'%']);
+
+                    })
+                    ,
 
                 BadgeColumn::make('plate_number')
                     ->label('Engin')
                     ->color('success')
-                    ->placeholder('-'),
+                    ->placeholder('-')
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+
+                        return $query->selectRaw('plate_number')->whereRaw('LOWER(plate_number) LIKE ?', ['%'.strtolower($search).'%']);
+
+                    }),
 
                 // BadgeColumn::make('mission_state')
                 //     ->label('Statut')

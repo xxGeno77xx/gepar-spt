@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\User;
+use App\Support\Database\RolesEnum;
 use App\Http\Controllers\OrdreMissionPdfController;
 
 /*
@@ -26,3 +28,9 @@ Route::get('ordre-de-route/{order}', [OrdreMissionPdfController::class, 'ordreDe
 Route::get('ordre-de-route_Bn/{order}', [OrdreMissionPdfController::class, 'ordreDeRouteBn'])->name('ordreDeRouteBn');
 
 Route::get('SitutationAnnuelle_{annee}', [OrdreMissionPdfController::class, 'dashboardEtat'])->name('dashboardEtat');
+
+Route::get('/test/{id}', function($id){
+
+    return dd($id);
+
+})->name('test');
