@@ -111,42 +111,11 @@ class CreateReparation extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
 
-        $userCentresCollection = DepartementUser::where('user_id', auth()->user()->id)->get();
 
-        foreach ($userCentresCollection as $userCentre) {
-            $userCentresIds[] = $userCentre->departement_code_centre;
-        }
+        $engineCircuit = Engine::find($data["engine_id"])->circuit_id;
+        
 
-        $dirGeneDivisions = [
-            Departement::where('sigle_centre', 'CI')->first()->code_centre, // Cellule informatique
-            Departement::where('sigle_centre', 'DSC')->first()->code_centre, // Secretariat central
-            // Departement::where('sigle_centre', 'DFC')->first()->code_centre,  Conformité
-        ];
-
-        if ((auth()->user()->hasAnyRole([RolesEnum::Chef_Division()->value, RolesEnum::Delegue_Division()->value, RolesEnum::Interimaire_Chef_division()->value])) && (array_intersect($userCentresIds, $dirGeneDivisions))) {
-
-            $data['circuit_id'] = Circuit::where("name", CircuitsEnums::circuit_particulier()->value)->first()->id;   // circuit particulier
-
-        } elseif (auth()->user()->hasAnyRole([RolesEnum::Directeur_general()->value, RolesEnum::Delegue_Direction_Generale()->value])) {
-
-            $data['circuit_id'] = Circuit::where("name", CircuitsEnums::circuit_de_la_direction_generale()->value)->first()->id; // circuit de  Direction Générale
-
-        } elseif (auth()->user()->hasAnyRole([RolesEnum::Directeur()->value, RolesEnum::Delegue_Direction()->value, RolesEnum::Interimaire_Directeur()->value])) {
-
-            $data['circuit_id'] = Circuit::where("name", CircuitsEnums::circuit_de_direction()->value)->first()->id; // circuit de Direction
-
-        } elseif (auth()->user()->hasAnyRole([RolesEnum::Chef_Division()->value, RolesEnum::Delegue_Division()->value, RolesEnum::Interimaire_Chef_division()->value ])) {
-
-            $data['circuit_id'] = Circuit::where("name", CircuitsEnums::circuit_de_division()->value)->first()->id; // circuit de Division
-
-        }elseif(auth()->user()->hasAnyRole([RolesEnum::Chef_parc()->value, RolesEnum::Dpl()->value])) {
-
-            $data['circuit_id'] = $data["circuit"];
-        }
-
-
-
-        $circuit = Circuit::where('id', $data['circuit_id'])->first()->steps;
+        $circuit = Circuit::find($engineCircuit)->first()->steps;
 
         foreach ($circuit as $key => $item) {
 
@@ -174,7 +143,7 @@ class CreateReparation extends CreateRecord
 
         $destinataireRole = Role::find($roleIds[0])->name;
 
-        $destinataire = User::role($destinataireRole)->where('departement_id', $concernedEngine->departement_id)->first(); //dd( $destinataire,  $destinataireRole);
+        $destinataire = User::role($destinataireRole)->get(); //dd( $destinataire,  $destinataireRole);
 
         if ($destinataire) {
 
@@ -266,15 +235,16 @@ class CreateReparation extends CreateRecord
 
     protected function handleRecordCreation(array $data): Model
     {
-        if( auth()->user()->hasAnyRole([RolesEnum::Dpl()->value, RolesEnum::Chef_parc()->value]))
-        {
+
+        $engineCircuit = Engine::find($data["engine_id"])->circuit_id;
+
+        
             $data = [
                 ...$data,
-                "circuit_id" =>$data["circuit"]
+                "circuit_id" => $engineCircuit
             ];
-        }
-
-        unset($data["circuit"]);
+         
+ 
         
         return static::getModel()::create($data);
     }

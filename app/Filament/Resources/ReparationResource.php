@@ -66,47 +66,6 @@ class ReparationResource extends Resource
 
                 Card::make()
                     ->schema([
-
-                        Grid::make(2)
-                            ->schema([
-
-                                Select::make("circuit")
-                                    ->options(Circuit::pluck("name", "id"))
-                                    ->searchable()
-                                    ->dehydrated(fn() => auth()->user()->hasAnyRole([RolesEnum::Dpl()->value, RolesEnum::Chef_parc()->value]))
-                                    ->visible(fn() => auth()->user()->hasAnyRole([RolesEnum::Dpl()->value, RolesEnum::Chef_parc()->value]))
-                                    ->required(fn() => auth()->user()->hasAnyRole([RolesEnum::Dpl()->value, RolesEnum::Chef_parc()->value]))
-                                    ->hiddenOn("edit"),
-
-                                Fieldset::make("desc")
-                                    ->label(new HtmlString("<i style = 'color:orange'>Description des circuits</i>"))
-                                    ->schema([
-                                        Placeholder::make("circuit de division")
-                                            ->label(new HtmlString("<i style = 'color:orange'>Circuit de Direction</i>"))
-                                            ->content(new HtmlString("<i>Réservé aux véhicules directement affectés à une Direction</i>")),
-
-                                        Placeholder::make("circuit de direction")
-                                            ->label(new HtmlString("<i style = 'color:orange'>Circuit de Division</i>"))
-                                            ->content(new HtmlString("<i>Réservé aux véhicules directement affectés à une Division</i>")),
-
-                                        Placeholder::make("circuit de la Direction Générale")
-                                            ->label(new HtmlString("<i style = 'color:orange'>Circuit de la Direction générale</i>"))
-                                            ->content(new HtmlString("<i>Réservé aux véhicules directement affectés à la Direction générale</i>")),
-
-                                        Placeholder::make("circuit particulier")
-                                            ->label(new HtmlString("<i style = 'color:orange'>Circuit particulier</i>"))
-                                            ->content(new HtmlString("<i>Réservé aux véhicules affectés aux divisions sous la Direction générale</i>"))
-                                    ])
-
-
-                            ]),
-                    ])
-                    ->visible(fn() => auth()->user()->hasAnyRole([RolesEnum::Dpl()->value, RolesEnum::Chef_parc()->value])),
-
-
-
-                Card::make()
-                    ->schema([
                         Grid::make(2)
                             ->schema([
 
@@ -318,36 +277,6 @@ class ReparationResource extends Resource
                                         }
                                     }),
 
-                                Hidden::make('circuit_id')->default(function () {
-                                    $userCentresCollection = DepartementUser::where('user_id', auth()->user()->id)->get();
-
-                                    foreach ($userCentresCollection as $userCentre) {
-                                        $userCentresIds[] = $userCentre->departement_code_centre;
-                                    }
-
-                                    $dirGeneDivisions = [
-                                        Departement::where('sigle_centre', 'CI')->first()->code_centre,
-                                        Departement::where('sigle_centre', 'DSC')->first()->code_centre,
-                                        Departement::where('sigle_centre', 'DSC')->first()->code_centre,
-                                    ];
-
-                                    if ((auth()->user()->hasAnyRole([RolesEnum::Chef_Division()->value, RolesEnum::Delegue_Division()->value])) && (array_intersect($userCentresIds, $dirGeneDivisions))) {
-
-                                        return 4; // circuit particulier
-                        
-                                    } elseif (auth()->user()->hasAnyRole([RolesEnum::Directeur_general()->value, RolesEnum::Delegue_Direction_Generale()->value])) {
-
-                                        return 3; // circuit de  Direction Générale
-                        
-                                    } elseif (auth()->user()->hasAnyRole([RolesEnum::Directeur()->value, RolesEnum::Delegue_Direction()->value])) {
-
-                                        return 2; // circuit de Direction
-                        
-                                    } elseif (auth()->user()->hasAnyRole([RolesEnum::Chef_Division()->value, RolesEnum::Delegue_Division()->value])) {
-
-                                        return 1; // circuit de Division
-                                    }
-                                }),
 
                                 Hidden::make('state')->default(StatesClass::Activated()->value),
 

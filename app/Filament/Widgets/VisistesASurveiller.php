@@ -64,7 +64,7 @@ class VisistesASurveiller extends BaseWidget
                 'engines.state',
                 'engines.numero_chassis',
                 'engines.moteur',
-                // 'engines.carosserie',
+                'engines.circuit_id',
                 'engines.pl_ass',
                 'engines.matricule_precedent',
                 'engines.poids_total_en_charge',

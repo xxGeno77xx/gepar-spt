@@ -71,7 +71,7 @@ class ChauffeurResource extends Resource
 
                                                         return Engine::where(function (Builder $query) use ($record, $linkedEnginesIds) {
                                                             return $query->whereNotIn('id', $linkedEnginesIds)
-                                                                ->where('state', StatesClass::Activated()->value)
+                                                                ->whereNot('state', StatesClass::Deactivated()->value)
                                                                 ->orWhere('id', $record->engine_id);
 
                                                         })->get()->pluck('plate_number', 'id');
@@ -79,13 +79,13 @@ class ChauffeurResource extends Resource
                                                     } else {
 
                                                         return Engine::whereNotIn('id', $linkedEnginesIds)
-                                                            ->where('state', StatesClass::Activated()->value)
+                                                        ->whereNot('state', StatesClass::Deactivated()->value)
                                                             ->pluck('plate_number', 'id');
                                                     }
                                                 }
 
                                             } else {
-                                                return Engine::where('state', StatesClass::Activated()->value)
+                                                return Engine::whereNot('state', StatesClass::Deactivated()->value)
                                                     ->pluck('plate_number', 'id');
                                             }
 

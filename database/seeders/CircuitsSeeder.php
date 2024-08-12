@@ -2,9 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Models\Role;
 use App\Models\Circuit;
-use App\Support\Database\CircuitsEnums;
 use Illuminate\Database\Seeder;
+use App\Support\Database\RolesEnum;
+use App\Support\Database\CircuitsEnums;
 
 class CircuitsSeeder extends Seeder
 {
@@ -14,14 +16,26 @@ class CircuitsSeeder extends Seeder
     public function run(): void
     {
 
+       $chefDiviionID = Role::where("name", RolesEnum::Chef_division()->value)->first()->id;
+       $budgetID = Role::where("name", RolesEnum::Budget()->value)->first()->id;
+       $directeurID = Role::where("name", RolesEnum::Directeur()->value)->first()->id;
+       $digaID = Role::where("name", RolesEnum::Diga()->value)->first()->id;
+       $dG = Role::where("name", RolesEnum::Directeur_general()->value)->first()->id;
+       $chefParcID = Role::where("name", RolesEnum::Chef_parc()->value)->first()->id;
+       $dpl = Role::where("name", RolesEnum::Dpl()->value)->first()->id;
+  
+
+        
         $circuitDeDivision = [
-            ['role_id' => 5], // Chef division
-            ['role_id' => 8], // Budget
-            ['role_id' => 7], // Directeur
-            ['role_id' => 13], // DIGA
-            ['role_id' => 9], // Directeur général
-            ['role_id' => 8], // Budget
-            ['role_id' => 6], // Chef parc
+            
+            ['role_id' => $dpl], // Dpl
+            ['role_id' => $chefDiviionID], // Chef division
+            ['role_id' => $budgetID], // Budget
+            ['role_id' => $directeurID], // Directeur
+            ['role_id' => $digaID], // DIGA
+            ['role_id' => $dG], // Directeur général
+            ['role_id' => $budgetID], // Budget
+            ['role_id' => $chefParcID], // Chef parc
         ];
 
         Circuit::create([
@@ -30,12 +44,14 @@ class CircuitsSeeder extends Seeder
         ]);
 
         $circuitdeDirection = [
-            ['role_id' => 8], // Budget
-            ['role_id' => 7], // Directeur
-            ['role_id' => 13], // DIGA
-            ['role_id' => 9], // Directeur général
-            ['role_id' => 8], // Budget
-            ['role_id' => 6], // Chef parc
+
+            ['role_id' => $dpl], // Dpl
+            ['role_id' => $budgetID], // Budget
+            ['role_id' => $directeurID], // Directeur
+            ['role_id' => $digaID], // DIGA
+            ['role_id' => $dG], // Directeur général
+            ['role_id' => $budgetID], // Budget
+            ['role_id' => $chefParcID], // Chef parc
         ];
 
         Circuit::create([
@@ -45,11 +61,12 @@ class CircuitsSeeder extends Seeder
 
         $circuitDeLaDirectionGenerale = [
 
-            ['role_id' => 8], // Budget
-            ['role_id' => 13], // DIGA
-            ['role_id' => 9], // Directeur général
-            ['role_id' => 8], // Budget
-            ['role_id' => 6], // Chef parc
+            ['role_id' => $dpl], // Dpl
+            ['role_id' => $budgetID], // Budget
+            ['role_id' => $digaID], // DIGA
+            ['role_id' => $dG], // Directeur général
+            ['role_id' => $budgetID], // Budget
+            ['role_id' => $chefParcID], // Chef parc
         ];
 
         Circuit::create([
@@ -59,12 +76,13 @@ class CircuitsSeeder extends Seeder
 
         $circuitParticulier = [  // circuits où  le DG est à la fois le directeur de département
 
-            ['role_id' => 5], // Chef division
-            ['role_id' => 8], // Budget
-            ['role_id' => 13], // DIGA
-            ['role_id' => 9], // Directeur général
-            ['role_id' => 8], // Budget
-            ['role_id' => 6], // Chef parc
+            ['role_id' => $dpl], // Dpl
+            ['role_id' => $chefDiviionID], // Chef division
+            ['role_id' => $budgetID], // Budget
+            ['role_id' => $digaID], // DIGA
+            ['role_id' => $dG], // Directeur général
+            ['role_id' => $budgetID], // Budget
+            ['role_id' => $chefParcID], // Chef parc
         ];
 
         Circuit::create([

@@ -57,7 +57,7 @@ class TvmResource extends Resource
 
                         Select::make('engine_id')
                             ->label('Engins')
-                            ->options(Engine::where('state', StatesClass::Activated()->value)->pluck('plate_number', 'id'))
+                            ->options(Engine::whereNot('state', StatesClass::Deactivated()->value)->pluck('plate_number', 'id'))
                             ->preload()
                             ->searchable()
                             ->required()
@@ -90,7 +90,7 @@ class TvmResource extends Resource
 
                                         Select::make('engine_id')
                                             ->label('Engins')
-                                            ->options(Engine::where('state', StatesClass::Activated()->value)->pluck('plate_number', 'id'))
+                                            ->options(Engine::whereNot('state', StatesClass::Deactivated()->value)->pluck('plate_number', 'id'))
                                             ->preload()
                                             ->searchable()
                                             ->required()

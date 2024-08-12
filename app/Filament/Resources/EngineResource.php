@@ -2,46 +2,50 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\EngineResource\Pages;
-use App\Filament\Resources\EngineResource\RelationManagers;
-use App\Filament\Resources\EngineResource\RelationManagers\AffectationsRelationManager;
-use App\Filament\Resources\EngineResource\RelationManagers\ConsommationCarburantsRelationManager;
-use App\Filament\Resources\EngineResource\RelationManagers\OrdreDeMissionsRelationManager;
-use App\Filament\Resources\EngineResource\RelationManagers\TvmsRelationManager;
-use App\Models\Carburant;
-use App\Models\Departement;
-use App\Models\Direction;
-use App\Models\Division;
-use App\Models\Engine;
-use App\Models\Engine as Engin;
-use App\Models\Marque;
-use App\Models\Modele;
+use Closure;
 use App\Models\Role;
 use App\Models\Type;
-use App\Support\Database\CommonInfos;
-use App\Support\Database\PermissionsClass;
+use Filament\Tables;
+use App\Models\Engine;
+use App\Models\Marque;
+use App\Models\Modele;
+use App\Models\Circuit;
+use App\Models\Division;
+use App\Models\Carburant;
+use App\Models\Direction;
+use App\Models\Departement;
+use Filament\Resources\Form;
+use Filament\Resources\Table;
+use App\Models\Engine as Engin;
+use Filament\Resources\Resource;
+use Illuminate\Support\HtmlString;
 use App\Support\Database\RolesEnum;
-use App\Support\Database\StatesClass;
-use App\Tables\Columns\DepartementColumn;
-use Closure;
-use Database\Seeders\RolesPermissionsSeeder;
 use Filament\Forms\Components\Card;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
+use Filament\Tables\Filters\Filter;
+use App\Support\Database\CommonInfos;
+use App\Support\Database\StatesClass;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Fieldset;
+use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
-use Filament\Resources\Form;
-use Filament\Resources\Resource;
-use Filament\Resources\Table;
-use Filament\Tables;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\Filter;
+use App\Tables\Columns\DepartementColumn;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
+use App\Support\Database\PermissionsClass;
+use Filament\Forms\Components\Placeholder;
+use Database\Seeders\RolesPermissionsSeeder;
+use App\Filament\Resources\EngineResource\Pages;
+use App\Filament\Resources\EngineResource\RelationManagers;
+use App\Filament\Resources\EngineResource\RelationManagers\TvmsRelationManager;
+use App\Filament\Resources\EngineResource\RelationManagers\AffectationsRelationManager;
+use App\Filament\Resources\EngineResource\RelationManagers\OrdreDeMissionsRelationManager;
+use App\Filament\Resources\EngineResource\RelationManagers\ConsommationCarburantsRelationManager;
 
 class EngineResource extends Resource
 {
@@ -79,6 +83,44 @@ class EngineResource extends Resource
 
         return $form
             ->schema([
+                Card::make()
+                    ->schema([
+
+                        Grid::make(2)
+                            ->schema([
+
+                                Select::make("circuit_id")
+                                    ->label("circuit de validation")
+                                    ->options(Circuit::pluck("name", "id"))
+                                    ->searchable()
+                                    ->dehydrated(fn() => auth()->user()->hasAnyRole([RolesEnum::Dpl()->value, RolesEnum::Chef_parc()->value]))
+                                    ->visible(fn() => auth()->user()->hasAnyRole([RolesEnum::Dpl()->value, RolesEnum::Chef_parc()->value]))
+                                    ->required(fn() => auth()->user()->hasAnyRole([RolesEnum::Dpl()->value, RolesEnum::Chef_parc()->value])),
+
+                                Fieldset::make("desc")
+                                    ->label(new HtmlString("<i style = 'color:orange'>Description des circuits</i>"))
+                                    ->schema([
+                                        Placeholder::make("circuit de division")
+                                            ->label(new HtmlString("<i style = 'color:orange'>Circuit de Direction</i>"))
+                                            ->content(new HtmlString("<i>Réservé aux véhicules directement affectés à une Direction</i>")),
+
+                                        Placeholder::make("circuit de direction")
+                                            ->label(new HtmlString("<i style = 'color:orange'>Circuit de Division</i>"))
+                                            ->content(new HtmlString("<i>Réservé aux véhicules directement affectés à une Division</i>")),
+
+                                        Placeholder::make("circuit de la Direction Générale")
+                                            ->label(new HtmlString("<i style = 'color:orange'>Circuit de la Direction générale</i>"))
+                                            ->content(new HtmlString("<i>Réservé aux véhicules directement affectés à la Direction générale</i>")),
+
+                                        Placeholder::make("circuit particulier")
+                                            ->label(new HtmlString("<i style = 'color:orange'>Circuit particulier</i>"))
+                                            ->content(new HtmlString("<i>Réservé aux véhicules affectés aux divisions sous la Direction générale</i>"))
+                                    ])
+
+
+                            ]),
+                    ])
+                    ->visible(fn() => auth()->user()->hasAnyRole([RolesEnum::Dpl()->value, RolesEnum::Chef_parc()->value])),
                 Card::make()
                     ->schema([
 
