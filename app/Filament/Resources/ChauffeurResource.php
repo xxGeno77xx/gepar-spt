@@ -79,7 +79,7 @@ class ChauffeurResource extends Resource
                                                     } else {
 
                                                         return Engine::whereNotIn('id', $linkedEnginesIds)
-                                                        ->whereNot('state', StatesClass::Deactivated()->value)
+                                                            ->whereNot('state', StatesClass::Deactivated()->value)
                                                             ->pluck('plate_number', 'id');
                                                     }
                                                 }
@@ -139,8 +139,7 @@ class ChauffeurResource extends Resource
 
                         return $query->selectRaw('sigle_centre')->whereRaw('LOWER(sigle_centre) LIKE ?', ['%'.strtolower($search).'%']);
 
-                    })
-                    ,
+                    }),
 
                 BadgeColumn::make('plate_number')
                     ->label('Engin')

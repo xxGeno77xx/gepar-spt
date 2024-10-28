@@ -22,6 +22,8 @@ class ModeleResource extends Resource
 {
     protected static ?string $model = Modele::class;
 
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static ?string $navigationGroup = 'Flotte automobile';
 
     protected static ?string $modelLabel = 'Modèles';

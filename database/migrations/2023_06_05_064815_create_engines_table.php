@@ -20,10 +20,10 @@ return new class extends Migration
         Schema::create('engines', function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedBigInteger('modele_id');
-            $table->foreign('modele_id')->references('id')->on('modeles');
+            $table->unsignedBigInteger('marque_id');
+            $table->foreign('marque_id')->references('id')->on('marques');
 
-            $table->integer('power');
+            $table->integer('power')->nullable();
 
             $table->unsignedBigInteger('departement_id')->nullable();
             // $table->foreign('departement_id')->references('code_centre')->on('CENTRE');
@@ -32,7 +32,7 @@ return new class extends Migration
 
             $table->date('circularization_date')->nullable();
 
-            $table->date('date_aquisition');
+            $table->date('date_aquisition')->nullable();
 
             $table->string('plate_number')->unique();
 
@@ -44,11 +44,11 @@ return new class extends Migration
             $table->unsignedBigInteger('carburant_id');
             $table->foreign('carburant_id')->references('id')->on('carburants');
 
-            $table->boolean('assurances_mail_sent');
+            $table->boolean('assurances_mail_sent')->nullable();
 
-            $table->boolean('tvm_mail_sent');
+            $table->boolean('tvm_mail_sent')->nullable();
 
-            $table->boolean('visites_mail_sent');
+            $table->boolean('visites_mail_sent')->nullable();
 
             $table->enum('state', [
                 StatesClass::Activated()->value,
@@ -58,9 +58,10 @@ return new class extends Migration
             ]);
 
             $table->string('numero_chassis')
-                ->unique();
+                ->unique()
+                ->nullable();
 
-            $table->string('moteur');
+            $table->string('moteur')->nullable();
 
             $table->integer('pl_ass')->nullable();
 
@@ -68,19 +69,19 @@ return new class extends Migration
                 ->unique()
                 ->nullable();
 
-            $table->double('poids_total_en_charge', 10, 2);
+            $table->double('poids_total_en_charge', 10, 2)->nullable();
 
-            $table->double('poids_a_vide', 10, 2);
+            $table->double('poids_a_vide', 10, 2)->nullable();
 
             $table->double('poids_total_roulant', 10, 2)->nullable();
 
-            $table->double('charge_utile', 10, 2);
+            $table->double('charge_utile', 10, 2)->nullable();
 
-            $table->double('largeur', 10, 2);
+            $table->double('largeur', 10, 2)->nullable();
 
-            $table->double('surface', 10, 2);
+            $table->double('surface', 10, 2)->nullable();
 
-            $table->string('couleur');
+            $table->string('couleur')->nullable();
 
             $table->string('date_cert_precedent')->nullable();
 
@@ -92,11 +93,11 @@ return new class extends Migration
                 ->unique()
                 ->nullable();
 
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('user_id')->nullable();
 
-            $table->integer('remainder')->default(0);
+            $table->integer('remainder')->default(0)->nullable();
 
-            $table->unsignedBigInteger('updated_at_user_id');
+            $table->unsignedBigInteger('updated_at_user_id')->nullable();
 
             $table->softDeletes();
 

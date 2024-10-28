@@ -71,7 +71,7 @@ class UserResource extends Resource
                         TextInput::make('email')
                             ->required()
                             ->email()
-                            ->unique(table: static::$model, ignorable: fn($record) => $record)
+                            ->unique(table: static::$model, ignorable: fn ($record) => $record)
                             ->regex('/.*@laposte\.tg$/') // field must end with @laposte.tg
                             ->label(strval(__('filament-authentication::filament-authentication.field.user.email'))),
 
@@ -79,8 +79,8 @@ class UserResource extends Resource
                             ->same('passwordConfirmation')
                             ->password()
                             ->maxLength(255)
-                            ->required(fn($component, $get, $livewire, $model, $record, $set, $state) => $record === null)
-                            ->dehydrateStateUsing(fn($state) => !empty ($state) ? Hash::make($state) : '')
+                            ->required(fn ($component, $get, $livewire, $model, $record, $set, $state) => $record === null)
+                            ->dehydrateStateUsing(fn ($state) => ! empty($state) ? Hash::make($state) : '')
                             ->label(strval(__('filament-authentication::filament-authentication.field.user.password'))),
 
                         TextInput::make('passwordConfirmation')
@@ -142,7 +142,6 @@ class UserResource extends Resource
 
                             Note 2: certains Rôles sont incompatibles. Ex chef parc et délégué de division
     ')),
-
 
                     ]),
 
@@ -206,8 +205,8 @@ class UserResource extends Resource
                     ->falseLabel('Désactivé')
                     ->nullable()
                     ->queries(
-                        true: fn(Builder $query) => $query->where('state', StatesClass::Activated()->value),
-                        false: fn(Builder $query) => $query->where('state', StatesClass::Deactivated()->value),
+                        true: fn (Builder $query) => $query->where('state', StatesClass::Activated()->value),
+                        false: fn (Builder $query) => $query->where('state', StatesClass::Deactivated()->value),
                     ),
             ])
             ->prependActions([

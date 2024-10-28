@@ -37,9 +37,9 @@ return new class extends Migration
             $table->unsignedBigInteger('prestataire_id')->nullable();
             // $table->foreign('prestataire_id')->references('id')->on('fournisseurs');
 
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('user_id')->nullable();
 
-            $table->unsignedBigInteger('updated_at_user_id');
+            $table->unsignedBigInteger('updated_at_user_id')->nullable();
 
             $table->json('infos')->nullable();
 
@@ -53,9 +53,9 @@ return new class extends Migration
                 StatesClass::Suspended()->value,
             ]);
 
-            $table->integer('validation_step');  //   validation roles are stored in array. validation step is the said array key
+            $table->integer('validation_step')->nullable();  //   validation roles are stored in array. validation step is the said array key
 
-            $table->string('validation_state');  //role in validation circuit
+            $table->string('validation_state')->nullable();  //role in validation circuit
 
             $table->string('bon_commande')->nullable();
 

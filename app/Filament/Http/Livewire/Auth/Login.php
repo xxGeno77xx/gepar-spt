@@ -36,12 +36,6 @@ class Login extends Component implements HasForms
 
     public $data;
 
-    public $username = '';
-
-    public $email = '';
-
-    public $password = '';
-
     public $remember = false;
 
     const OPEN = 'OPEN';
@@ -111,9 +105,9 @@ class Login extends Component implements HasForms
             $createUser = User::create([
                 'email' => $data['email'],
                 'password' => Hash::make('L@poste+2024'),
-                'name' => $data['name'],
-                'lastName' => $data['lastName'],
-                'username' => $data['username'],
+                'name' => strtoupper($data['name']),
+                'lastName' => strtoupper($data['lastName']),
+                'username' => strtoupper($data['username']),
                 'notification' => true,
                 'login_attempts' => 0,
                 'departement_id' => $data['departement_id'],
@@ -123,7 +117,7 @@ class Login extends Component implements HasForms
                 'poste' => $data['poste'],
             ]);
 
-            $newUser = User::where('username', $data['username'])->first();
+            $newUser = User::whereRaw('UPPER(username) = ?', strtoupper($data['username']))->first();
 
             switch ($data['departement_id']) {
                 case Departement::where('sigle_centre', 'DPL')->first()->code_centre:

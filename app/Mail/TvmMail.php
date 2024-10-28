@@ -32,9 +32,9 @@ class TvmMail extends Mailable
             ->where('tvms.state', $activated)
             ->whereNull('tvms.deleted_at')
             ->whereNull('engines.deleted_at')
-            ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
+            // ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
             ->join('centre', 'engines.departement_id', 'centre.code_centre')
-            ->join('marques', 'modeles.marque_id', '=', 'marques.id')
+            ->join('marques', 'engines.marque_id', '=', 'marques.id')
             ->select('engines.*', /*'centre.sigle',*/ 'marques.logo as logo', 'tvms.date_debut as date_debut', 'tvms.date_fin as date_fin')
             ->where('engines.state', '<>', StatesClass::Deactivated()->value)
             ->distinct('engines.id')
@@ -44,7 +44,7 @@ class TvmMail extends Mailable
                 'tvms.date_debut',
                 'engines.tvm_mail_sent',
                 'engines.id',
-                'engines.modele_id',
+                'engines.marque_id',
                 'engines.power',
                 'engines.departement_id',
                 'engines.price',
@@ -79,9 +79,9 @@ class TvmMail extends Mailable
                 'engines.updated_at',
                 'sigle_centre',
                 'nom_marque',
-                'nom_modele',
                 'logo',
                 'remainder'
+                // 'nom_modele'
 
             )
             ->distinct()->get();

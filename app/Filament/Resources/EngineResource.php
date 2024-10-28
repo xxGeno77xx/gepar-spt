@@ -2,50 +2,47 @@
 
 namespace App\Filament\Resources;
 
-use Closure;
-use App\Models\Role;
-use App\Models\Type;
-use Filament\Tables;
-use App\Models\Engine;
-use App\Models\Marque;
-use App\Models\Modele;
-use App\Models\Circuit;
-use App\Models\Division;
-use App\Models\Carburant;
-use App\Models\Direction;
-use App\Models\Departement;
-use Filament\Resources\Form;
-use Filament\Resources\Table;
-use App\Models\Engine as Engin;
-use Filament\Resources\Resource;
-use Illuminate\Support\HtmlString;
-use App\Support\Database\RolesEnum;
-use Filament\Forms\Components\Card;
-use Filament\Forms\Components\Grid;
-use Filament\Tables\Filters\Filter;
-use App\Support\Database\CommonInfos;
-use App\Support\Database\StatesClass;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Fieldset;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Columns\BadgeColumn;
-use Filament\Tables\Columns\ImageColumn;
-use App\Tables\Columns\DepartementColumn;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
-use Illuminate\Database\Eloquent\Builder;
-use App\Support\Database\PermissionsClass;
-use Filament\Forms\Components\Placeholder;
-use Database\Seeders\RolesPermissionsSeeder;
 use App\Filament\Resources\EngineResource\Pages;
 use App\Filament\Resources\EngineResource\RelationManagers;
-use App\Filament\Resources\EngineResource\RelationManagers\TvmsRelationManager;
 use App\Filament\Resources\EngineResource\RelationManagers\AffectationsRelationManager;
-use App\Filament\Resources\EngineResource\RelationManagers\OrdreDeMissionsRelationManager;
 use App\Filament\Resources\EngineResource\RelationManagers\ConsommationCarburantsRelationManager;
+use App\Filament\Resources\EngineResource\RelationManagers\OrdreDeMissionsRelationManager;
+use App\Filament\Resources\EngineResource\RelationManagers\TvmsRelationManager;
+use App\Models\Carburant;
+use App\Models\Circuit;
+use App\Models\Departement;
+use App\Models\Engine;
+use App\Models\Engine as Engin;
+use App\Models\Marque;
+use App\Models\Role;
+use App\Models\Type;
+use App\Support\Database\CommonInfos;
+use App\Support\Database\PermissionsClass;
+use App\Support\Database\RolesEnum;
+use App\Support\Database\StatesClass;
+use App\Support\Database\TypesClass;
+use App\Tables\Columns\DepartementColumn;
+use Closure;
+use Database\Seeders\RolesPermissionsSeeder;
+use Filament\Forms\Components\Card;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Resources\Form;
+use Filament\Resources\Resource;
+use Filament\Resources\Table;
+use Filament\Tables;
+use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\HtmlString;
 
 class EngineResource extends Resource
 {
@@ -83,44 +80,7 @@ class EngineResource extends Resource
 
         return $form
             ->schema([
-                Card::make()
-                    ->schema([
 
-                        Grid::make(2)
-                            ->schema([
-
-                                Select::make("circuit_id")
-                                    ->label("circuit de validation")
-                                    ->options(Circuit::pluck("name", "id"))
-                                    ->searchable()
-                                    ->dehydrated(fn() => auth()->user()->hasAnyRole([RolesEnum::Dpl()->value, RolesEnum::Chef_parc()->value]))
-                                    ->visible(fn() => auth()->user()->hasAnyRole([RolesEnum::Dpl()->value, RolesEnum::Chef_parc()->value]))
-                                    ->required(fn() => auth()->user()->hasAnyRole([RolesEnum::Dpl()->value, RolesEnum::Chef_parc()->value])),
-
-                                Fieldset::make("desc")
-                                    ->label(new HtmlString("<i style = 'color:orange'>Description des circuits</i>"))
-                                    ->schema([
-                                        Placeholder::make("circuit de division")
-                                            ->label(new HtmlString("<i style = 'color:orange'>Circuit de Direction</i>"))
-                                            ->content(new HtmlString("<i>Réservé aux véhicules directement affectés à une Direction</i>")),
-
-                                        Placeholder::make("circuit de direction")
-                                            ->label(new HtmlString("<i style = 'color:orange'>Circuit de Division</i>"))
-                                            ->content(new HtmlString("<i>Réservé aux véhicules directement affectés à une Division</i>")),
-
-                                        Placeholder::make("circuit de la Direction Générale")
-                                            ->label(new HtmlString("<i style = 'color:orange'>Circuit de la Direction générale</i>"))
-                                            ->content(new HtmlString("<i>Réservé aux véhicules directement affectés à la Direction générale</i>")),
-
-                                        Placeholder::make("circuit particulier")
-                                            ->label(new HtmlString("<i style = 'color:orange'>Circuit particulier</i>"))
-                                            ->content(new HtmlString("<i>Réservé aux véhicules affectés aux divisions sous la Direction générale</i>"))
-                                    ])
-
-
-                            ]),
-                    ])
-                    ->visible(fn() => auth()->user()->hasAnyRole([RolesEnum::Dpl()->value, RolesEnum::Chef_parc()->value])),
                 Card::make()
                     ->schema([
 
@@ -157,10 +117,12 @@ class EngineResource extends Resource
                             ]),
 
                         DatePicker::make('circularization_date')
-                            ->label('Mise en circulation'),
+                            ->label('Mise en circulation')
+                            ->displayFormat('d M Y'),
 
                         DatePicker::make('date_aquisition')
                             ->label("Date d'acquisition")
+                            ->displayFormat('d M Y')
                             ->required(),
 
                         TextInput::make('price')
@@ -230,6 +192,7 @@ class EngineResource extends Resource
                                     ->label('Carosserie')
                                     ->options(Type::where('state', StatesClass::Activated()->value)->pluck('nom_type', 'id'))
                                     ->searchable()
+                                    ->reactive()
                                     ->placeholder('-')
                                     ->required(),
 
@@ -243,94 +206,92 @@ class EngineResource extends Resource
                             ->schema([
 
                                 TextInput::make('poids_total_en_charge')
-                                    ->label('Poids total en charge')
+                                    ->label('Poids total en charge(en Kg)')
                                     ->numeric()
                                     ->required(),
 
                                 TextInput::make('poids_a_vide')
-                                    ->label('Poids à vide')
+                                    ->label('Poids à vide(en Kg)')
                                     ->numeric()
                                     ->required(),
 
                                 TextInput::make('poids_total_roulant')
-                                    ->label('Poids total roulant')
+                                    ->label('Poids total roulant(en Kg)')
                                     ->default(0)
                                     ->disabled()
                                     ->placeholder(0)
                                     ->numeric(),
 
                                 TextInput::make('charge_utile')
-                                    ->label('Charge utile')
+                                    ->label('Charge utile(en Kg)')
                                     ->numeric()
                                     ->required(),
 
                                 TextInput::make('largeur')
-                                    ->label('Largeur')
-                                    ->numeric()
-                                    ->required(),
+                                    ->label('Largeur(en m)')
+                                    ->numeric(),  //TODO:Remove required on next migration
 
                                 TextInput::make('surface')
-                                    ->label('Surface')
-                                    ->numeric()
-                                    ->required(),
+                                    ->label('Surface (en m²)')
+                                    ->numeric(),  //TODO:Remove required on next migration
 
                             ]),
 
-                        Select::make('modele_id')
-                            ->label('Modèle')
+                        Select::make('marque_id')
+                            ->label('Marque')
                             ->preload(false)
                             ->allowHtml()
                             ->searchable()
                             ->required()
                             ->getSearchResultsUsing(function (string $search) {
 
-                                $models = Modele::join('marques', 'modeles.marque_id', 'marques.id')
-                                    ->whereRaw('LOWER(nom_modele) LIKE ?', ['%'.strtolower($search).'%'])
+                                $marques = Marque::whereRaw('LOWER(nom_marque) LIKE ?', ['%'.strtolower($search).'%'])
                                     ->orWhereRaw('LOWER(nom_marque) LIKE ?', ['%'.strtolower($search).'%'])
-                                    ->select('nom_modele', 'modeles.id as id', 'marques.logo', 'marque_id')
+                                    ->select('nom_marque', 'marques.id as id')
                                     ->limit(100)
                                     ->get();
 
-                                return $models->mapWithKeys(function ($modele) {
+                                return $marques->mapWithKeys(function ($marque) {
 
-                                    return [$modele->getKey() => static::getCleanOptionString($modele)];
+                                    return [$marque->getKey() => static::getCleanOptionString($marque)];
 
                                 })->toArray();
                             })
                             ->getOptionLabelUsing(function ($value): string {
 
-                                $modele = Modele::find($value);
+                                $marque = Marque::find($value);
 
-                                return static::getCleanOptionString($modele);
+                                return static::getCleanOptionString($marque);
                             }),
 
                         Datepicker::make('date_cert_precedent')
-                            ->label('date_cert_precedent'),
+                            ->label('Date de certification précédente')
+                            ->displayFormat('d M Y'),
 
-                        TextInput::make('numero_carte_grise')
-                            ->label('Numéro de la carte grise')
-                            ->required()
-                            ->columnSpanFull()
-                            ->rules([
-                                function ($record) {
-                                    return function (string $attribute, $value, Closure $fail) use ($record) {
-
-                                        $existingEngine = Engine::where('numero_carte_grise', $value)->first();
-
-                                        if ($existingEngine && $record) {
-                                            if ($existingEngine->id != $record->id) {
-                                                $fail('Un engin avec ce numéro de carte grise existe déjà.');
-                                            }
-                                        } elseif ($existingEngine) {
-                                            $fail('Un engin avec ce numéro de carte grise existe déjà.');
-                                        }
-
-                                    };
-                                },
-                            ]),
-
-                        Grid::make(1)
+                        Grid::make(2)
                             ->schema([
+
+                                TextInput::make('numero_carte_grise')
+                                    ->label('Numéro de la carte grise')
+                                    ->required()
+                                    ->rules([
+                                        function ($record) {
+                                            return function (string $attribute, $value, Closure $fail) use ($record) {
+
+                                                $existingEngine = Engine::where('numero_carte_grise', $value)->first();
+
+                                                if ($existingEngine && $record) {
+                                                    if ($existingEngine->id != $record->id) {
+                                                        $fail('Un engin avec ce numéro de carte grise existe déjà.');
+                                                    }
+                                                } elseif ($existingEngine) {
+                                                    $fail('Un engin avec ce numéro de carte grise existe déjà.');
+                                                }
+
+                                            };
+                                        },
+                                    ]),
+
                                 FileUpload::make('car_document')
                                     ->maxSize(1024)
                                     ->preserveFilenames()
@@ -339,44 +300,6 @@ class EngineResource extends Resource
                                     ->enableDownload()
                                     ->enableOpen()
                                     ->required(),
-
-                                // Grid::make(2)
-                                //     ->schema([
-
-                                //         Placeholder::make('Departement')
-                                //             ->label('Département')
-                                //             ->content(function (?Engin $record): string {
-
-                                //                 if ($record) {
-                                //                     $chauffeur = Chauffeur::where('id', $record->chauffeur_id)->first();
-
-                                //                     if ($chauffeur) {
-                                //                         return Departement::where('id', $chauffeur->departement_id)->value('nom_departement');
-                                //                     } else
-                                //                         return 'Aucun département affecté';
-                                //                 } else
-                                //                     return null;
-
-                                //             })->hidden(fn(?Engin $record) => $record === null),
-
-                                //         Placeholder::make('Chauffeur')
-                                //             ->label('Chauffeur')
-                                //             // ->content(fn(?Engin $record):  ?string => Chauffeur::where('id', $record->chauffeur_id)->value('name')),
-                                //             ->content(function (?Engin $record): string {
-
-                                //                 if ($record) {
-                                //                     $chauffeur = Chauffeur::where('id', $record->chauffeur_id)->first();
-
-                                //                     if ($chauffeur) {
-                                //                         return $chauffeur->name;
-                                //                     } else
-                                //                         return 'Aucun chauffeur affecté';
-                                //                 }
-                                //                 return null;
-
-                                //             })->hidden(fn(?Engin $record) => $record === null),
-                                //     ]),
-
                             ]),
 
                         Select::make('carburant_id')
@@ -396,17 +319,6 @@ class EngineResource extends Resource
                     ])
                     ->columns(2),
 
-                // Select::make('chauffeur_id')
-                //     ->label('Chauffeur')
-                //     ->options(function (callable $get) {
-
-                //         return Chauffeur::where('state', StatesClass::Activated())
-                //             ->where('id', $get('departement_id'))
-                //             ->pluck('name', 'id');
-                //     })
-                //     ->hiddenOn('view')
-                //     ->searchable(),
-
                 Hidden::make('user_id')
                     ->default(auth()->user()->id)
                     ->disabled(),
@@ -425,6 +337,62 @@ class EngineResource extends Resource
                     ->default(0),
 
                 Hidden::make('state')->default(StatesClass::Activated()->value),
+
+                Card::make()
+                    ->schema([
+                        Grid::make(2)
+                            ->schema([
+
+                                Select::make('circuit_id')
+                                    ->label('circuit de validation')
+                                    ->options(Circuit::pluck('name', 'id'))
+                                    ->searchable()
+                                    ->dehydrated(fn () => auth()->user()->hasAnyRole([RolesEnum::Dpl()->value, RolesEnum::Chef_parc()->value, RolesPermissionsSeeder::SuperAdmin]))
+                                    ->visible(fn () => auth()->user()->hasAnyRole([RolesEnum::Dpl()->value, RolesEnum::Chef_parc()->value , RolesPermissionsSeeder::SuperAdmin]))
+                                    ->required(fn () => auth()->user()->hasAnyRole([RolesEnum::Dpl()->value, RolesEnum::Chef_parc()->value , RolesPermissionsSeeder::SuperAdmin])),
+
+                                Fieldset::make('desc')
+                                    ->label(new HtmlString("<i style = 'color:orange'>Description des circuits</i>"))
+                                    ->schema([
+                                        Placeholder::make('circuit de division')
+                                            ->label(new HtmlString("<i style = 'color:orange'>Circuit de Direction</i>"))
+                                            ->content(new HtmlString('<i>Réservé aux véhicules directement affectés à une Direction</i>')),
+
+                                        Placeholder::make('circuit de direction')
+                                            ->label(new HtmlString("<i style = 'color:orange'>Circuit de Division</i>"))
+                                            ->content(new HtmlString('<i>Réservé aux véhicules directement affectés à une Division</i>')),
+
+                                        Placeholder::make('circuit de la Direction Générale')
+                                            ->label(new HtmlString("<i style = 'color:orange'>Circuit de la Direction générale</i>"))
+                                            ->content(new HtmlString('<i>Réservé aux véhicules directement affectés à la Direction générale</i>')),
+
+                                        Placeholder::make('circuit particulier')
+                                            ->label(new HtmlString("<i style = 'color:orange'>Circuit particulier</i>"))
+                                            ->content(new HtmlString('<i>Réservé aux véhicules affectés aux divisions sous la Direction générale</i>')),
+                                    ]),
+
+                            ]),
+
+                    ])
+                    ->visible(function ($get, $record) {
+
+                        if (auth()->user()->hasAnyPermission([PermissionsClass::Engines_create()->value])) {
+
+                            $categoriesWithoutValidationIds = Type::whereIn('nom_type', [
+                                TypesClass::Transport_a_deux_roues()->value,
+                                TypesClass::Tricycle_motorises()->value,
+                            ])->pluck('id')->toArray();
+
+                            if (in_array($get('type_id'), $categoriesWithoutValidationIds)) {
+                                return false;
+                            }
+
+                            return true;
+                        }
+
+                        return false;
+
+                    }),
 
                 CommonInfos::PlaceholderCard(),
 
@@ -446,24 +414,9 @@ class EngineResource extends Resource
 
                     }),
 
-                // TextColumn::make('departement_id')
-                //     ->label('Division/Direction')
-                //     ->tooltip(fn($record) => (Division::find($record->departement_id))->libelle)
-                //     ->searchable()
-                //     ->placeholder('-')
-                //     ->formatStateUsing(function ($state) {
-
-                //         $division = Division::where('id', $state)->first();
-
-                //         $direction = Direction::where('id', $division->direction_id)->value('sigle_direction');
-
-                //         return $division->sigle_division.'/'.$direction;
-
-                //     }),
-
                 DepartementColumn::make('departement_id')
                     ->label('Centre')
-                    ->tooltip(fn ($record) => Departement::find($record->departement_id)->libelle),
+                    ->tooltip(fn ($record) => Departement::find($record->departement_id)?->libelle ?? 'pas de déppartement'),
 
                 ImageColumn::make('logo')
                     ->label('Marque')
@@ -524,13 +477,13 @@ class EngineResource extends Resource
 
                 Filter::make('Etat')
                     ->form([
-                        Select::make('etat')
-                            ->searchable()
-                            ->label('Etat')
-                            ->options([
-                                StatesClass::Activated()->value => 'En état',
-                                StatesClass::Repairing()->value => 'En réparation',
-                            ]),
+                    Select::make('etat')
+                        ->searchable()
+                        ->label('Etat')
+                        ->options([
+                            StatesClass::Activated()->value => 'En état',
+                            StatesClass::Repairing()->value => 'En réparation',
+                        ]),
 
                     ])->query(function (Builder $query, array $data): Builder {
                         return $query
@@ -616,12 +569,12 @@ class EngineResource extends Resource
         ]);
     }
 
-    public static function getCleanOptionString(Model $model): string
+    public static function getCleanOptionString(Marque $marque): string
     {
-        $marque = Marque::where('id', $model?->marque_id)->first();
+        $marque = Marque::where('id', $marque?->id)->first();
 
         return view('filament.components.model-select')
-            ->with('nom_modele', $model?->nom_modele)
+            ->with('nom_marque', $marque?->nom_marque)
             ->with('logo', $marque->logo)
             ->with('marque', $marque->nom_marque)
             ->render();

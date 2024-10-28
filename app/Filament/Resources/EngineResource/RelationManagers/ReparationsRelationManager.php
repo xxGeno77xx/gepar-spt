@@ -5,7 +5,9 @@ namespace App\Filament\Resources\EngineResource\RelationManagers;
 use AlperenErsoy\FilamentExport\Actions\FilamentExportHeaderAction;
 use App\Filament\Resources\ReparationResource;
 use App\Models\Reparation;
+use App\Models\Role;
 use App\Support\Database\PermissionsClass;
+use App\Support\Database\ReparationValidationStates;
 use App\Support\Database\StatesClass;
 use Carbon\Carbon;
 use closure;
@@ -60,6 +62,35 @@ class ReparationsRelationManager extends RelationManager
                 TextColumn::make('cout_reparation')
                     ->placeholder('-')
                     ->label('Cout de la réparation'),
+
+                TextColumn::make('validation_state')
+                    ->label('Statut de validation')
+                    ->formatStateUsing(function ($state) {
+                        // dd($state);
+                        if ($state == 'nextValue') {
+                            return 'Terminée';
+                        } elseif ($state == ReparationValidationStates::Rejete()->value) {
+
+                            return 'Rejetée';
+
+                        } else {
+                            $validator = (Role::find($state))->name;
+
+                            return 'En attente de validation de: '.$validator;
+                        }
+
+                    })
+                    ->color(function ($record) {
+                        if ($record->validation_state == ReparationValidationStates::Rejete()->value) {
+                            return 'danger';
+                        } elseif ($record->validation_state == 'nextValue') {
+                            return 'success';
+                        } else {
+                            return 'primary';
+                        }
+                    })
+                    ->weight('bold'),
+
             ])
             ->filters([
                 Filter::make('date_lancement')
@@ -110,14 +141,14 @@ class ReparationsRelationManager extends RelationManager
 
     protected function getTableRecordUrlUsing(): ?Closure
     {
-        return fn (Reparation $record): string => url('reparations/'.$record->id.'/edit');
+        return fn (Reparation $record): string => url('reparations/'.$record->id);
     }
 
     protected function getTableQuery(): Builder
     {
         return parent::getTableQuery()
             ->select('reparations.*')
-            ->where('reparations.state', StatesClass::Activated()->value);
+            ->where('reparations.state', '<>', StatesClass::Deactivated()->value);
 
     }
 

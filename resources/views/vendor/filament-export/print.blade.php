@@ -458,9 +458,9 @@
 
                 <br />
 
-                <b>Modèle : <span style="font-weight: bold; color:black">{{ $modele }}</span></b>
+                {{-- <b>Modèle : <span style="font-weight: bold; color:black">{{ $modele }}</span></b>
 
-                <br />
+                <br /> --}}
 
                 <b>Carburant : <span style="font-weight: bold; color:black">{{ $carburant }}</span></b>
 

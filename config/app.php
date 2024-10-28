@@ -191,4 +191,10 @@ return [
     'LOGIN_LIMIT' => 4,
 
     'limitePourLaRevision' => 4500,
+
+    'comptes_charge' => [
+        '24510010',
+        '62420020',
+        '62420025',
+    ],
 ];

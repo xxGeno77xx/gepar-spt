@@ -67,8 +67,8 @@ class OrdreDeMissionResource extends Resource
                                     ->label('Chauffeur')
                                     ->options(
                                         Chauffeur::select(['fullname', 'id'])
-                                            ->where('Chauffeurs.state', StatesClass::Activated()->value)
-                                            ->whereNotNull('engine_id')
+                                            ->where('Chauffeurs.state', '<>',StatesClass::Deactivated()->value)
+                                            // ->whereNotNull('engine_id')
                                             // ->where('Chauffeurs.mission_state', ChauffeursStatesClass::Disponible()->value)
                                             ->get()
                                             ->pluck('fullname', 'id')
@@ -77,15 +77,15 @@ class OrdreDeMissionResource extends Resource
                                     ->reactive()
                                     ->afterStateUpdated(function ($state, $get, $set) {
 
-                                        $chauffeur = Chauffeur::where('id', $state)->first();
+                                        $chauffeur = Chauffeur::where('id', $state)?->first() ?? null;
 
-                                        $linkedEngine = Engine::where('id', $chauffeur->engine_id)->first();
+                                        $linkedEngine = Engine::where('id', $chauffeur?->engine_id)->first() ?? null;
 
-                                        $linkedDepartement = Departement::where('code_centre', $linkedEngine->departement_id)->first();
+                                        $linkedDepartement = $linkedEngine ? Departement::where('code_centre', $linkedEngine->departement_id)->first() : null;
 
-                                        $set('engine_id', $linkedEngine->id);
+                                        $linkedEngine ? $set('engine_id', $linkedEngine->id) : null;
 
-                                        $set('departement_id', $linkedDepartement->code_centre);
+                                        $linkedDepartement ? $set('departement_id', $linkedDepartement->code_centre) : null;
 
                                     })
                                     ->searchable(),
@@ -140,7 +140,7 @@ class OrdreDeMissionResource extends Resource
                                             ->label('Moyen de transport')
                                             ->options(
                                                 Engine::select(['plate_number', 'id'])
-                                                    ->where('engines.state', StatesClass::Activated()->value)
+                                                    ->where('engines.state', '<>', StatesClass::Deactivated()->value)
                                                     ->get()
                                                     ->pluck('plate_number', 'id')
                                             )

@@ -1,8 +1,7 @@
 <?php
 
-use App\Models\User;
-use App\Support\Database\RolesEnum;
 use App\Http\Controllers\OrdreMissionPdfController;
+use App\Static\StoredProcedures;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,8 +28,10 @@ Route::get('ordre-de-route_Bn/{order}', [OrdreMissionPdfController::class, 'ordr
 
 Route::get('SitutationAnnuelle_{annee}', [OrdreMissionPdfController::class, 'dashboardEtat'])->name('dashboardEtat');
 
-Route::get('/test/{id}', function($id){
+Route::get('/test', function () {
 
-    return dd($id);
+    $solde = StoredProcedures::soldecourant(9240001197001000);
+
+    return dd($solde);
 
 })->name('test');

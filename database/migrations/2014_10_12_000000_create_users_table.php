@@ -24,7 +24,7 @@ return new class extends Migration
 
             $table->string('email')->unique();
 
-            $table->string('poste')->unique()->nullable();
+            $table->string('poste')->nullable();
 
             $table->timestamp('email_verified_at')->nullable();
 

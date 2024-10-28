@@ -17,24 +17,24 @@ return new class extends Migration
 
         // Schema::dropIfExists('modeles');
 
-        Schema::create('modeles', function (Blueprint $table) {
+        // Schema::create('modeles', function (Blueprint $table) {
 
-            $table->id();
+        //     $table->id();
 
-            $table->string('nom_modele');
+        //     $table->string('nom_modele');
 
-            $table->unsignedBigInteger('marque_id');
-            $table->foreign('marque_id')->references('id')->on('marques');
+        //     $table->unsignedBigInteger('marque_id');
+        //     $table->foreign('marque_id')->references('id')->on('marques');
 
-            $table->softDeletes();
+        //     $table->softDeletes();
 
-            $table->enum('state', [StatesClass::Activated()->value, StatesClass::Deactivated()->value, StatesClass::Suspended()->value]);
+        //     $table->enum('state', [StatesClass::Activated()->value, StatesClass::Deactivated()->value, StatesClass::Suspended()->value]);
 
-            $table->timestamps();
+        //     $table->timestamps();
 
-            $sequence = DB::getSequence();
-            $sequence->drop('modeles_id_seq');
-        });
+        //     $sequence = DB::getSequence();
+        //     $sequence->drop('modeles_id_seq');
+        // });
     }
 
     /**

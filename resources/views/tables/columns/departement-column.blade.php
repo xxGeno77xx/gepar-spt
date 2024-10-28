@@ -4,5 +4,5 @@
 @endphp
 
 <div class="pl-4">
-    {{  $content->sigle_centre}}
+    {{  $content?->sigle_centre ?? 'Pas de département'}}
 </div>

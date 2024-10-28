@@ -54,7 +54,7 @@ class ListEngines extends ListRecords
     {
         $user = auth()->user();
 
-        $userPermission = $user->hasAnyPermission([PermissionsClass::engines_read()->value, PermissionsClass::Engines_update()->value , PermissionsClass::Engines_create()->value]);
+        $userPermission = $user->hasAnyPermission([PermissionsClass::engines_read()->value, PermissionsClass::Engines_update()->value, PermissionsClass::Engines_create()->value]);
 
         abort_if(! $userPermission, 403, __("Vous n'avez pas access à cette page"));
     }
@@ -87,8 +87,8 @@ class ListEngines extends ListRecords
                     ->where('visites.state', StatesClass::Activated()->value)
                     ->whereRaw('visites.id = (SELECT MAX(id) FROM visites WHERE engine_id = engines.id AND visites.state = ?)', [StatesClass::Activated()->value]);
             })
-            ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
-            ->join('marques', 'modeles.marque_id', '=', 'marques.id')
+            // ->join('modeles', 'engines.modele_id', '=', 'modeles.id')
+            ->join('marques', 'engines.marque_id', '=', 'marques.id')
             ->join('centre', 'engines.departement_id', 'centre.code_centre')
             ->where('engines.state', '<>', StatesClass::Deactivated()->value)
             ->select(

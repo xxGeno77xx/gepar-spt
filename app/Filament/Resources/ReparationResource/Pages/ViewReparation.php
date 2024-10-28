@@ -33,96 +33,98 @@ class ViewReparation extends ViewRecord
             return [
 
                 EditAction::make('edit')
-                ->visible(function ($record) {
+                    ->visible(function ($record) {
 
-                    if ($this->record->validation_state == ReparationValidationStates::Rejete()->value) {
+                        if ($this->record->validation_state == ReparationValidationStates::Rejete()->value || $this->record->validation_state == 'nextValue') {
 
-                        return false;
-                    } else {
+                            return false;
 
-                        $circuit = Circuit::where('id', $this->record->circuit_id)->value('steps');
+                        } else {
 
-                        foreach ($circuit as $key => $item) {
+                            $circuit = Circuit::where('id', $this->record->circuit_id)->value('steps');
 
-                            $roleIds[] = $item['role_id'];
-                        }
+                            foreach ($circuit as $key => $item) {
 
-                        $concernedEngine = Engine::where('id', $this->record->engine_id)->first();
-
-                        $user = auth()->user();
-
-                        if (array_key_exists($this->record->validation_step, $roleIds)) {    // ensure array key is not off limits
-
-                            $indice = $roleIds[$this->record->validation_step];
-
-                            $requiredRole = Role::where('id', $indice)->first();
-
-                            $userCentresCollection = DepartementUser::where('user_id', auth()->user()->id)->get();
-
-                            foreach ($userCentresCollection as $userCentre) {
-                                $userCentresIds[] = $userCentre->departement_code_centre;
+                                $roleIds[] = $item['role_id'];
                             }
 
-                            if (
-                                in_array($requiredRole, [
-                                    Role::where('name', RolesEnum::Chef_parc()->value)->first(),
-                                    Role::where('name', RolesEnum::Directeur_general()->value)->first(),
-                                    Role::where('name', RolesEnum::Diga()->value)->first(),
-                                    Role::where('name', RolesEnum::Budget()->value)->first(),
-                                    Role::where('name', RolesEnum::Dpl()->value)->first(),
+                            $concernedEngine = Engine::where('id', $this->record->engine_id)->first();
 
-                                ])
-                            ) {   // if require role is in list (array) and user has the role
+                            $user = auth()->user();
 
-                                if ($requiredRole == Role::where('name', RolesEnum::Directeur_general()->value)->first()) {
+                            if (array_key_exists($this->record->validation_step, $roleIds)) {    // ensure array key is not off limits
 
-                                    if (($user->hasRole(RolesEnum::Directeur_general()->value)) || ($user->hasRole(RolesEnum::Interimaire_DG()->value))) {
-                                        return true;
-                                    }
+                                $indice = $roleIds[$this->record->validation_step];
 
-                                } elseif ($requiredRole == Role::where('name', RolesEnum::Directeur()->value)->first()) {
+                                $requiredRole = Role::where('id', $indice)->first();
 
-                                    if ($user->hasRole(RolesEnum::Directeur()->value && (in_array(intval($concernedEngine->departement_id), $userCentresIds)) || $user->hasRole(RolesEnum::Interimaire_Directeur()->value))) {
-                                        return true;
-                                    }
+                                $userCentresCollection = DepartementUser::where('user_id', auth()->user()->id)->get();
 
-                                } elseif ($requiredRole == Role::where('name', RolesEnum::Chef_division()->value)->first()) {
-
-                                    if ($user->hasRole(RolesEnum::Chef_division()->value && (in_array(intval($concernedEngine->departement_id), $userCentresIds)) || $user->hasRole(RolesEnum::Interimaire_Chef_division()->value))) {
-                                        return true;
-                                    }
-
-                                } elseif ($requiredRole == Role::where('name', RolesEnum::Chef_parc()->value)->first()) {
-
-                                    if (($user->hasRole(RolesEnum::Chef_parc()->value) || ($user->hasRole(RolesEnum::Interimaire_Chef_parc()->value)))) {
-                                        return true;
-                                    }
-
-                                } elseif ($user->hasRole(Role::where('id', $indice)->value('id'))) {
-                                    return true;
+                                foreach ($userCentresCollection as $userCentre) {
+                                    $userCentresIds[] = $userCentre->departement_code_centre;
                                 }
 
-                            } elseif ($user->hasRole(Role::where('id', $indice)->value('id')) && (in_array(intval($concernedEngine->departement_id), $userCentresIds))) {
-                                return true;
+                                if (
+                                    in_array($requiredRole, [
+                                        Role::where('name', RolesEnum::Chef_parc()->value)->first(),
+                                        Role::where('name', RolesEnum::Directeur_general()->value)->first(),
+                                        Role::where('name', RolesEnum::Diga()->value)->first(),
+                                        Role::where('name', RolesEnum::Budget()->value)->first(),
+                                        Role::where('name', RolesEnum::Dpl()->value)->first(),
+
+                                    ])
+                                ) {   // if require role is in list (array) and user has the role
+
+                                    if ($requiredRole == Role::where('name', RolesEnum::Directeur_general()->value)->first()) {
+
+                                        if (($user->hasRole(RolesEnum::Directeur_general()->value)) || ($user->hasRole(RolesEnum::Interimaire_DG()->value))) {
+                                            return true;
+                                        }
+
+                                    } elseif ($requiredRole == Role::where('name', RolesEnum::Directeur()->value)->first()) {
+
+                                        if ($user->hasRole(RolesEnum::Directeur()->value && (in_array(intval($concernedEngine->departement_id), $userCentresIds)) || $user->hasRole(RolesEnum::Interimaire_Directeur()->value))) {
+                                            return true;
+                                        }
+
+                                    } elseif ($requiredRole == Role::where('name', RolesEnum::Chef_division()->value)->first()) {
+
+                                        if ($user->hasRole(RolesEnum::Chef_division()->value && (in_array(intval($concernedEngine->departement_id), $userCentresIds)) || $user->hasRole(RolesEnum::Interimaire_Chef_division()->value))) {
+                                            return true;
+                                        }
+
+                                    } elseif ($requiredRole == Role::where('name', RolesEnum::Chef_parc()->value)->first()) {
+
+                                        if (($user->hasRole(RolesEnum::Chef_parc()->value) || ($user->hasRole(RolesEnum::Interimaire_Chef_parc()->value)))) {
+                                            return true;
+                                        }
+
+                                    } elseif ($user->hasRole(Role::where('id', $indice)->value('id'))) {
+                                        return true;
+                                    }
+
+                                } elseif ($user->hasRole(Role::where('id', $indice)->value('id')) && (in_array(intval($concernedEngine->departement_id), $userCentresIds))) {
+                                    return true;
+                                } else {
+                                    return false;
+                                }
+
                             } else {
                                 return false;
                             }
-
-                        } else {
-                            return false;
                         }
-                    }
 
-                }),
+                    }),
 
                 Actions\Action::make('Valider')
                     ->color('success')
                     ->requiresConfirmation()
                     ->visible(function ($record) {
 
-                        if ($this->record->validation_state == ReparationValidationStates::Rejete()->value) {
+                        if ($this->record->validation_state == ReparationValidationStates::Rejete()->value || $this->record->validation_state == 'nextValue') {
 
                             return false;
+
                         } else {
 
                             $circuit = Circuit::where('id', $this->record->circuit_id)->value('steps');
@@ -231,35 +233,33 @@ class ViewReparation extends ViewRecord
 
                                         if ($mailDestinator) {
 
-                                            try{
+                                            try {
                                                 Mail::to($mailDestinator)->send(new ReparationMail($this->record));
-                                            }
-                                            catch(\Exception $e){
+                                            } catch (\Exception $e) {
 
                                                 NotificationActions::make('voir')
-                                                ->body("Erreur lors de l'envoi du mail")
-                                                ->color('danger')
-                                                ->send()
-                                                ->close();
+                                                    ->body("Erreur lors de l'envoi du mail")
+                                                    ->color('danger')
+                                                    ->send()
+                                                    ->close();
                                             }
-                                            
+
                                         }
 
-                                        if( $realDestination){
+                                        if ($realDestination) {
 
                                             Notification::make()
-                                            ->title('Demande de validation')
-                                            ->body('Réparation pour l\'engin immatriculé '.$concernedEngine->plate_number.' en attente de validation')
-                                            ->actions([
-                                                NotificationActions::make('voir')
-                                                    ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
-                                                    ->button()
-                                                    ->color('primary'),
+                                                ->title('Demande de validation')
+                                                ->body('Réparation pour l\'engin immatriculé '.$concernedEngine->plate_number.' en attente de validation')
+                                                ->actions([
+                                                    NotificationActions::make('voir')
+                                                        ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
+                                                        ->button()
+                                                        ->color('primary'),
 
-                                            ])
-                                            ->sendToDatabase($realDestination);
+                                                ])
+                                                ->sendToDatabase($realDestination);
                                         }
-                                        
 
                                     } elseif (
                                         in_array($NextdestinataireRole, [
@@ -271,41 +271,36 @@ class ViewReparation extends ViewRecord
                                         ])
                                     ) {
 
-                                        if ($NextdestinataireRole == RolesEnum::Directeur_general()->value)
-                                        {  
+                                        if ($NextdestinataireRole == RolesEnum::Directeur_general()->value) {
                                             $endpoint = User::Role([RolesEnum::Directeur_general()->value, RolesEnum::Interimaire_DG()->value])->get();
 
                                             Notification::make()
-                                            ->title('Nouvelle demande')
-                                            ->body('Réparation pour l\'engin immatriculé '.$concernedEngine->plate_number.' en attente de validation')
-                                            ->actions([
-                                                NotificationActions::make('voir')
-                                                    ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
-                                                    ->button()
-                                                    ->color('primary'),
+                                                ->title('Nouvelle demande')
+                                                ->body('Réparation pour l\'engin immatriculé '.$concernedEngine->plate_number.' en attente de validation')
+                                                ->actions([
+                                                    NotificationActions::make('voir')
+                                                        ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
+                                                        ->button()
+                                                        ->color('primary'),
 
-                                                    
-                                            ])
-                                            ->sendToDatabase($endpoint);
+                                                ])
+                                                ->sendToDatabase($endpoint);
+                                        } else {
+
+                                            $destinataire = User::role($NextdestinataireRole)->get();
+
+                                            Notification::make()
+                                                ->title('Nouvelle demande')
+                                                ->body('Réparation pour l\'engin immatriculé '.$concernedEngine->plate_number.' en attente de validation')
+                                                ->actions([
+                                                    NotificationActions::make('voir')
+                                                        ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
+                                                        ->button()
+                                                        ->color('primary'),
+
+                                                ])
+                                                ->sendToDatabase($destinataire);
                                         }
-
-                                      else{
-
-                                        $destinataire = User::role($NextdestinataireRole)->get();
-
-                                        Notification::make()
-                                        ->title('Nouvelle demande')
-                                        ->body('Réparation pour l\'engin immatriculé '.$concernedEngine->plate_number.' en attente de validation')
-                                        ->actions([
-                                            NotificationActions::make('voir')
-                                                ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
-                                                ->button()
-                                                ->color('primary'),
-
-              
-                                        ])
-                                        ->sendToDatabase($destinataire);
-                                      }
 
                                         $mailDestinator = User::role($NextdestinataireRole)->where('notification', true)->pluck('email');
 
@@ -368,9 +363,6 @@ class ViewReparation extends ViewRecord
                         }
 
                         //from here check to see if date fin is set before validation
-
-
-
 
                         //check to oblige suivi budgetaire
 
@@ -496,7 +488,7 @@ class ViewReparation extends ViewRecord
 
                     ->visible(function ($record) {
 
-                        if ($this->record->validation_state == ReparationValidationStates::Rejete()->value) {
+                        if ($this->record->validation_state == ReparationValidationStates::Rejete()->value || $this->record->validation_state == 'nextValue') {
 
                             return false;
                         } else {

@@ -4,6 +4,7 @@ namespace App\Filament\Resources\EngineResource\Widgets;
 
 use App\Models\ConsommationCarburant;
 use App\Models\Reparation;
+use App\Support\Database\StatesClass;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Card;
 use Illuminate\Database\Eloquent\Model;
@@ -16,7 +17,7 @@ class FraisReparationOveview extends BaseWidget
     protected function getCards(): array
     {
 
-        $FraisDeReparation = Reparation::where('engine_id', $this->record->id)->sum('cout_reparation');
+        $FraisDeReparation = Reparation::where('engine_id', $this->record->id)->where("state", "<>",StatesClass::Deactivated()->value)->sum('cout_reparation');
 
         $Kilometrage = ConsommationCarburant::where('engine_id', $this->record->id)
             ->orderByDesc('id')

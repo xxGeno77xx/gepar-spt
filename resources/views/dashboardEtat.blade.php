@@ -164,21 +164,23 @@
                 ->select('distance')
                 ->whereYear('date_distance_parcourue', $annee);
         })
-        ->join('consommation_carburants', 'consommation_carburants.engine_id', 'engines.id')
-        ->rightjoin('consommation_carburants', function($join) use ($annee){
+        // ->leftjoin('consommation_carburants', 'consommation_carburants.engine_id', 'engines.id')
+        ->leftjoin('consommation_carburants', function($join) use ($annee){
             $join->on( 'consommation_carburants.engine_id', 'engines.id')
                 ->whereYear('consommation_carburants.created_at', $annee) ;
         })
-        ->join('carburants', 'carburants.id', 'engines.carburant_id')
+        ->leftjoin('carburants', 'carburants.id', 'engines.carburant_id')
         ->select(
             'engines.plate_number',
             'distance',
             DB::raw('SUM(consommation_carburants.quantite) as total_quantite'),
             'type_carburant',
         )
+        ->whereYear('consommation_carburants.created_at', $annee)
         ->groupBy('engines.id', 'engines.plate_number', 'distance', 'type_carburant')
         ->get();
 
+        
 
         $vehiculeUtilitairesLegersIndividuels = Engine::whereIn('engines.id', $vehiculeUtilitairesLegersIDs)
         ->leftjoin('distance_parcourues', function ($join) use ($annee) {
@@ -187,8 +189,8 @@
                 ->select('distance')
                 ->whereYear('date_distance_parcourue', $annee);
         })
-        ->join('consommation_carburants', 'consommation_carburants.engine_id', 'engines.id')
-        ->rightjoin('consommation_carburants', function($join) use ($annee){
+        // ->leftjoin('consommation_carburants', 'consommation_carburants.engine_id', 'engines.id')
+        ->leftjoin('consommation_carburants', function($join) use ($annee){
             $join->on( 'consommation_carburants.engine_id', 'engines.id')
                 ->whereYear('consommation_carburants.created_at', $annee) ;
         })
@@ -199,19 +201,21 @@
             DB::raw('SUM(consommation_carburants.quantite) as total_quantite'),
             'type_carburant',
         )
+        ->whereYear('consommation_carburants.created_at', $annee)
         ->groupBy('engines.id', 'engines.plate_number', 'distance', 'type_carburant')
         ->get();
 
 
         $vehiculeUtilitairesLourdsIndividuels = Engine::whereIn('engines.id', $vehiculeUtilitairesLourdsIDs)
+        ->whereDate('engines.created_at', '<=', $annee . '/12/31/')
         ->leftjoin('distance_parcourues', function ($join) use ($annee) {
             $join
                 ->on('distance_parcourues.engine_id', 'engines.id')
                 ->select('distance')
                 ->whereYear('date_distance_parcourue', $annee);
         })
-        ->join('consommation_carburants', 'consommation_carburants.engine_id', 'engines.id')
-        ->rightjoin('consommation_carburants', function($join) use ($annee){
+        // ->leftjoin('consommation_carburants', 'consommation_carburants.engine_id', 'engines.id')
+        ->leftjoin('consommation_carburants', function($join) use ($annee){
             $join->on( 'consommation_carburants.engine_id', 'engines.id')
                 ->whereYear('consommation_carburants.created_at', $annee) ;
         })
@@ -222,6 +226,7 @@
             DB::raw('SUM(consommation_carburants.quantite) as total_quantite'),
             'type_carburant',
         )
+        ->whereYear('consommation_carburants.created_at', $annee)
         ->groupBy('engines.id', 'engines.plate_number', 'distance', 'type_carburant')
         ->get();
 
@@ -234,8 +239,8 @@
                 ->select('distance')
                 ->whereYear('date_distance_parcourue', $annee);
         })
-        ->join('consommation_carburants', 'consommation_carburants.engine_id', 'engines.id')
-        ->rightjoin('consommation_carburants', function($join) use ($annee){
+        // ->leftjoin('consommation_carburants', 'consommation_carburants.engine_id', 'engines.id')
+        ->leftjoin('consommation_carburants', function($join) use ($annee){
             $join->on( 'consommation_carburants.engine_id', 'engines.id')
                 ->whereYear('consommation_carburants.created_at', $annee) ;
         })
@@ -246,9 +251,9 @@
             DB::raw('SUM(consommation_carburants.quantite) as total_quantite'),
             'type_carburant',
         )
+        ->whereYear('consommation_carburants.created_at', $annee)
         ->groupBy('engines.id', 'engines.plate_number', 'distance', 'type_carburant')
         ->get();
-
 
         $tricyclesMotorisesIndividuels = Engine::whereIn('engines.id', $tricyclesMotorisesIDs)
         ->whereDate('engines.created_at', '<=', $annee . '/12/31/')
@@ -258,12 +263,12 @@
                 ->select('distance')
                 ->whereYear('date_distance_parcourue', $annee);
         })
-        ->rightjoin('consommation_carburants', function($join) use ($annee){
+        ->leftjoin('consommation_carburants', function($join) use ($annee){
             $join->on( 'consommation_carburants.engine_id', 'engines.id')
                 ->whereYear('consommation_carburants.created_at', $annee) ;
         })
 
-        ->join('carburants', 'carburants.id', 'engines.carburant_id')
+        ->leftjoin('carburants', 'carburants.id', 'engines.carburant_id')
         ->select(
             'engines.plate_number',
             'distance',

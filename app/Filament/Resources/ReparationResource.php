@@ -2,52 +2,50 @@
 
 namespace App\Filament\Resources;
 
-use Carbon\Carbon;
-use App\Models\Role;
-use App\Models\User;
-use Filament\Forms\Components\Fieldset;
-use Filament\Forms\Components\Radio;
-use Filament\Tables;
-use App\Models\Engine;
-use App\Models\Circuit;
-use App\Models\Division;
-use App\Models\Direction;
-use App\Models\Reparation;
-use App\Models\Departement;
-use App\Models\Prestataire;
-use Filament\Resources\Form;
-use Filament\Resources\Table;
-use App\Models\DepartementUser;
-use Filament\Resources\Resource;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\HtmlString;
+use App\Filament\Resources\ReparationResource\Pages;
 use App\Functions\ControlFunctions;
-use App\Support\Database\RolesEnum;
-use Filament\Forms\Components\Card;
-use Filament\Forms\Components\Grid;
-use Filament\Tables\Filters\Filter;
+use App\Models\CompteCharge;
+use App\Models\DepartementUser;
+use App\Models\Engine;
+use App\Models\Prestataire;
+use App\Models\Reparation;
+use App\Models\Role;
+use App\Models\Type;
+use App\Models\User;
+use App\Static\StoredFunctions;
+use App\Support\Database\AppreciationClass;
 use App\Support\Database\CommonInfos;
+use App\Support\Database\PermissionsClass;
+use App\Support\Database\ReparationValidationStates;
+use App\Support\Database\RolesEnum;
 use App\Support\Database\StatesClass;
+use App\Tables\Columns\PrestataireColumn;
+use Carbon\Carbon;
+use Database\Seeders\RolesPermissionsSeeder;
+use Filament\Forms\Components\Builder as FilamentBuilder;
+use Filament\Forms\Components\Card;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Radio;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Resources\Form;
+use Filament\Resources\Resource;
+use Filament\Resources\Table;
+use Filament\Tables;
 use Filament\Tables\Columns\TagsColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use App\Tables\Columns\DepartementColumn;
-use App\Tables\Columns\PrestataireColumn;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\RichEditor;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
-use App\Support\Database\PermissionsClass;
-use Filament\Forms\Components\Placeholder;
-use App\Support\Database\AppreciationClass;
-use Database\Seeders\RolesPermissionsSeeder;
-use App\Filament\Resources\ReparationResource\Pages;
-use App\Support\Database\ReparationValidationStates;
-use Filament\Forms\Components\Builder as FilamentBuilder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\HtmlString;
 
 class ReparationResource extends Resource
 {
@@ -71,14 +69,14 @@ class ReparationResource extends Resource
 
                                 Placeholder::make('motif_rejet')
                                     ->label(new HtmlString('<p style="color: red; font-size: 1.2rem;">Motif du rejet</p>'))
-                                    ->content(fn($record) => $record->motif_rejet ? $record->motif_rejet : ''),
+                                    ->content(fn ($record) => $record->motif_rejet ? $record->motif_rejet : ''),
 
                                 Placeholder::make('rejete_par')
                                     ->label(new HtmlString('<p style="color: red; font-size: 1.2rem;">Rejeté par</p>'))
-                                    ->content(fn($record) => $record->rejete_par ? User::find($record->rejete_par)->name : ''),
+                                    ->content(fn ($record) => $record->rejete_par ? User::find($record->rejete_par)->name : ''),
                             ]),
                     ])
-                    ->visible(fn($record) => $record && $record->motif_rejet ? true : false),
+                    ->visible(fn ($record) => $record && $record->motif_rejet ? true : false),
 
                 Card::make()
                     ->schema([
@@ -97,6 +95,7 @@ class ReparationResource extends Resource
                                             }
                                         }
                                     })
+                                    ->reactive()
                                     ->options(
                                         function ($record) {
                                             $loggedUser = auth()->user();
@@ -193,7 +192,13 @@ class ReparationResource extends Resource
                                 DatePicker::make('date_fin')
                                     ->label('Date de retour du véhicule')
                                     ->afterOrEqual('date_lancement')
-                                    ->visible(function ($record) {
+                                    ->visible(function ($record, $get) {
+
+                                        if ($get('engine_id')) {
+                                            if (ControlFunctions::checkEngineType($get('engine_id'))) {
+                                                return true;
+                                            }
+                                        }
 
                                         if ($record) {
                                             $remainingSteps = ControlFunctions::getIndicesAfterNthOccurrence($record, RolesEnum::Chef_parc()->value, 1);
@@ -205,7 +210,13 @@ class ReparationResource extends Resource
                                             return false;
                                         }
                                     })
-                                    ->required(function ($record) {
+                                    ->required(function ($record, $get) {
+
+                                        if ($get('engine_id')) {
+                                            if (ControlFunctions::checkEngineType($get('engine_id'))) {
+                                                return true;
+                                            }
+                                        }
 
                                         if ($record) {
                                             $remainingSteps = ControlFunctions::getIndicesAfterNthOccurrence($record, RolesEnum::Chef_parc()->value, 1);
@@ -222,7 +233,13 @@ class ReparationResource extends Resource
                                     ->searchable()
                                     ->columnSpanFull()
                                     ->options(AppreciationClass::toArray())
-                                    ->visible(function ($record) {
+                                    ->visible(function ($record, $get) {
+
+                                        if ($get('engine_id')) {
+                                            if (ControlFunctions::checkEngineType($get('engine_id'))) {
+                                                return true;
+                                            }
+                                        }
 
                                         if ($record) {
                                             $remainingSteps = ControlFunctions::getIndicesAfterNthOccurrence($record, RolesEnum::Chef_parc()->value, 1);
@@ -234,7 +251,13 @@ class ReparationResource extends Resource
                                             return false;
                                         }
                                     })
-                                    ->required(function ($record) {
+                                    ->required(function ($record, $get) {
+
+                                        if ($get('engine_id')) {
+                                            if (ControlFunctions::checkEngineType($get('engine_id'))) {
+                                                return true;
+                                            }
+                                        }
 
                                         if ($record) {
                                             $remainingSteps = ControlFunctions::getIndicesAfterNthOccurrence($record, RolesEnum::Chef_parc()->value, 1);
@@ -252,7 +275,13 @@ class ReparationResource extends Resource
                                     ->label('Rapport de fin de réparation')
                                     ->disableAllToolbarButtons()
                                     ->placeholder('Vos observations concernant la réparation')
-                                    ->visible(function ($record) {
+                                    ->visible(function ($record, $get) {
+
+                                        if ($get('engine_id')) {
+                                            if (ControlFunctions::checkEngineType($get('engine_id'))) {
+                                                return true;
+                                            }
+                                        }
 
                                         if ($record) {
                                             $remainingSteps = ControlFunctions::getIndicesAfterNthOccurrence($record, RolesEnum::Chef_parc()->value, 1);
@@ -264,7 +293,13 @@ class ReparationResource extends Resource
                                             return false;
                                         }
                                     })
-                                    ->required(function ($record) {
+                                    ->required(function ($record, $get) {
+
+                                        if ($get('engine_id')) {
+                                            if (ControlFunctions::checkEngineType($get('engine_id'))) {
+                                                return true;
+                                            }
+                                        }
 
                                         if ($record) {
                                             $remainingSteps = ControlFunctions::getIndicesAfterNthOccurrence($record, RolesEnum::Chef_parc()->value, 1);
@@ -277,7 +312,6 @@ class ReparationResource extends Resource
                                         }
                                     }),
 
-
                                 Hidden::make('state')->default(StatesClass::Activated()->value),
 
                                 Hidden::make('validation_state')->default(''),
@@ -287,31 +321,31 @@ class ReparationResource extends Resource
                             ])->columns(2),
 
                         Section::make('Informations du prestataire')
-                            ->description(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('raison_social_fr') : '')
+                            ->description(fn ($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('raison_social_fr') : '')
                             ->collapsible()
                             ->schema([
                                 Grid::make(3)
                                     ->schema([
                                         Placeholder::make('Raison sociale')
-                                            ->content(fn($get) => $get('prestataire_id') && (Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('nom_fr')) ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('nom_fr') : '-'),
+                                            ->content(fn ($get) => $get('prestataire_id') && (Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('nom_fr')) ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('nom_fr') ?? 'rr' : '-'),
 
                                         Placeholder::make('Adresse')
-                                            ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('adr_fr') : '-'),
+                                            ->content(fn ($get) => $get('prestataire_id') ? (Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('adr_fr')) : '-'),
 
                                         Placeholder::make('Contact_1')
-                                            ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('tel_fr') : '-'),
+                                            ->content(fn ($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('tel_fr') : '-'),
 
                                         Placeholder::make('Contact_2')
-                                            ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('tel2_frs') : '-'),
+                                            ->content(fn ($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('tel2_frs') : '-'),
 
                                         Placeholder::make('Secteur d\'activité')
-                                            ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('sect_activ') : '-'),
+                                            ->content(fn ($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('sect_activ') : '-'),
 
                                         Placeholder::make('Ville')
-                                            ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('ville_fr') : '-'),
+                                            ->content(fn ($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('ville_fr') : '-'),
 
                                         Placeholder::make('Numéro de compte')
-                                            ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('numero_compte') : '-'),
+                                            ->content(fn ($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('numero_compte') : '-'),
                                     ]),
 
                                 Section::make('Devis')
@@ -363,7 +397,6 @@ class ReparationResource extends Resource
                                                     }),
                                             ]),
 
-
                                         Grid::make(2)
                                             ->schema([
                                                 TextInput::make('main_oeuvre')
@@ -392,83 +425,113 @@ class ReparationResource extends Resource
 
                                 Grid::make(2)
                                     ->schema([
-                                        Radio::make("budget")
-                                            ->label("BUDGETS: ")
+                                        Radio::make('budget')
+                                            ->label('BUDGETS: ')
                                             ->required()
                                             ->inline()
                                             ->options([
-                                                "Exploitation" => "Exploitation",
-                                                "Investissements" => "Investissements",
+                                                'Exploitation' => 'Exploitation',
+                                                'Investissements' => 'Investissements',
 
                                             ]),
 
-                                        TextInput::make("exercice")
+                                        TextInput::make('exercice')
                                             ->numeric()
                                             ->required()
-                                            ->minValue(now()->format("Y"))
+                                            ->minValue(now()->format('Y')),
                                     ]),
                                 Grid::make(3)
                                     ->schema([
-                                        Fieldset::make("Ref_projet")
-                                            ->label(strtoupper("references du projet"))
+                                        Fieldset::make('Ref_projet')
+                                            ->label(strtoupper('references du projet'))
                                             ->schema([
 
-                                                TextInput::make("type_budget")
-                                                    ->label("Type ")
+                                                TextInput::make('type_budget')
+                                                    ->label('Type ')
                                                     ->required(),
 
-                                                TextInput::make("num_budget")
-                                                    ->label("N° "),
-                                            ])
-                                    ]),
-
-                                Fieldset::make("insc_projet")
-                                    ->label(strtoupper("Inscription du projet au budget"))
-                                    ->schema([
-
-                                        Radio::make("insc_budget")
-                                            ->label("")
-                                            ->inline()
-                                            ->options([
-                                                "OUI" => "OUI",
-                                                "NON" => "NON",
+                                                TextInput::make('num_budget')
+                                                    ->label('N° '),
                                             ]),
                                     ]),
-                                Fieldset::make("imputation")
+
+                                Fieldset::make('insc_projet')
+                                    ->label(strtoupper('Inscription du projet au budget'))
+                                    ->schema([
+
+                                        Radio::make('insc_budget')
+                                            ->label('')
+                                            ->inline()
+                                            ->options([
+                                                'OUI' => 'OUI',
+                                                'NON' => 'NON',
+                                            ]),
+                                    ]),
+                                Fieldset::make('imputation')
                                     ->label(strtoupper("compte d'imputation"))
                                     ->schema([
 
-                                        Grid::make(2)
+                                        Grid::make(3)
                                             ->schema([
-                                                TextInput::make("compte_imputation")
-                                                    ->label("Numero de compte ")
+                                                Select::make('compte_imputation')
+                                                    ->label('Numero de compte ')
+                                                    ->options(CompteCharge::whereIn('radical_interne', config('app.comptes_charge'))->pluck('radical_interne', 'radical_interne'))
+                                                    ->searchable()
                                                     ->required()
+                                                    ->reactive()
+                                                    ->afterStateUpdated(function ($set, $get) {
 
-                                                    ->required(),
+                                                        $numeroCompte = CompteCharge::where('radical_interne', $get('compte_imputation'))->first()->radical_interne;
 
+                                                        $solde = StoredFunctions::soldeCompteCharge(($numeroCompte));
 
-                                                Placeholder::make("libelle")
-                                                    ->content("A completer"),
+                                                        $set('dispo_prov', $solde);
 
+                                                    }),
+
+                                                Placeholder::make('intitule')
+                                                    ->label('Intitulé du compte')
+                                                    ->content(fn ($get) => in_array($get('compte_imputation'), config('app.comptes_charge')) ? CompteCharge::where('radical_interne', $get('compte_imputation'))->first()->intitule : new HtmlString('<i>Aucun compte sélectionné</i>')),
+
+                                                Placeholder::make('carosserie')
+                                                    ->label('Carrosserie du véhicule')
+                                                    ->content(function ($get) {
+
+                                                        $typeId = Engine::find($get('engine_id'))->type_id;
+
+                                                        $carosserie = Type::find($typeId)->nom_type;
+
+                                                        return new HtmlString("<i style='color:Orange;'> {$carosserie} </i>");
+                                                    }),
 
                                             ]),
 
                                         Grid::make(3)
                                             ->schema([
-                                                TextInput::make("dispo_prov")
-                                                    ->label("Disponibilité provisoire")
+                                                TextInput::make('dispo_prov')
+                                                    ->label('Disponibilité provisoire')
                                                     ->numeric()
                                                     ->required(),
 
-                                                TextInput::make("montant_proj")
-                                                    ->label("Montant du projet")
+                                                TextInput::make('montant_proj')
+                                                    ->label('Montant du projet')
                                                     ->numeric()
-                                                    ->required(),
+                                                    ->required()
+                                                    ->reactive()
+                                                    ->afterStateUpdated(function ($get, $set) {
 
-                                                TextInput::make("dispo_prov_apre")
-                                                    ->label("Disponibilité provisoire après engagement du projet")
+                                                        $reste = $get('dispo_prov') - $get('montant_proj');
+
+                                                        $set('dispo_prov_apre', $reste);
+
+                                                    }),
+
+                                                TextInput::make('dispo_prov_apre')
+                                                    ->label('Disponibilité provisoire après engagement du projet')
                                                     ->numeric()
-                                                    ->required(),
+                                                    ->required()
+                                                    ->disabled()
+                                                    ->dehydrated(),
                                             ]),
 
                                     ]),
@@ -494,12 +557,11 @@ class ReparationResource extends Resource
                                 //                     {
                                 //                         return  $compte->raison_social_fr;
                                 //                     }
-                                //                     return new HtmlString("<i>Compte inexistant</i>"); 
+                                //                     return new HtmlString("<i>Compte inexistant</i>");
                                 //                 }
 
                                 //             }),
                                 //     ])
-
 
                             ])
                             ->visible(function ($record) {
@@ -517,13 +579,12 @@ class ReparationResource extends Resource
 
                             }),
 
-
                         Section::make('Travaux à faire')
                             ->schema([
 
                                 Select::make('révisions')
                                     ->label('Type de la réparation')
-                                    ->relationship('typeReparations', 'libelle', fn(Builder $query) => $query->where('state', StatesClass::Activated()->value))
+                                    ->relationship('typeReparations', 'libelle', fn (Builder $query) => $query->where('state', StatesClass::Activated()->value))
                                     ->multiple()
                                     ->searchable()
                                     ->preload(true)
@@ -544,7 +605,7 @@ class ReparationResource extends Resource
                                                             ->numeric()
                                                             ->minValue(1)
                                                             ->reactive()
-                                                            ->afterStateUpdated(fn($state, callable $set, $get) => $set('montant', $state * $get('Prix_unitaire'))),
+                                                            ->afterStateUpdated(fn ($state, callable $set, $get) => $set('montant', $state * $get('Prix_unitaire'))),
 
                                                         TextInput::make('Prix_unitaire')
                                                             ->numeric()
@@ -552,7 +613,7 @@ class ReparationResource extends Resource
                                                             ->minValue(1)
                                                             ->reactive()
                                                             ->integer()
-                                                            ->afterStateUpdated(fn($state, callable $set, $get) => $set('montant', $state * $get('nombre'))),
+                                                            ->afterStateUpdated(fn ($state, callable $set, $get) => $set('montant', $state * $get('nombre'))),
 
                                                         TextInput::make('montant')
                                                             ->suffix('FCFA')
@@ -580,7 +641,7 @@ class ReparationResource extends Resource
 
                                 if (auth()->user()->hasAnyRole([RolesEnum::Diga()->value])) {
                                     return false;
-                                };
+                                }
 
                                 return true;
                             }
@@ -610,7 +671,7 @@ class ReparationResource extends Resource
 
                                 if (auth()->user()->hasAnyRole([RolesEnum::Directeur_general()->value, RolesEnum::Interimaire_DG()->value])) {
                                     return false;
-                                };
+                                }
 
                                 return true;
                             }
@@ -658,7 +719,7 @@ class ReparationResource extends Resource
 
                 TextColumn::make('engine.departement_id')
                     ->label('Centre')
-                    ->formatStateUsing(fn($state) => (DB::table("centre")->where("code_centre", $state)->first()->sigle_centre))
+                    ->formatStateUsing(fn ($state) => (DB::table('centre')->where('code_centre', $state)->first()->sigle_centre))
                     ->searchable()
                     ->sortable(),
 
@@ -693,7 +754,7 @@ class ReparationResource extends Resource
                         } else {
                             $validator = (Role::find($state))->name;
 
-                            return 'En attente de validation de: ' . $validator;
+                            return 'En attente de validation de: '.$validator;
                         }
 
                     })
@@ -731,16 +792,16 @@ class ReparationResource extends Resource
                         return $query
                             ->when(
                                 $data['date_from'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('date_lancement', '>=', $date),
+                                fn (Builder $query, $date): Builder => $query->whereDate('date_lancement', '>=', $date),
                             )
                             ->when(
                                 $data['date_to'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('date_lancement', '<=', $date),
+                                fn (Builder $query, $date): Builder => $query->whereDate('date_lancement', '<=', $date),
                             );
                     })
                     ->indicateUsing(function (array $data): ?string {
                         if (($data['date_from']) && ($data['date_from'])) {
-                            return 'Date d\'envoi en réparation:  ' . Carbon::parse($data['date_from'])->format('d-m-Y') . ' au ' . Carbon::parse($data['date_to'])->format('d-m-Y');
+                            return 'Date d\'envoi en réparation:  '.Carbon::parse($data['date_from'])->format('d-m-Y').' au '.Carbon::parse($data['date_to'])->format('d-m-Y');
                         }
 
                         return null;
@@ -764,11 +825,11 @@ class ReparationResource extends Resource
                                 }
                             );
                     })->indicateUsing(function (array $data): ?string {
-                        if (!$data['prestataire_id']) {
+                        if (! $data['prestataire_id']) {
                             return null;
                         }
 
-                        return 'Prestataire: ' . Prestataire::where('code_fr', $data['prestataire_id'])->value('raison_social_fr');
+                        return 'Prestataire: '.Prestataire::where('code_fr', $data['prestataire_id'])->value('raison_social_fr');
                     }),
 
                 SelectFilter::make('Type de la réparation')
@@ -793,12 +854,12 @@ class ReparationResource extends Resource
                                 }
                             );
                     })->indicateUsing(function (array $data): ?string {
-                        if (!$data['appreciation']) {
+                        if (! $data['appreciation']) {
                             return null;
                         } elseif ($data['appreciation'] == AppreciationClass::Insatisfaisant()->value) {
-                            return 'Appreciation: ' . AppreciationClass::Insatisfaisant()->value;
+                            return 'Appreciation: '.AppreciationClass::Insatisfaisant()->value;
                         } else {
-                            return 'Appreciation: ' . AppreciationClass::Satisfaisant()->value;
+                            return 'Appreciation: '.AppreciationClass::Satisfaisant()->value;
                         }
                     }),
 
@@ -841,4 +902,5 @@ class ReparationResource extends Resource
     // {
     //     $$this->getgetNthOccurrenceOfRequiredRole( $array,  $role,  $n);
     // }
+
 }
