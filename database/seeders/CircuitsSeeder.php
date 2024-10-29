@@ -36,10 +36,7 @@ class CircuitsSeeder extends Seeder
             ['role_id' => $chefParcID], // Chef parc
         ];
 
-        Circuit::create([
-            'name' => CircuitsEnums::circuit_de_division()->value,
-            'steps' => $circuitDeDivision,
-        ]);
+        
 
         $circuitdeDirection = [
 
@@ -52,10 +49,7 @@ class CircuitsSeeder extends Seeder
             ['role_id' => $chefParcID], // Chef parc
         ];
 
-        Circuit::create([
-            'name' => CircuitsEnums::circuit_de_direction()->value,
-            'steps' => $circuitdeDirection,
-        ]);
+        
 
         $circuitDeLaDirectionGenerale = [
 
@@ -67,10 +61,7 @@ class CircuitsSeeder extends Seeder
             ['role_id' => $chefParcID], // Chef parc
         ];
 
-        Circuit::create([
-            'name' => CircuitsEnums::circuit_de_la_direction_generale()->value,
-            'steps' => $circuitDeLaDirectionGenerale,
-        ]);
+       
 
         $circuitParticulier = [  // circuits où  le DG est à la fois le directeur de département
 
@@ -83,9 +74,28 @@ class CircuitsSeeder extends Seeder
             ['role_id' => $chefParcID], // Chef parc
         ];
 
+
+
+        // -----creation-----
+
+        Circuit::create([
+            'name' => CircuitsEnums::circuit_de_la_direction_generale()->value,
+            'steps' => $circuitDeLaDirectionGenerale,
+        ]);
+
         Circuit::create([
             'name' => CircuitsEnums::circuit_particulier()->value,
             'steps' => $circuitParticulier,
+        ]);
+
+        Circuit::create([
+            'name' => CircuitsEnums::circuit_de_division()->value,
+            'steps' => $circuitDeDivision,
+        ]);
+
+        Circuit::create([
+            'name' => CircuitsEnums::circuit_de_direction()->value,
+            'steps' => $circuitdeDirection,
         ]);
 
     }
