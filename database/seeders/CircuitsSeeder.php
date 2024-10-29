@@ -23,12 +23,14 @@ class CircuitsSeeder extends Seeder
         $dG = Role::where('name', RolesEnum::Directeur_general()->value)->first()->id;
         $chefParcID = Role::where('name', RolesEnum::Chef_parc()->value)->first()->id;
         $dpl = Role::where('name', RolesEnum::Dpl()->value)->first()->id;
+        $chefDcgbt = Role::where('name', RolesEnum::Chef_dcgbt()->value)->first()->id;
 
         $circuitDeDivision = [
 
             ['role_id' => $dpl], // Dpl
             ['role_id' => $chefDiviionID], // Chef division
             ['role_id' => $budgetID], // Budget
+            ['role_id' => $chefDcgbt], // Chef DCGBT
             ['role_id' => $directeurID], // Directeur
             ['role_id' => $digaID], // DIGA
             ['role_id' => $dG], // Directeur général
@@ -42,6 +44,7 @@ class CircuitsSeeder extends Seeder
 
             ['role_id' => $dpl], // Dpl
             ['role_id' => $budgetID], // Budget
+            ['role_id' => $chefDcgbt], // Chef DCGBT
             ['role_id' => $directeurID], // Directeur
             ['role_id' => $digaID], // DIGA
             ['role_id' => $dG], // Directeur général
@@ -55,6 +58,7 @@ class CircuitsSeeder extends Seeder
 
             ['role_id' => $dpl], // Dpl
             ['role_id' => $budgetID], // Budget
+            ['role_id' => $chefDcgbt], // Chef DCGBT
             ['role_id' => $digaID], // DIGA
             ['role_id' => $dG], // Directeur général
             ['role_id' => $budgetID], // Budget
@@ -68,6 +72,7 @@ class CircuitsSeeder extends Seeder
             ['role_id' => $dpl], // Dpl
             ['role_id' => $chefDiviionID], // Chef division
             ['role_id' => $budgetID], // Budget
+            ['role_id' => $chefDcgbt], // Chef DCGBT
             ['role_id' => $digaID], // DIGA
             ['role_id' => $dG], // Directeur général
             ['role_id' => $budgetID], // Budget

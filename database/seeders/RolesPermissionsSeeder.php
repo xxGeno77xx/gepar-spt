@@ -211,6 +211,8 @@ class RolesPermissionsSeeder extends Seeder
 
         (Role::where('name', RolesEnum::Budget()->value))->first()->syncPermissions($budgetPermissions);
 
+        (Role::where('name', RolesEnum::Chef_dcgbt()->value))->first()->syncPermissions($budgetPermissions);
+
         //DPAS permissions
 
         $dPasPermissions = [
