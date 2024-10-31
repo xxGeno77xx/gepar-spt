@@ -24,10 +24,12 @@ class CircuitsSeeder extends Seeder
         $chefParcID = Role::where('name', RolesEnum::Chef_parc()->value)->first()->id;
         $dpl = Role::where('name', RolesEnum::Dpl()->value)->first()->id;
         $chefDcgbt = Role::where('name', RolesEnum::Chef_dcgbt()->value)->first()->id;
+        $chefDpl = Role::where('name', RolesEnum::Chef_DPL()->value)->first()->id;
 
         $circuitDeDivision = [
 
             ['role_id' => $dpl], // Dpl
+            ['role_id' => $chefDpl], //  Chef Dpl
             ['role_id' => $chefDiviionID], // Chef division
             ['role_id' => $budgetID], // Budget
             ['role_id' => $chefDcgbt], // Chef DCGBT
@@ -43,6 +45,7 @@ class CircuitsSeeder extends Seeder
         $circuitdeDirection = [
 
             ['role_id' => $dpl], // Dpl
+            ['role_id' => $chefDpl], //  Chef Dpl
             ['role_id' => $budgetID], // Budget
             ['role_id' => $chefDcgbt], // Chef DCGBT
             ['role_id' => $directeurID], // Directeur
@@ -57,6 +60,7 @@ class CircuitsSeeder extends Seeder
         $circuitDeLaDirectionGenerale = [
 
             ['role_id' => $dpl], // Dpl
+            ['role_id' => $chefDpl], //  Chef Dpl
             ['role_id' => $budgetID], // Budget
             ['role_id' => $chefDcgbt], // Chef DCGBT
             ['role_id' => $digaID], // DIGA
@@ -70,6 +74,7 @@ class CircuitsSeeder extends Seeder
         $circuitParticulier = [  // circuits où  le DG est à la fois le directeur de département
 
             ['role_id' => $dpl], // Dpl
+            ['role_id' => $chefDpl], //  Chef Dpl
             ['role_id' => $chefDiviionID], // Chef division
             ['role_id' => $budgetID], // Budget
             ['role_id' => $chefDcgbt], // Chef DCGBT

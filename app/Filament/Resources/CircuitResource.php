@@ -2,19 +2,20 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\CircuitResource\Pages;
-use App\Models\Circuit;
 use App\Models\Role;
-use Database\Seeders\RolesPermissionsSeeder;
-use Filament\Forms\Components\Card;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Resources\Form;
-use Filament\Resources\Resource;
-use Filament\Resources\Table;
 use Filament\Tables;
+use App\Models\Circuit;
+use Filament\Resources\Form;
+use Filament\Resources\Table;
+use Filament\Resources\Resource;
+use App\Support\Database\RolesEnum;
+use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Repeater;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Database\Seeders\RolesPermissionsSeeder;
+use App\Filament\Resources\CircuitResource\Pages;
 
 class CircuitResource extends Resource
 {
@@ -26,7 +27,7 @@ class CircuitResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()->hasRole(RolesPermissionsSeeder::SuperAdmin);
+        return auth()->user()->hasRole(RolesEnum::Super_administrateur()->value);
     }
 
     public static function form(Form $form): Form

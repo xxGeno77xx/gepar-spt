@@ -429,13 +429,7 @@ class ConsommationCarburantsRelationManager extends RelationManager
                         }
 
                     }),
-
-                // Tables\Actions\Action::make('Supprimer')
-                //     ->hidden(!auth()->user()->hasRole(RolesPermissionsSeeder::SuperAdmin))
-                //     ->color('danger')
-                //     ->icon('heroicon-o-x')
-                //     ->action(fn($record) => $record->update(['state' => StatesClass::Deactivated()->value]))
-                //     ->requiresConfirmation(),
+ 
             ])
             ->bulkActions([
 

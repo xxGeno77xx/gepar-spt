@@ -35,7 +35,7 @@ class RolesPermissionsSeeder extends Seeder
         }
 
         $role = Role::firstOrCreate([
-            'name' => self::SuperAdmin,
+            'name' => RolesEnum::Super_administrateur()->value,
             'guard_name' => 'web',
         ]);
 
@@ -55,7 +55,7 @@ class RolesPermissionsSeeder extends Seeder
 
         ]);
 
-        $superAdmin->syncRoles(self::SuperAdmin);
+        $superAdmin->syncRoles(RolesEnum::Super_administrateur()->value);
 
         //=============Manager================
 
@@ -80,19 +80,57 @@ class RolesPermissionsSeeder extends Seeder
 
         $usersPermissions = Arr::where($permissions, function ($value) {
 
-            return ! in_array($value, [
+            return !in_array($value, [
                 PermissionsClass::Parametre_read()->value,
                 PermissionsClass::Parametre_update()->value,
                 PermissionsClass::Permissions_read()->value,
+
                 PermissionsClass::Roles_create()->value,
                 PermissionsClass::Roles_read()->value,
                 PermissionsClass::Roles_update()->value,
                 PermissionsClass::Roles_delete()->value,
                 PermissionsClass::Roles_create()->value,
+
                 PermissionsClass::users_create()->value,
                 PermissionsClass::users_read()->value,
                 PermissionsClass::users_update()->value,
                 PermissionsClass::users_delete()->value,
+
+                PermissionsClass::Chauffeurs_create()->value,
+                PermissionsClass::Chauffeurs_read()->value,
+                PermissionsClass::Chauffeurs_update()->value,
+
+                PermissionsClass::Assurances_create()->value,
+                PermissionsClass::Assurances_read()->value,
+                PermissionsClass::Assurances_update()->value,
+
+                PermissionsClass::Visites_create()->value,
+                PermissionsClass::Visites_read()->value,
+                PermissionsClass::Visites_update()->value,
+
+                PermissionsClass::Carburant_create()->value,
+                PermissionsClass::Carburant_read()->value,
+                PermissionsClass::Carburant_update()->value,
+
+                PermissionsClass::Carburant_create()->value,
+                PermissionsClass::Carburant_read()->value,
+                PermissionsClass::Carburant_update()->value,
+
+                PermissionsClass::TypesReparations_manage()->value,
+
+                PermissionsClass::marques_read()->value,
+                PermissionsClass::marques_update()->value,
+                PermissionsClass::Marques_create()->value,
+                PermissionsClass::Marques_delete()->value,
+
+                PermissionsClass::modeles_read()->value,
+                PermissionsClass::modeles_update()->value,
+                PermissionsClass::Modeles_create()->value,
+                PermissionsClass::Modeles_delete()->value,
+
+                PermissionsClass::Types_create()->value,
+                PermissionsClass::Types_read()->value,
+                PermissionsClass::Types_update()->value,
             ]);
         });
 

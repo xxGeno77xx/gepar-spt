@@ -209,7 +209,7 @@ class TvmResource extends Resource
 
             RolesEnum::Chef_parc()->value,
             RolesEnum::Dpl()->value,
-            RolesPermissionsSeeder::SuperAdmin,
+            RolesEnum::Super_administrateur()->value,
 
         ]);
     }

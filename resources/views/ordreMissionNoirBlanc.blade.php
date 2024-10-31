@@ -8,6 +8,7 @@
     $moyenTransport = Engine::find($order->engine_id)->value('plate_number');
     $departement = Departement::where("code_centre",$order->departement_id)->first()->sigle_centre;
     $agents = $order->agents;
+    $initials = $order->initials;
 
  
 
@@ -92,10 +93,10 @@
         <div class="top-content">
             <div class="main">
                 <p class="left-hand-heading">
-                    NA/KAMK
+                    {{$initials}}
                 </p>
                 <span style="font-weight: bold; font-style: italic;">
-                    N°______________/SPT/DG/DRHP/{{$departement}}
+                    N°______________/SPT/DG/DRHP/DPL
                 </span>
                 <div class="centered-div">
                     <h1 style="font-weight: bold; font-family: Bookman Old Style;"><u>ORDRE DE MISSION</u></h1>

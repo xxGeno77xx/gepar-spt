@@ -32,6 +32,7 @@ use Filament\Tables\Columns\TagsColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\HtmlString;
 
 class OrdreDeMissionResource extends Resource
 {
@@ -60,14 +61,14 @@ class OrdreDeMissionResource extends Resource
                 Card::make()
                     ->schema([
 
-                        Grid::make(3)
+                        Grid::make(4)
                             ->schema([
 
                                 Select::make('chauffeur_id')
                                     ->label('Chauffeur')
                                     ->options(
                                         Chauffeur::select(['fullname', 'id'])
-                                            ->where('Chauffeurs.state', '<>',StatesClass::Deactivated()->value)
+                                            ->where('Chauffeurs.state', '<>', StatesClass::Deactivated()->value)
                                             // ->whereNotNull('engine_id')
                                             // ->where('Chauffeurs.mission_state', ChauffeursStatesClass::Disponible()->value)
                                             ->get()
@@ -103,8 +104,15 @@ class OrdreDeMissionResource extends Resource
                                 DatePicker::make('date_de_retour')
                                     ->afterOrEqual('date_de_depart')
                                     ->required()
-                                    ->disabled(fn ($get) => $get('is_ordre_de_route') == 1 ? true : false)
+                                    ->disabled(fn($get) => $get('is_ordre_de_route') == 1 ? true : false)
                                     ->dehydrated(),
+
+                                TextInput::make("initials")
+                                    ->label("Initiales")
+                                    ->required()
+                                    ->helperText(new HtmlString("<p style='font-weight: bold; font-style: italic; opacity: 0.7;'>
+    Initiales séparées par un \"/ \". Ex: KA/DP
+</p>")),
 
                                 Repeater::make('agents')
                                     ->schema([
@@ -178,7 +186,7 @@ class OrdreDeMissionResource extends Resource
                                     ]),
 
                                 Hidden::make('numero_ordre')
-                                    ->default(fn () => OrdreDeMission::orderBy('id', 'desc')->first() ? OrdreDeMission::orderBy('id', 'desc')->first()->id + 1 : 1), //generate the number
+                                    ->default(fn() => OrdreDeMission::orderBy('id', 'desc')->first() ? OrdreDeMission::orderBy('id', 'desc')->first()->id + 1 : 1), //generate the number
                             ]),
                     ]),
 
@@ -206,7 +214,7 @@ class OrdreDeMissionResource extends Resource
 
                 BadgeColumn::make('objet_mission')
                     ->limit(20)
-                    ->tooltip(fn ($record) => $record->objet_mission)
+                    ->tooltip(fn($record) => $record->objet_mission)
                     ->color('success')
                     ->label('Objet de la mission'),
 
@@ -214,7 +222,7 @@ class OrdreDeMissionResource extends Resource
                     ->label('Destination(s)')
                     ->searchable(isIndividual: true, query: function (Builder $query, string $search): Builder {
 
-                        return $query->selectRaw('ordre_de_missions.lieu')->whereRaw('LOWER(lieu) LIKE ?', ['%'.strtolower($search).'%']);
+                        return $query->selectRaw('ordre_de_missions.lieu')->whereRaw('LOWER(lieu) LIKE ?', ['%' . strtolower($search) . '%']);
 
                     }),
 
@@ -224,17 +232,17 @@ class OrdreDeMissionResource extends Resource
 
                 BadgeColumn::make('departement_id')
                     ->label('Département')
-                    ->formatStateUsing(fn ($state) => Departement::where('code_centre', $state)->first()->sigle_centre)
+                    ->formatStateUsing(fn($state) => Departement::where('code_centre', $state)->first()->sigle_centre)
                     ->color('success'),
             ])
             ->filters([
                 Filter::make('Departement')
                     ->indicateUsing(function (array $data): ?string {
-                        if (! $data['departement_id']) {
+                        if (!$data['departement_id']) {
                             return null;
                         }
 
-                        return 'Département: '.Departement::where('code_centre', $data['departement_id'])->value('sigle_centre');
+                        return 'Département: ' . Departement::where('code_centre', $data['departement_id'])->value('sigle_centre');
                     })
                     ->form([
                         Select::make('departement_id')
@@ -265,15 +273,15 @@ class OrdreDeMissionResource extends Resource
                         return $query
                             ->when(
                                 $data['chauffeur_id'],
-                                fn (Builder $query, $status): Builder => $query->where('ordre_de_missions.chauffeur_id', $status),
+                                fn(Builder $query, $status): Builder => $query->where('ordre_de_missions.chauffeur_id', $status),
                             );
                     })
                     ->indicateUsing(function (array $data): ?string {
-                        if (! $data['chauffeur_id']) {
+                        if (!$data['chauffeur_id']) {
                             return null;
                         }
 
-                        return 'Chauffeur: '.Chauffeur::where('id', $data['chauffeur_id'])->first()->fullname;
+                        return 'Chauffeur: ' . Chauffeur::where('id', $data['chauffeur_id'])->first()->fullname;
                     }),
 
                 Filter::make('date_de_depart')
@@ -300,16 +308,16 @@ class OrdreDeMissionResource extends Resource
                         return $query
                             ->when(
                                 $data['date_from'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('date_de_depart', '>=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('date_de_depart', '>=', $date),
                             )
                             ->when(
                                 $data['date_to'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('date_de_depart', '<=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('date_de_depart', '<=', $date),
                             );
                     })
                     ->indicateUsing(function (array $data): ?string {
                         if (($data['date_from']) && ($data['date_from'])) {
-                            return 'Date de départ:  '.Carbon::parse($data['date_from'])->format('d-m-Y').' au '.Carbon::parse($data['date_to'])->format('d-m-Y');
+                            return 'Date de départ:  ' . Carbon::parse($data['date_from'])->format('d-m-Y') . ' au ' . Carbon::parse($data['date_to'])->format('d-m-Y');
                         }
 
                         return null;
@@ -332,12 +340,12 @@ class OrdreDeMissionResource extends Resource
                         return $query
                             ->when(
                                 $data['engine_id'],
-                                fn (Builder $query, $date): Builder => $query->where('engine_id', '=', $date),
+                                fn(Builder $query, $date): Builder => $query->where('engine_id', '=', $date),
                             );
                     })
                     ->indicateUsing(function (array $data): ?string {
                         if ($data['engine_id']) {
-                            return 'Moyen de transport:  '.Engine::where('id', ($data['engine_id']))->first()->plate_number;
+                            return 'Moyen de transport:  ' . Engine::where('id', ($data['engine_id']))->first()->plate_number;
                         }
 
                         return null;
@@ -345,7 +353,7 @@ class OrdreDeMissionResource extends Resource
 
                 Filter::make('is_ordre_de_route')
                     ->label('Ordre de route')
-                    ->query(fn (Builder $query): Builder => $query->where('is_ordre_de_route', true)),
+                    ->query(fn(Builder $query): Builder => $query->where('is_ordre_de_route', true)),
 
             ])
             ->actions([
@@ -360,32 +368,32 @@ class OrdreDeMissionResource extends Resource
                         ->label('PDF (couleur)')
                         ->color('success')
                         ->icon('heroicon-o-document-download')
-                        ->url(fn (OrdreDeMission $record) => route('couleur', $record)) //is for missions
-                        ->visible(fn ($record) => $record->is_ordre_de_route == 0 ? true : false)
+                        ->url(fn(OrdreDeMission $record) => route('couleur', $record)) //is for missions
+                        ->visible(fn($record) => $record->is_ordre_de_route == 0 ? true : false)
                         ->openUrlInNewTab(),
 
                     Tables\Actions\Action::make('printNB')
                         ->label('PDF (Noir & Blanc)')
                         ->color('success')
                         ->icon('heroicon-o-document-download')
-                        ->url(fn (OrdreDeMission $record) => route('pdfNoirBlanc', $record)) //is for missions
-                        ->visible(fn ($record) => $record->is_ordre_de_route == 0 ? true : false)
+                        ->url(fn(OrdreDeMission $record) => route('pdfNoirBlanc', $record)) //is for missions
+                        ->visible(fn($record) => $record->is_ordre_de_route == 0 ? true : false)
                         ->openUrlInNewTab(),
 
                     Tables\Actions\Action::make('printOdrCouleur')
                         ->label('PDF(couleur)')
                         ->color('success')
                         ->icon('heroicon-o-document-download')
-                        ->url(fn ($record) => route('ordreDeRouteCouleur', $record))
-                        ->visible(fn ($record) => $record->is_ordre_de_route == 1 ? true : false)
+                        ->url(fn($record) => route('ordreDeRouteCouleur', $record))
+                        ->visible(fn($record) => $record->is_ordre_de_route == 1 ? true : false)
                         ->openUrlInNewTab(),
 
                     Tables\Actions\Action::make('printOdrBn')
                         ->label('PDF (Noir & Blanc)')
                         ->color('success')
                         ->icon('heroicon-o-document-download')
-                        ->url(fn ($record) => route('ordreDeRouteBn', $record))
-                        ->visible(fn ($record) => $record->is_ordre_de_route == 1 ? true : false)
+                        ->url(fn($record) => route('ordreDeRouteBn', $record))
+                        ->visible(fn($record) => $record->is_ordre_de_route == 1 ? true : false)
                         ->openUrlInNewTab(),
 
                 ]),
@@ -416,9 +424,11 @@ class OrdreDeMissionResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()->hasAnyRole([
-            RolesEnum::Dpas()->value, RolesPermissionsSeeder::SuperAdmin,
-        ]
+        return auth()->user()->hasAnyRole(
+            [
+                RolesEnum::Dpas()->value,
+                RolesEnum::Super_administrateur()->value,
+            ]
 
         );
     }

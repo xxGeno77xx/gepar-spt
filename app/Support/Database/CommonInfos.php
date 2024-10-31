@@ -12,7 +12,7 @@ class CommonInfos
 {
     public static function PlaceholderCard()
     {
-        $userRole = auth()->user()->hasRole(RolesPermissionsSeeder::SuperAdmin);
+        $userRole = auth()->user()->hasRole(RolesEnum::Super_administrateur()->value);
 
         if ($userRole) {
             return

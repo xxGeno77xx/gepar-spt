@@ -35,7 +35,7 @@ class CreateReparation extends CreateRecord
         $userPermission = $user->hasAnyPermission([PermissionsClass::reparation_create()->value]);
 
         abort_unless(($user->hasAnyRole([
-            RolesPermissionsSeeder::SuperAdmin,
+            RolesEnum::Super_administrateur()->value,
             RolesEnum::Chef_division()->value,
             RolesEnum::Chef_parc()->value,
             RolesEnum::Dpl()->value,

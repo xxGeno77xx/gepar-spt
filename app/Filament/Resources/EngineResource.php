@@ -62,7 +62,7 @@ class EngineResource extends Resource
         $seeAll = [
             RolesEnum::Dpl()->value,
             RolesEnum::Chef_parc()->value,
-            RolesPermissionsSeeder::SuperAdmin,
+            RolesEnum::Super_administrateur()->value,
         ];
 
         $specific = Role::whereNotIn('name', $seeAll)->pluck('name')->toArray();
@@ -347,9 +347,9 @@ class EngineResource extends Resource
                                     ->label('circuit de validation')
                                     ->options(Circuit::pluck('name', 'id'))
                                     ->searchable()
-                                    ->dehydrated(fn () => auth()->user()->hasAnyRole([RolesEnum::Dpl()->value, RolesEnum::Chef_parc()->value, RolesPermissionsSeeder::SuperAdmin]))
-                                    ->visible(fn () => auth()->user()->hasAnyRole([RolesEnum::Dpl()->value, RolesEnum::Chef_parc()->value , RolesPermissionsSeeder::SuperAdmin]))
-                                    ->required(fn () => auth()->user()->hasAnyRole([RolesEnum::Dpl()->value, RolesEnum::Chef_parc()->value , RolesPermissionsSeeder::SuperAdmin])),
+                                    ->dehydrated(fn () => auth()->user()->hasAnyRole([RolesEnum::Dpl()->value, RolesEnum::Chef_parc()->value,RolesEnum::Super_administrateur()->value]))
+                                    ->visible(fn () => auth()->user()->hasAnyRole([RolesEnum::Dpl()->value, RolesEnum::Chef_parc()->value , RolesEnum::Super_administrateur()->value]))
+                                    ->required(fn () => auth()->user()->hasAnyRole([RolesEnum::Dpl()->value, RolesEnum::Chef_parc()->value , RolesEnum::Super_administrateur()->value])),
 
                                 Fieldset::make('desc')
                                     ->label(new HtmlString("<i style = 'color:orange'>Description des circuits</i>"))
@@ -508,6 +508,7 @@ class EngineResource extends Resource
                         Select::make('type_id')
                             ->searchable()
                             ->label('Type d\'engin')
+                            ->multiple()
                             ->options(
                                 Type::pluck('nom_type', 'id')
                             ),
@@ -516,14 +517,16 @@ class EngineResource extends Resource
                         return $query
                             ->when(
                                 $data['type_id'],
-                                fn (Builder $query, $status): Builder => $query->where('engines.type_id', $status),
+                                fn (Builder $query, $status): Builder => $query->whereIn('engines.type_id', $status),
                             );
                     })->indicateUsing(function (array $data): ?string {
                         if (! $data['type_id']) {
                             return null;
                         }
-
-                        return 'Type d\'engin: '.Type::where('id', $data['type_id'])->first()->nom_type;
+                        else{
+                            $searchParams = Type::whereIn('id', $data['type_id'])->get()->pluck("nom_type")->toArray();
+                        }
+                        return 'Type d\'engin: '.implode(" - ", $searchParams); ;
                     }),
 
             ])

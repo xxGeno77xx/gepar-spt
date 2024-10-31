@@ -2,14 +2,15 @@
 
 namespace App\Filament\Resources\DepartementResource\Pages;
 
-use App\Filament\Resources\DepartementResource;
 use App\Models\Departement;
-use App\Support\Database\PermissionsClass;
-use App\Support\Database\StatesClass;
-use Database\Seeders\RolesPermissionsSeeder;
-use Filament\Notifications\Notification;
 use Filament\Pages\Actions;
+use App\Support\Database\RolesEnum;
+use App\Support\Database\StatesClass;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use App\Support\Database\PermissionsClass;
+use Database\Seeders\RolesPermissionsSeeder;
+use App\Filament\Resources\DepartementResource;
 
 class EditDepartement extends EditRecord
 {
@@ -46,7 +47,7 @@ class EditDepartement extends EditRecord
 
         // $userPermission = $user->hasAnyPermission([PermissionsClass::departements_update()->value]);
 
-        $userRole = $user->hasRole([RolesPermissionsSeeder::SuperAdmin]);
+        $userRole = $user->hasRole([RolesEnum::Super_administrateur()->value]);
 
         abort_if(! $userRole, 403, __("Vous n'avez pas access à cette page"));
 

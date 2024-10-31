@@ -17,7 +17,7 @@ class FraisReparationOveview extends BaseWidget
     protected function getCards(): array
     {
 
-        $FraisDeReparation = Reparation::where('engine_id', $this->record->id)->where("state", "<>",StatesClass::Deactivated()->value)->sum('cout_reparation');
+        $FraisDeReparation = Reparation::where('engine_id', $this->record->id)->where("validation_state", "=",StatesClass::NextValue()->value)->sum('cout_reparation');
 
         $Kilometrage = ConsommationCarburant::where('engine_id', $this->record->id)
             ->orderByDesc('id')

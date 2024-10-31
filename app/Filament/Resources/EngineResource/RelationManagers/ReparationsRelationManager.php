@@ -61,7 +61,8 @@ class ReparationsRelationManager extends RelationManager
 
                 TextColumn::make('cout_reparation')
                     ->placeholder('-')
-                    ->label('Cout de la réparation'),
+                    ->label('Cout de la réparation')
+                    ->formatStateUsing( fn($state) => number_format($state, '0', ' ', '.').' FCFA'),
 
                 TextColumn::make('validation_state')
                     ->label('Statut de validation')

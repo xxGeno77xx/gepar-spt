@@ -2,16 +2,17 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\DepartementResource\Pages;
+use Filament\Tables;
 use App\Models\Departement;
+use Filament\Resources\Form;
+use Filament\Resources\Table;
+use Filament\Resources\Resource;
+use App\Support\Database\RolesEnum;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
 use App\Support\Database\PermissionsClass;
 use Database\Seeders\RolesPermissionsSeeder;
-use Filament\Forms\Components\TextInput;
-use Filament\Resources\Form;
-use Filament\Resources\Resource;
-use Filament\Resources\Table;
-use Filament\Tables;
-use Filament\Tables\Columns\TextColumn;
+use App\Filament\Resources\DepartementResource\Pages;
 
 class DepartementResource extends Resource
 {
@@ -82,7 +83,7 @@ class DepartementResource extends Resource
         // ]);
 
         return auth()->user()->hasRole([
-            RolesPermissionsSeeder::SuperAdmin,
+            RolesEnum::Super_administrateur()->value,
         ]);
     }
 }

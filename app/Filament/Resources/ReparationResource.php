@@ -110,7 +110,7 @@ class ReparationResource extends Resource
                                                         RolesEnum::Chef_parc()->value,
                                                         RolesEnum::Budget()->value,
                                                         RolesEnum::Interimaire_DG()->value,
-                                                        RolesPermissionsSeeder::SuperAdmin,
+                                                        RolesEnum::Super_administrateur()->value,
                                                     ])
                                                 ) {
                                                     return Engine::whereNot('state', StatesClass::Deactivated()->value)->pluck('plate_number', 'id');
@@ -160,7 +160,7 @@ class ReparationResource extends Resource
                                                         RolesEnum::Chef_parc()->value,
                                                         RolesEnum::Budget()->value,
                                                         RolesEnum::Interimaire_DG()->value,
-                                                        RolesPermissionsSeeder::SuperAdmin,
+                                                        RolesEnum::Super_administrateur()->value,
 
                                                     ])
                                                 ) {

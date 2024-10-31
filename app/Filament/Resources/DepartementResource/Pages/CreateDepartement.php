@@ -2,11 +2,12 @@
 
 namespace App\Filament\Resources\DepartementResource\Pages;
 
-use App\Filament\Resources\DepartementResource;
-use App\Support\Database\PermissionsClass;
-use Database\Seeders\RolesPermissionsSeeder;
 use Filament\Pages\Actions\Action;
+use App\Support\Database\RolesEnum;
+use App\Support\Database\PermissionsClass;
 use Filament\Resources\Pages\CreateRecord;
+use Database\Seeders\RolesPermissionsSeeder;
+use App\Filament\Resources\DepartementResource;
 
 class CreateDepartement extends CreateRecord
 {
@@ -20,7 +21,7 @@ class CreateDepartement extends CreateRecord
 
         // $userPermission = $user->hasAnyPermission([PermissionsClass::departements_create()->value]);
 
-        $userRole = $user->hasRole([RolesPermissionsSeeder::SuperAdmin]);
+        $userRole = $user->hasRole([RolesEnum::Super_administrateur()->value]);
 
         abort_if(! $userRole, 403, __("Vous n'avez pas access à cette page"));
     }

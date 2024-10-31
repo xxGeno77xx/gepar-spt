@@ -21,7 +21,7 @@ class CreateType extends CreateRecord
 
         // $userPermission = $user->hasAnyPermission([PermissionsClass::departements_create()->value]);
 
-        $userRole = $user->hasAnyRole([RolesPermissionsSeeder::SuperAdmin],
+        $userRole = $user->hasAnyRole([RolesEnum::Super_administrateur()->value],
             RolesEnum::Chef_parc()->value,
             RolesEnum::Dpl()->value);
 

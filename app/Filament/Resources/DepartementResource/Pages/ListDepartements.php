@@ -2,13 +2,14 @@
 
 namespace App\Filament\Resources\DepartementResource\Pages;
 
-use App\Filament\Resources\DepartementResource;
-use App\Support\Database\PermissionsClass;
-use App\Support\Database\StatesClass;
-use Database\Seeders\RolesPermissionsSeeder;
 use Filament\Pages\Actions;
+use App\Support\Database\RolesEnum;
+use App\Support\Database\StatesClass;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
+use App\Support\Database\PermissionsClass;
+use Database\Seeders\RolesPermissionsSeeder;
+use App\Filament\Resources\DepartementResource;
 
 class ListDepartements extends ListRecords
 {
@@ -32,7 +33,7 @@ class ListDepartements extends ListRecords
 
         // $userPermission = $user->hasAnyPermission([PermissionsClass::departements_read()->value]);
 
-        $userRole = $user->hasRole([RolesPermissionsSeeder::SuperAdmin]);
+        $userRole = $user->hasRole([RolesEnum::Super_administrateur()->value]);
 
         abort_if(! $userRole, 403, __("Vous n'avez pas access à cette page"));
     }

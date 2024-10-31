@@ -10,6 +10,7 @@ use Spatie\Enum\Enum;
  * @method static self Suspended()
  * @method static self Working()
  * @method static self Repairing()
+ * @method static self NextValue()
  */
 class StatesClass extends Enum
 {
@@ -21,6 +22,7 @@ class StatesClass extends Enum
                 'Activated' => 'En état',
                 'Deactivated' => 'Désactivé',
                 'Repairing' => 'En réparation',
+                'NextValue' => 'nextValue'   /** terminee */
             ];
 
             return strtr(str_replace('_', ': ', str($name)), $traductions);

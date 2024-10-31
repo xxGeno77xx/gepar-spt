@@ -50,6 +50,7 @@ use Spatie\Enum\Enum;
  *                                                 AUTRES
  * @method static self Tolerie()
  * @method static self Peinture()
+ * @method static self Revision_generale()
  *======================================================
  *                                AUTRES AUTRES XDXD
  * @method static self Inscription_des_produits_de_la_SPT()
@@ -80,6 +81,8 @@ class TypesReparation extends Enum
                 'pompeEau' => 'pompe à eau',
                 'filtreAir' => 'pompe à air',
                 'Revision_simple' => 'Révision simple à 5000Km',
+                'Revision_generale' => 'Révision générale',
+                
             ];
 
             return strtr(str_replace('_', ' ', str($name)), $traductions);

@@ -34,12 +34,13 @@ class ListEngines extends ListRecords
 
     protected function getTableQuery(): Builder
     {
+        
         $loggedUser = auth()->user();
 
         $seeAll = [
             RolesEnum::Dpl()->value,
             RolesEnum::Chef_parc()->value,
-            RolesPermissionsSeeder::SuperAdmin,
+            RolesEnum::Super_administrateur()->value,
         ];
         $specific = Role::whereNotIn('name', $seeAll)->pluck('name')->toArray();
 

@@ -15,7 +15,7 @@ class CreatePlanningVoyage extends CreateRecord
     {
         $user = auth()->user();
 
-        $userRole = $user->hasAnyRole([RolesEnum::Chef_parc()->value, RolesPermissionsSeeder::SuperAdmin]);
+        $userRole = $user->hasAnyRole([RolesEnum::Chef_parc()->value, RolesEnum::Super_administrateur()->value]);
 
         abort_if(! $userRole, 403, __("Vous n'avez pas access à cette page"));
     }

@@ -28,6 +28,8 @@ return new class extends Migration
 
             $table->json('agents');
 
+            $table->string('initials');
+
             $table->string('objet_mission');
 
             $table->string('departement_id');

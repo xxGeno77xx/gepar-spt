@@ -42,7 +42,7 @@ class ListReparations extends ListRecords
                 RolesEnum::Directeur_general()->value,
                 RolesEnum::Interimaire_DG()->value,
 
-            ]) || $loggedUser->hasRole(RolesPermissionsSeeder::SuperAdmin)
+            ]) || $loggedUser->hasRole(RolesEnum::Super_administrateur()->value)
         ) {
             return static::getResource()::getEloquentQuery()
                 ->join('engines', 'reparations.engine_id', 'engines.id')
