@@ -28,6 +28,7 @@ use Spatie\Enum\Enum;
  * @method static self Chef_DPL()
  * @method static self Drhp()
  * @method static self Drhpi()
+ * @method static self user()
  */
 class RolesEnum extends Enum
 {

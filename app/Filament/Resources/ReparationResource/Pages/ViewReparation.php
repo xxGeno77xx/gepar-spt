@@ -53,7 +53,7 @@ class ViewReparation extends ViewRecord
                             $user = auth()->user();
 
                             if (array_key_exists($this->record->validation_step, $roleIds)) {    // ensure array key is not off limits
-
+        
                                 $indice = $roleIds[$this->record->validation_step];
 
                                 $requiredRole = Role::where('id', $indice)->first();
@@ -71,12 +71,13 @@ class ViewReparation extends ViewRecord
                                         Role::where('name', RolesEnum::Diga()->value)->first(),
                                         Role::where('name', RolesEnum::Budget()->value)->first(),
                                         Role::where('name', RolesEnum::Dpl()->value)->first(),
-                                        Role::where('name', RolesEnum::Chef_DPL()->value)->first(),
+
                                         Role::where('name', RolesEnum::Chef_dcgbt()->value)->first(),
+                                        Role::where('name', RolesEnum::Chef_DPL()->value)->first(),
 
                                     ])
                                 ) {   // if require role is in list (array) and user has the role
-
+        
                                     if ($requiredRole == Role::where('name', RolesEnum::Directeur_general()->value)->first()) {
 
                                         if (($user->hasRole(RolesEnum::Directeur_general()->value)) || ($user->hasRole(RolesEnum::Interimaire_DG()->value))) {
@@ -101,23 +102,20 @@ class ViewReparation extends ViewRecord
                                             return true;
                                         }
 
-                                    }
-                                    elseif ($requiredRole == Role::where('name', RolesEnum::Chef_DPL()->value)->first()) {
-
+                                    } elseif ($requiredRole == Role::where('name', RolesEnum::Chef_DPL()->value)->first()) {
+                                        if (($user->hasRole(RolesEnum::Chef_DPL()->value))) {
                                             return true;
+                                        }
 
-                                    } 
 
-                                    elseif ($requiredRole == Role::where('name', RolesEnum::Chef_dcgbt()->value)->first()) {
+                                    } elseif ($requiredRole == Role::where('name', RolesEnum::Chef_dcgbt()->value)->first()) {
+                                        if (($user->hasRole(RolesEnum::Chef_dcgbt()->value))) {
+                                            return true;
+                                        }
 
-                                        return true;
-
-                                } 
-                                    elseif ($user->hasRole(Role::where('id', $indice)->value('id'))) {
+                                    } elseif ($user->hasRole(Role::where('id', $indice)->value('id'))) {
                                         return true;
                                     }
-
-                                    
 
                                 } elseif ($user->hasRole(Role::where('id', $indice)->value('id')) && (in_array(intval($concernedEngine->departement_id), $userCentresIds))) {
                                     return true;
@@ -155,7 +153,7 @@ class ViewReparation extends ViewRecord
                             $user = auth()->user();
 
                             if (array_key_exists($this->record->validation_step, $roleIds)) {    // ensure array key is not off limits
-
+        
                                 $indice = $roleIds[$this->record->validation_step];
 
                                 $requiredRole = Role::where('id', $indice)->first();
@@ -173,12 +171,13 @@ class ViewReparation extends ViewRecord
                                         Role::where('name', RolesEnum::Diga()->value)->first(),
                                         Role::where('name', RolesEnum::Budget()->value)->first(),
                                         Role::where('name', RolesEnum::Dpl()->value)->first(),
-                                        Role::where('name', RolesEnum::Chef_DPL()->value)->first(),
+
                                         Role::where('name', RolesEnum::Chef_dcgbt()->value)->first(),
+                                        Role::where('name', RolesEnum::Chef_DPL()->value)->first(),
 
                                     ])
                                 ) {   // if require role is in list (array) and user has the role
-
+        
                                     if ($requiredRole == Role::where('name', RolesEnum::Directeur_general()->value)->first()) {
 
                                         if (($user->hasRole(RolesEnum::Directeur_general()->value)) || ($user->hasRole(RolesEnum::Interimaire_DG()->value))) {
@@ -206,18 +205,18 @@ class ViewReparation extends ViewRecord
                                     } 
 
                                     elseif ($requiredRole == Role::where('name', RolesEnum::Chef_DPL()->value)->first()) {
-
+                                        if (($user->hasRole(RolesEnum::Chef_DPL()->value))) {
                                             return true;
-                                        
+                                        }
 
-                                    } 
 
-                                    elseif ($requiredRole == Role::where('name', RolesEnum::Chef_dcgbt()->value)->first()) {
-
+                                    } elseif ($requiredRole == Role::where('name', RolesEnum::Chef_dcgbt()->value)->first()) {
+                                        if (($user->hasRole(RolesEnum::Chef_dcgbt()->value))) {
                                             return true;
-                                        
+                                        }
 
-                                    } 
+                                    }
+                                    
                                     
                                     elseif ($user->hasRole(Role::where('id', $indice)->value('id'))) {
                                         return true;
@@ -284,7 +283,7 @@ class ViewReparation extends ViewRecord
 
                                             Notification::make()
                                                 ->title('Demande de validation')
-                                                ->body('Réparation pour l\'engin immatriculé '.$concernedEngine->plate_number.' en attente de validation')
+                                                ->body('Réparation pour l\'engin immatriculé ' . $concernedEngine->plate_number . ' en attente de validation')
                                                 ->actions([
                                                     NotificationActions::make('voir')
                                                         ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
@@ -304,7 +303,6 @@ class ViewReparation extends ViewRecord
                                             RolesEnum::Budget()->value,
                                             RolesEnum::Chef_dcgbt()->value,
                                             RolesEnum::Chef_DPL()->value,
-
                                         ])
                                     ) {
 
@@ -313,7 +311,7 @@ class ViewReparation extends ViewRecord
 
                                             Notification::make()
                                                 ->title('Nouvelle demande')
-                                                ->body('Réparation pour l\'engin immatriculé '.$concernedEngine->plate_number.' en attente de validation')
+                                                ->body('Réparation pour l\'engin immatriculé ' . $concernedEngine->plate_number . ' en attente de validation')
                                                 ->actions([
                                                     NotificationActions::make('voir')
                                                         ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
@@ -328,7 +326,7 @@ class ViewReparation extends ViewRecord
 
                                             Notification::make()
                                                 ->title('Nouvelle demande')
-                                                ->body('Réparation pour l\'engin immatriculé '.$concernedEngine->plate_number.' en attente de validation')
+                                                ->body('Réparation pour l\'engin immatriculé ' . $concernedEngine->plate_number . ' en attente de validation')
                                                 ->actions([
                                                     NotificationActions::make('voir')
                                                         ->url(route('filament.resources.reparations.view', $this->record->id), shouldOpenInNewTab: true)
@@ -365,7 +363,7 @@ class ViewReparation extends ViewRecord
 
                         if ($user->hasRole(Role::where('name', RolesEnum::Chef_parc()->value)->first()->name)) {
 
-                            if (! $this->record->facture || ! $this->record->ref_proforma || ! $this->record->cout_reparation) {
+                            if (!$this->record->facture || !$this->record->ref_proforma || !$this->record->cout_reparation) {
 
                                 Notification::make()
                                     ->title('Attention')
@@ -385,7 +383,7 @@ class ViewReparation extends ViewRecord
 
                             if ($user->hasRole(Role::where('name', RolesEnum::Budget()->value)->first()->name) && ($this->record->validation_step == $budgetRoleKey)) {
 
-                                if (! $this->record->bon_commande) {
+                                if (!$this->record->bon_commande) {
 
                                     Notification::make()
                                         ->title('Attention')
@@ -400,16 +398,16 @@ class ViewReparation extends ViewRecord
                         }
 
                         //from here check to see if date fin is set before validation
-
+        
                         //check to oblige suivi budgetaire
-
+        
                         if ($this->record) {
 
                             $budgetRoleKey = ControlFunctions::getNthOccurrenceOfRequiredRole($this->record, RolesEnum::Budget()->value, 1);
 
                             if ($user->hasRole(Role::where('name', RolesEnum::Budget()->value)->first()->name) && ($this->record->validation_step == $budgetRoleKey)) {
 
-                                if (! $this->record->compte_imputation) {
+                                if (!$this->record->compte_imputation) {
 
                                     Notification::make()
                                         ->title('Attention')
@@ -425,22 +423,22 @@ class ViewReparation extends ViewRecord
 
                         // Diga avis check
                         // if ($this->record) {
-
+        
                         //     $budgetRoleKey = ControlFunctions::getNthOccurrenceOfRequiredRole($this->record, RolesEnum::Diga()->value, 1);
-
+        
                         //     if ($user->hasRole(Role::where('name', RolesEnum::Diga()->value)->first()->name) && ($this->record->validation_step == $budgetRoleKey)) {
-
+        
                         //         if (! $this->record->avis_diga) {
-
+        
                         //             Notification::make()
                         //                 ->title('Attention')
                         //                 ->warning()
                         //                 ->body('Donnez votre avis avant de poursuivre!!!')
                         //                 ->send();
-
+        
                         //             $this->halt();
                         //         }
-
+        
                         //     }
                         // }
                         //check to oblige suivi budgetaire
@@ -448,7 +446,7 @@ class ViewReparation extends ViewRecord
 
                             if ($user->hasRole(Role::where('name', RolesEnum::Chef_parc()->value)->first()->name) && ($this->record->validation_step == array_key_last($roleIds))) {
 
-                                if (! $this->record->date_fin) {
+                                if (!$this->record->date_fin) {
 
                                     Notification::make()
                                         ->title('Attention')
@@ -463,11 +461,11 @@ class ViewReparation extends ViewRecord
                         }
 
                         //to here check to see if date fin is set before validation
-
+        
                         $currentKey = $this->record->validation_step; // key in array
-
+        
                         $currentvalue = $roleIds[$this->record->validation_step]; // value of the key array
-
+        
                         $a = 0;
                         for ($i = 0; $i < count($roleIds); $i++) {
 
@@ -542,7 +540,7 @@ class ViewReparation extends ViewRecord
                             $user = auth()->user();
 
                             if (array_key_exists($this->record->validation_step, $roleIds)) {    // ensure array key is not off limits
-
+        
                                 $indice = $roleIds[$this->record->validation_step];
 
                                 $requiredRole = Role::where('id', $indice)->first();
@@ -560,12 +558,13 @@ class ViewReparation extends ViewRecord
                                         Role::where('name', RolesEnum::Diga()->value)->first(),
                                         Role::where('name', RolesEnum::Budget()->value)->first(),
                                         Role::where('name', RolesEnum::Dpl()->value)->first(),
+
                                         Role::where('name', RolesEnum::Chef_dcgbt()->value)->first(),
                                         Role::where('name', RolesEnum::Chef_DPL()->value)->first(),
 
                                     ])
                                 ) {   // if require role is in list (array) and user has the role
-
+        
                                     if ($requiredRole == Role::where('name', RolesEnum::Directeur_general()->value)->first()) {
 
                                         if (($user->hasRole(RolesEnum::Directeur_general()->value)) || ($user->hasRole(RolesEnum::Interimaire_DG()->value))) {
@@ -591,20 +590,19 @@ class ViewReparation extends ViewRecord
                                         }
 
                                     } 
-                                    
                                     elseif ($requiredRole == Role::where('name', RolesEnum::Chef_DPL()->value)->first()) {
+                                        if (($user->hasRole(RolesEnum::Chef_DPL()->value))) {
+                                            return true;
+                                        }
 
-                                        return true;
-                                    
 
-                                } 
+                                    } elseif ($requiredRole == Role::where('name', RolesEnum::Chef_dcgbt()->value)->first()) {
+                                        if (($user->hasRole(RolesEnum::Chef_dcgbt()->value))) {
+                                            return true;
+                                        }
 
-                                elseif ($requiredRole == Role::where('name', RolesEnum::Chef_dcgbt()->value)->first()) {
+                                    }
 
-                                        return true;
-                                    
-
-                                } 
                                     elseif ($user->hasRole(Role::where('id', $indice)->value('id'))) {
                                         return true;
                                     }
