@@ -71,6 +71,8 @@ class ViewReparation extends ViewRecord
                                         Role::where('name', RolesEnum::Diga()->value)->first(),
                                         Role::where('name', RolesEnum::Budget()->value)->first(),
                                         Role::where('name', RolesEnum::Dpl()->value)->first(),
+                                        Role::where('name', RolesEnum::Chef_DPL()->value)->first(),
+                                        Role::where('name', RolesEnum::Chef_dcgbt()->value)->first(),
 
                                     ])
                                 ) {   // if require role is in list (array) and user has the role
@@ -99,9 +101,23 @@ class ViewReparation extends ViewRecord
                                             return true;
                                         }
 
-                                    } elseif ($user->hasRole(Role::where('id', $indice)->value('id'))) {
+                                    }
+                                    elseif ($requiredRole == Role::where('name', RolesEnum::Chef_DPL()->value)->first()) {
+
+                                            return true;
+
+                                    } 
+
+                                    elseif ($requiredRole == Role::where('name', RolesEnum::Chef_dcgbt()->value)->first()) {
+
+                                        return true;
+
+                                } 
+                                    elseif ($user->hasRole(Role::where('id', $indice)->value('id'))) {
                                         return true;
                                     }
+
+                                    
 
                                 } elseif ($user->hasRole(Role::where('id', $indice)->value('id')) && (in_array(intval($concernedEngine->departement_id), $userCentresIds))) {
                                     return true;
@@ -157,6 +173,8 @@ class ViewReparation extends ViewRecord
                                         Role::where('name', RolesEnum::Diga()->value)->first(),
                                         Role::where('name', RolesEnum::Budget()->value)->first(),
                                         Role::where('name', RolesEnum::Dpl()->value)->first(),
+                                        Role::where('name', RolesEnum::Chef_DPL()->value)->first(),
+                                        Role::where('name', RolesEnum::Chef_dcgbt()->value)->first(),
 
                                     ])
                                 ) {   // if require role is in list (array) and user has the role
@@ -185,7 +203,23 @@ class ViewReparation extends ViewRecord
                                             return true;
                                         }
 
-                                    } elseif ($user->hasRole(Role::where('id', $indice)->value('id'))) {
+                                    } 
+
+                                    elseif ($requiredRole == Role::where('name', RolesEnum::Chef_DPL()->value)->first()) {
+
+                                            return true;
+                                        
+
+                                    } 
+
+                                    elseif ($requiredRole == Role::where('name', RolesEnum::Chef_dcgbt()->value)->first()) {
+
+                                            return true;
+                                        
+
+                                    } 
+                                    
+                                    elseif ($user->hasRole(Role::where('id', $indice)->value('id'))) {
                                         return true;
                                     }
 
@@ -268,6 +302,9 @@ class ViewReparation extends ViewRecord
                                             RolesEnum::Diga()->value,
                                             RolesEnum::Chef_parc()->value,
                                             RolesEnum::Budget()->value,
+                                            RolesEnum::Chef_dcgbt()->value,
+                                            RolesEnum::Chef_DPL()->value,
+
                                         ])
                                     ) {
 
@@ -523,6 +560,8 @@ class ViewReparation extends ViewRecord
                                         Role::where('name', RolesEnum::Diga()->value)->first(),
                                         Role::where('name', RolesEnum::Budget()->value)->first(),
                                         Role::where('name', RolesEnum::Dpl()->value)->first(),
+                                        Role::where('name', RolesEnum::Chef_dcgbt()->value)->first(),
+                                        Role::where('name', RolesEnum::Chef_DPL()->value)->first(),
 
                                     ])
                                 ) {   // if require role is in list (array) and user has the role
@@ -551,7 +590,22 @@ class ViewReparation extends ViewRecord
                                             return true;
                                         }
 
-                                    } elseif ($user->hasRole(Role::where('id', $indice)->value('id'))) {
+                                    } 
+                                    
+                                    elseif ($requiredRole == Role::where('name', RolesEnum::Chef_DPL()->value)->first()) {
+
+                                        return true;
+                                    
+
+                                } 
+
+                                elseif ($requiredRole == Role::where('name', RolesEnum::Chef_dcgbt()->value)->first()) {
+
+                                        return true;
+                                    
+
+                                } 
+                                    elseif ($user->hasRole(Role::where('id', $indice)->value('id'))) {
                                         return true;
                                     }
 

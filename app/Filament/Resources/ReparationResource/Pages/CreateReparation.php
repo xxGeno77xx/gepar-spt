@@ -44,6 +44,8 @@ class CreateReparation extends CreateRecord
             RolesEnum::Delegue_Direction()->value,
             RolesEnum::Directeur_general()->value,
             RolesEnum::Delegue_Direction_Generale()->value,
+            RolesEnum::Chef_dcgbt()->value,
+            RolesEnum::Chef_DPL()->value,
         ]) && $userPermission), 403, __("Vous n'avez pas access à cette page"));
 
     }
