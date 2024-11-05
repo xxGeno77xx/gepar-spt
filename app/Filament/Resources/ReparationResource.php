@@ -16,6 +16,7 @@ use App\Static\StoredFunctions;
 use App\Support\Database\AppreciationClass;
 use App\Support\Database\CommonInfos;
 use App\Support\Database\PermissionsClass;
+use App\Support\Database\ReparationsStatesEnum;
 use App\Support\Database\ReparationValidationStates;
 use App\Support\Database\RolesEnum;
 use App\Support\Database\StatesClass;
@@ -590,41 +591,40 @@ class ReparationResource extends Resource
                                     ->preload(true)
                                     ->required(),
 
-                                FilamentBuilder::make('infos')
-                                    ->label('Achats')
+                                // FilamentBuilder::make('infos')
+                                //     ->label('Achats')
+                                //     ->blocks([
+                                //         FilamentBuilder\Block::make('Achat')
+                                //             ->icon('heroicon-o-adjustments')
+                                //             ->schema([
+                                //                 Grid::make(4)
+                                //                     ->schema([
+                                //                         TextInput::make('Designation'),
 
-                                    ->blocks([
-                                        FilamentBuilder\Block::make('Achat')
-                                            ->icon('heroicon-o-adjustments')
-                                            ->schema([
-                                                Grid::make(4)
-                                                    ->schema([
-                                                        TextInput::make('Designation'),
+                                //                         TextInput::make('nombre')
+                                //                             ->numeric()
+                                //                             ->minValue(1)
+                                //                             ->reactive()
+                                //                             ->afterStateUpdated(fn ($state, callable $set, $get) => $set('montant', $state * $get('Prix_unitaire'))),
 
-                                                        TextInput::make('nombre')
-                                                            ->numeric()
-                                                            ->minValue(1)
-                                                            ->reactive()
-                                                            ->afterStateUpdated(fn ($state, callable $set, $get) => $set('montant', $state * $get('Prix_unitaire'))),
+                                //                         TextInput::make('Prix_unitaire')
+                                //                             ->numeric()
+                                //                             ->suffix('FCFA')
+                                //                             ->minValue(1)
+                                //                             ->reactive()
+                                //                             ->integer()
+                                //                             ->afterStateUpdated(fn ($state, callable $set, $get) => $set('montant', $state * $get('nombre'))),
 
-                                                        TextInput::make('Prix_unitaire')
-                                                            ->numeric()
-                                                            ->suffix('FCFA')
-                                                            ->minValue(1)
-                                                            ->reactive()
-                                                            ->integer()
-                                                            ->afterStateUpdated(fn ($state, callable $set, $get) => $set('montant', $state * $get('nombre'))),
-
-                                                        TextInput::make('montant')
-                                                            ->suffix('FCFA')
-                                                            ->numeric()
-                                                            ->integer()
-                                                            ->disabled()
-                                                            ->dehydrated(true),
-                                                    ]),
-                                            ]),
-                                    ])
-                                    ->collapsible(),
+                                //                         TextInput::make('montant')
+                                //                             ->suffix('FCFA')
+                                //                             ->numeric()
+                                //                             ->integer()
+                                //                             ->disabled()
+                                //                             ->dehydrated(true),
+                                //                     ]),
+                                //             ]),
+                                //     ])
+                                //     ->collapsible(),
                             ]),
 
                     ]),
@@ -774,6 +774,51 @@ class ReparationResource extends Resource
 
             ])->defaultSort('reparations.created_at', 'desc')
             ->filters([
+
+                Filter::make('status')
+                ->label('Status')
+                ->form([
+                    Grid::make(2)
+                        ->schema([
+
+                            Select::make('status')
+                                ->label('Status')
+                                ->options([
+                                    "OnGoing" => "En cours",
+                                    "ended" =>  "Terminée"
+                                ]),
+
+                        ])->columns(1),
+                ])
+                ->query(function (Builder $query, array $data): Builder {
+                    return $query
+                        ->when(
+                            $data['status'],
+                            function($query, $data){ 
+                                if($data  == "OnGoing"){
+                                    return $query->whereNotIn('validation_state', [ StatesClass::NextValue()->value, StatesClass::Deactivated()->value, ReparationValidationStates::Termine()->value, StatesClass::NextValue()->value, 'Rejete']);
+                                }
+                                elseif($data  == "ended"){
+
+                                    return $query->where('validation_state', StatesClass::NextValue()->value);
+                                }
+                              
+                            },
+                        );
+                })
+                ->indicateUsing(function (array $data): ?string {
+                    if ($data['status']  == "OnGoing" ) {
+
+                        return 'Status: En cours';
+                    }
+                    elseif($data['status'] == "OnGoing" ){
+
+                        return 'Status: Terminée';
+                    }
+                     
+                    else return null;
+                }),
+
                 Filter::make('date_lancement')
                     ->label('Date d\'envoi en réparation')
                     ->form([

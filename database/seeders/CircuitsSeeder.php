@@ -25,6 +25,7 @@ class CircuitsSeeder extends Seeder
         $dpl = Role::where('name', RolesEnum::Dpl()->value)->first()->id;
         $chefDcgbt = Role::where('name', RolesEnum::Chef_dcgbt()->value)->first()->id;
         $chefDpl = Role::where('name', RolesEnum::Chef_DPL()->value)->first()->id;
+        $drhp = Role::where('name', RolesEnum::Drhp()->value)->first()->id;
 
         $circuitDeDivision = [
 
@@ -34,7 +35,7 @@ class CircuitsSeeder extends Seeder
             ['role_id' => $budgetID], // Budget
             ['role_id' => $chefDcgbt], // Chef DCGBT
             ['role_id' => $directeurID], // Directeur
-            ['role_id' => $digaID], // DIGA
+            // ['role_id' => $digaID], // DIGA
             ['role_id' => $dG], // Directeur général
             ['role_id' => $budgetID], // Budget
             ['role_id' => $chefParcID], // Chef parc
@@ -49,7 +50,6 @@ class CircuitsSeeder extends Seeder
             ['role_id' => $budgetID], // Budget
             ['role_id' => $chefDcgbt], // Chef DCGBT
             ['role_id' => $directeurID], // Directeur
-            ['role_id' => $digaID], // DIGA
             ['role_id' => $dG], // Directeur général
             ['role_id' => $budgetID], // Budget
             ['role_id' => $chefParcID], // Chef parc
@@ -63,7 +63,7 @@ class CircuitsSeeder extends Seeder
             ['role_id' => $chefDpl], //  Chef Dpl
             ['role_id' => $budgetID], // Budget
             ['role_id' => $chefDcgbt], // Chef DCGBT
-            ['role_id' => $digaID], // DIGA
+            ['role_id' => $drhp], // DRHP
             ['role_id' => $dG], // Directeur général
             ['role_id' => $budgetID], // Budget
             ['role_id' => $chefParcID], // Chef parc
@@ -78,7 +78,6 @@ class CircuitsSeeder extends Seeder
             ['role_id' => $chefDiviionID], // Chef division
             ['role_id' => $budgetID], // Budget
             ['role_id' => $chefDcgbt], // Chef DCGBT
-            ['role_id' => $digaID], // DIGA
             ['role_id' => $dG], // Directeur général
             ['role_id' => $budgetID], // Budget
             ['role_id' => $chefParcID], // Chef parc

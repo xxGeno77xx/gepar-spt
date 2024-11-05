@@ -136,32 +136,6 @@ class RolesPermissionsSeeder extends Seeder
 
         $userRole->syncPermissions($usersPermissions);
 
-        // $sptUsers = collect([
-        //     ['name' => 'DJAGBANI Paguedame', 'username' => 'DJAGBANI', 'email' => 'Paguedame.Djagbani@laposte.tg', 'notification' => 1, 'password' => Hash::make('L@poste+2024'), 'login_attempts' => 0, 'created_at' => now(), 'updated_at' => now(), 'state' => StatesClass::Activated()->value, 'departement_id' => 1],
-        //     ['name' => 'TCHOYO Yaou', 'username' => 'TCHOYO', 'email' => 'Yaou.Tchoyo@laposte.tg', 'notification' => 1, 'password' => Hash::make('L@poste+2024'), 'login_attempts' => 0, 'created_at' => now(), 'updated_at' => now(), 'state' => StatesClass::Activated()->value, 'departement_id' => 3],
-        //     ['name' => 'KOMBATE Arzouma  ', 'username' => 'KOMBATE', 'email' => 'Arzouma.Kombate@laposte.tg', 'notification' => 1, 'password' => Hash::make('L@poste+2024'), 'login_attempts' => 0, 'created_at' => now(), 'updated_at' => now(), 'state' => StatesClass::Activated()->value, 'departement_id' => 4],
-        //     ['name' => 'TCHESSOTAGBA Pidénam', 'username' => 'TCHESSOTAGBA', 'email' => 'Pidename.Tchessotagba@laposte.tg', 'notification' => 1, 'password' => Hash::make('L@poste+2024'), 'login_attempts' => 0, 'created_at' => now(), 'updated_at' => now(), 'state' => StatesClass::Activated()->value, 'departement_id' => 9],
-        //     ['name' => 'wiyao', 'username' => 'wiyao.aboua', 'email' => 'wiyao.aboua@laposte.tg', 'notification' => 1, 'password' => Hash::make('L@poste+2024'), 'login_attempts' => 0, 'created_at' => now(), 'updated_at' => now(), 'state' => StatesClass::Activated()->value, 'departement_id' => 5],
-        // ]);
-
-        // $directeurs = collect([
-        //     ['name' => 'TCHOYO Yaou', 'username' => 'TCHOYO', 'email' => 'Yaou.Tchoyo@laposte.tg', 'notification' => 1, 'password' => Hash::make('L@poste+2024'), 'login_attempts' => 0, 'created_at' => now(), 'updated_at' => now(), 'state' => StatesClass::Activated()->value],
-        //     ['name' => 'KOMBATE Arzouma  ', 'username' => 'KOMBATE', 'email' => 'Arzouma.Kombate@laposte.tg', 'notification' => 1, 'password' => Hash::make('L@poste+2024'), 'login_attempts' => 0, 'created_at' => now(), 'updated_at' => now(), 'state' => StatesClass::Activated()->value],
-        //     ['name' => 'TCHESSOTAGBA Pidénam', 'username' => 'TCHESSOTAGBA', 'email' => 'Pidename.Tchessotagba@laposte.tg', 'notification' => 1, 'password' => Hash::make('L@poste+2024'), 'login_attempts' => 0, 'created_at' => now(), 'updated_at' => now(), 'state' => StatesClass::Activated()->value],
-        //     ['name' => 'wiyao', 'username' => 'wiyao.aboua', 'email' => 'wiyao.aboua@laposte.tg', 'notification' => 1, 'password' => Hash::make('L@poste+2024'), 'login_attempts' => 0, 'created_at' => now(), 'updated_at' => now(), 'state' => StatesClass::Activated()->value],
-        //     ['name' => 'DJAGBANI Paguedame',  'username' => 'DJAGBANI', 'email' => 'Paguedame.Djagbani@laposte.tg', 'notification' => 1, 'password' => Hash::make('L@poste+2024'), 'login_attempts' => 0, 'created_at' => now(), 'updated_at' => now(), 'state' => StatesClass::Activated()->value],
-        //     ['name' => 'TCHOYO Yaou', 'username' => 'TCHOYO', 'email' => 'Yaou.Tchoyo@laposte.tg', 'notification' => 1, 'password' => Hash::make('L@poste+2024'), 'login_attempts' => 0, 'created_at' => now(), 'updated_at' => now(), 'state' => StatesClass::Activated()->value],
-        // ]);
-
-        // $chefParc = collect(['name' => 'DJAGBANI Paguedame',  'username' => 'DJAGBANI', 'email' => 'Paguedame.Djagbani@laposte.tg', 'notification' => 1, 'password' => Hash::make('L@poste+2024'), 'login_attempts' => 0, 'created_at' => now(), 'updated_at' => now(), 'state' => StatesClass::Activated()->value]);
-
-        // $dg = collect(['name' => 'KWASI Kwadzo Dzodzro',  'username' => 'Kwadzo.kwasi', 'email' => 'Paguedame.Djagbani@laposte.tg', 'notification' => 1, 'password' => Hash::make('L@poste+2024'), 'login_attempts' => 0, 'created_at' => now(), 'updated_at' => now(), 'state' => StatesClass::Activated()->value]);
-
-        // foreach ($sptUsers as $user) {
-
-        //     $createdUser = User::firstOrCreate($user);
-        //     $createdUser->syncRoles(self::User);
-        // }
 
         $roles = RolesEnum::toValues();
 
@@ -236,6 +210,8 @@ class RolesPermissionsSeeder extends Seeder
 
         (Role::where('name', RolesEnum::Directeur()->value))->first()->syncPermissions($directeursPermissions);
 
+
+        (Role::where('name', RolesEnum::Drhp()->value))->first()->syncPermissions($directeursPermissions);
         //BUDGET permissions
 
         $budgetPermissions = [
