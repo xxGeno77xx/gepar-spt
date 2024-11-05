@@ -188,7 +188,8 @@ class Login extends Component implements HasForms
             TextInput::make('username')
                 ->label(__("Nom d'utilisateur"))
                 ->required()
-                ->autocomplete(),
+                ->autocomplete()
+                ->unique(ignoreRecord: true),
             TextInput::make('password')
                 ->label(__('filament::login.fields.password.label'))
                 ->password()
@@ -215,7 +216,7 @@ class Login extends Component implements HasForms
             TextInput::make('email')
                 ->label(__('Adresse mail'))
                 ->required()
-                ->unique()
+                ->unique(ignoreRecord: true)
                 ->regex('/.*@laposte\.tg$/')
                 ->email()
                 ->visible(fn ($get) => $get('new_user') == 1 ? true : false)

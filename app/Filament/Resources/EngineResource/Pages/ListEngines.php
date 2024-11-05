@@ -41,14 +41,20 @@ class ListEngines extends ListRecords
             RolesEnum::Dpl()->value,
             RolesEnum::Chef_parc()->value,
             RolesEnum::Super_administrateur()->value,
+            RolesEnum::Chef_DPL()->value,
         ];
         $specific = Role::whereNotIn('name', $seeAll)->pluck('name')->toArray();
-
-        if ($loggedUser->hasAnyRole($specific)) {
-            return $this->specificQuery();
-        } else {
+ 
+        if (!$loggedUser->hasAnyRole($specific)) {
+            
             return $this->seeAllQuery();
+
+        } elseif($loggedUser->hasRole(RolesEnum::Dpl()->value) &&  $loggedUser->hasRole(RolesEnum::Chef_division()->value)) {
+             
+            return $this->seeAllQuery();
+            
         }
+        else return $this->specificQuery();
     }
 
     protected function authorizeAccess(): void
