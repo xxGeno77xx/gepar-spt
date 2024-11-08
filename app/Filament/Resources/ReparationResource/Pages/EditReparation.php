@@ -59,6 +59,7 @@ class EditReparation extends EditRecord
                 abort(403, "Vous ne pouvez plus modifier une réparation déjà achevée");
             } 
             
+           
             elseif (($this->record->validation_step != 0)) // if is not in starting step
 
             {

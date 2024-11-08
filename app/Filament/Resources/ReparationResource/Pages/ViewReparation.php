@@ -39,6 +39,8 @@ class ViewReparation extends ViewRecord
 
                             return false;
 
+                        } elseif (($this->record->validation_step) == 0 && ($this->record->creator_id == auth()->user()->id)) {
+                            return true;
                         } else {
 
                             $circuit = Circuit::where('id', $this->record->circuit_id)->value('steps');
@@ -174,6 +176,7 @@ class ViewReparation extends ViewRecord
 
                                         Role::where('name', RolesEnum::Chef_dcgbt()->value)->first(),
                                         Role::where('name', RolesEnum::Chef_DPL()->value)->first(),
+                                        Role::where('name', RolesEnum::Drhp()->value)->first(),
 
                                     ])
                                 ) {   // if require role is in list (array) and user has the role
@@ -202,9 +205,7 @@ class ViewReparation extends ViewRecord
                                             return true;
                                         }
 
-                                    } 
-
-                                    elseif ($requiredRole == Role::where('name', RolesEnum::Chef_DPL()->value)->first()) {
+                                    } elseif ($requiredRole == Role::where('name', RolesEnum::Chef_DPL()->value)->first()) {
                                         if (($user->hasRole(RolesEnum::Chef_DPL()->value))) {
                                             return true;
                                         }
@@ -215,10 +216,12 @@ class ViewReparation extends ViewRecord
                                             return true;
                                         }
 
-                                    }
-                                    
-                                    
-                                    elseif ($user->hasRole(Role::where('id', $indice)->value('id'))) {
+                                    } elseif ($requiredRole == Role::where('name', RolesEnum::Drhp()->value)->first()) {
+                                        if (($user->hasRole(RolesEnum::Drhp()->value))) {
+                                            return true;
+                                        }
+
+                                    } elseif ($user->hasRole(Role::where('id', $indice)->value('id'))) {
                                         return true;
                                     }
 
@@ -260,9 +263,21 @@ class ViewReparation extends ViewRecord
 
                                     if (in_array($NextdestinataireRole, [RolesEnum::Directeur()->value, RolesEnum::Chef_division()->value])) {
 
-                                        $realDestination = User::role($NextdestinataireRole)->where('departement_id', $concernedEngine->departement_id)->first();
 
-                                        $mailDestinator = User::role($NextdestinataireRole)->where('departement_id', $concernedEngine->departement_id)->where('notification', true)->first();
+                                        $realDestination = User::role($NextdestinataireRole)->where('departement_id', $concernedEngine->departement_id)->get();
+
+                                        $mailDestinator = User::role($NextdestinataireRole)->where('departement_id', $concernedEngine->departement_id)->where('notification', true)->get();
+
+                                        if ($NextdestinataireRole == RolesEnum::Directeur()->value) {
+                                            $ids = User::join("departement_user", "departement_user.user_id", "users.id")->where("departement_user.departement_code_centre", $concernedEngine->departement_id)->role(RolesEnum::Directeur()->value)->pluck("users.id");
+
+                                            $realDestination = User::whereIn("id", $ids)->get();
+
+                                            $mailDestinator = User::join("departement_user", "departement_user.user_id", "users.id")->where('notification', true)->where("departement_user.departement_code_centre", $concernedEngine->departement_id)->role(RolesEnum::Directeur()->value)->get();
+
+                                        }
+
+
 
                                         if ($mailDestinator) {
 
@@ -303,6 +318,7 @@ class ViewReparation extends ViewRecord
                                             RolesEnum::Budget()->value,
                                             RolesEnum::Chef_dcgbt()->value,
                                             RolesEnum::Chef_DPL()->value,
+                                            RolesEnum::Drhp()->value,
                                         ])
                                     ) {
 
@@ -341,6 +357,15 @@ class ViewReparation extends ViewRecord
 
                                         if ($mailDestinator) {
                                             (Mail::to($mailDestinator)->send(new ReparationMail($this->record)));
+                                        }
+
+                                        $loggedUser = auth()->user();
+
+                                        if ($loggedUser->hasAnyRole(RolesEnum::Directeur_general()->value)) {
+                                            $this->record->update([
+                                                "avis_dg" => "FAVORABLE",
+                                                "date_valid_dg" => today(),
+                                            ]);
                                         }
 
                                     }
@@ -561,6 +586,7 @@ class ViewReparation extends ViewRecord
 
                                         Role::where('name', RolesEnum::Chef_dcgbt()->value)->first(),
                                         Role::where('name', RolesEnum::Chef_DPL()->value)->first(),
+                                        Role::where('name', RolesEnum::Drhp()->value)->first(),
 
                                     ])
                                 ) {   // if require role is in list (array) and user has the role
@@ -589,8 +615,7 @@ class ViewReparation extends ViewRecord
                                             return true;
                                         }
 
-                                    } 
-                                    elseif ($requiredRole == Role::where('name', RolesEnum::Chef_DPL()->value)->first()) {
+                                    } elseif ($requiredRole == Role::where('name', RolesEnum::Chef_DPL()->value)->first()) {
                                         if (($user->hasRole(RolesEnum::Chef_DPL()->value))) {
                                             return true;
                                         }
@@ -601,8 +626,14 @@ class ViewReparation extends ViewRecord
                                             return true;
                                         }
 
-                                    }
+                                    } 
+                                    
+                                    elseif ($requiredRole == Role::where('name', RolesEnum::Drhp()->value)->first()) {
+                                        if (($user->hasRole(RolesEnum::Drhp()->value))) {
+                                            return true;
+                                        }
 
+                                    } 
                                     elseif ($user->hasRole(Role::where('id', $indice)->value('id'))) {
                                         return true;
                                     }
@@ -627,12 +658,40 @@ class ViewReparation extends ViewRecord
 
                         $this->record->update(['rejete_par' => $data['rejete_par']]);
 
+                        $loggedUser = auth()->user();
+
+                        if ($loggedUser->hasAnyRole(RolesEnum::Directeur_general()->value)) {
+                            $this->record->update([
+                                "avis_dg" => "DEFAVORABLE",
+                                "date_valid_dg" => today(),
+                            ]);
+                        }
+
                         Notification::make()
                             ->title('Rejeté(e)')
                             ->success()
                             ->persistent()
                             ->send();
                     }),
+
+                Actions\Action::make('repairRecap')
+                    ->label('Fiche de récap')
+                    ->color('secondary')
+                    ->icon('heroicon-o-cloud-download')
+                    ->url(fn() => route('reparationRecap', $this->record))
+                    ->visible(function () {
+
+                        $loggedUser = auth()->user();
+
+                        $reparation = $this->record;
+
+                        if ((($reparation->avis_dg != null) && ($loggedUser->hasRole(RolesEnum::Budget()->value)))) {
+
+                            return true;
+                        }
+                        return false;
+                    })
+                    ->openUrlInNewTab(),
             ];
         }
 

@@ -23,9 +23,13 @@ return new class extends Migration
 
             $table->date('date_lancement');
 
+            $table->date('date_accord_dg')->nullable();
+
             $table->date('date_fin')->nullable();
 
             $table->string('facture')->nullable();
+
+            $table->string('intitule_reparation')->nullable();
 
             $table->text('details')->nullable();
 

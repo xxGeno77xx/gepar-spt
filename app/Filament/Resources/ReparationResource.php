@@ -65,25 +65,31 @@ class ReparationResource extends Resource
 
                 Card::make()
                     ->schema([
+
                         Grid::make(2)
                             ->schema([
 
                                 Placeholder::make('motif_rejet')
                                     ->label(new HtmlString('<p style="color: red; font-size: 1.2rem;">Motif du rejet</p>'))
-                                    ->content(fn ($record) => $record->motif_rejet ? $record->motif_rejet : ''),
+                                    ->content(fn($record) => $record->motif_rejet ? $record->motif_rejet : ''),
 
                                 Placeholder::make('rejete_par')
                                     ->label(new HtmlString('<p style="color: red; font-size: 1.2rem;">Rejeté par</p>'))
-                                    ->content(fn ($record) => $record->rejete_par ? User::find($record->rejete_par)->name : ''),
+                                    ->content(fn($record) => $record->rejete_par ? User::find($record->rejete_par)->name : ''),
                             ]),
                     ])
-                    ->visible(fn ($record) => $record && $record->motif_rejet ? true : false),
+                    ->visible(fn($record) => $record && $record->motif_rejet ? true : false),
 
                 Card::make()
                     ->schema([
                         Card::make()
                             ->schema([
+                                Hidden::make("creator_id")->default(auth()->user()->id),
 
+                                TextInput::make("intitule_reparation")
+                                    ->label("Intitulé du projet")
+                                    ->columnSpanFull()
+                                    ->required(),
                                 Select::make('engine_id')
 
                                     ->label('Numéro de plaque')
@@ -112,6 +118,7 @@ class ReparationResource extends Resource
                                                         RolesEnum::Budget()->value,
                                                         RolesEnum::Interimaire_DG()->value,
                                                         RolesEnum::Super_administrateur()->value,
+                                                        RolesEnum::Drhp()->value
                                                     ])
                                                 ) {
                                                     return Engine::whereNot('state', StatesClass::Deactivated()->value)->pluck('plate_number', 'id');
@@ -135,6 +142,7 @@ class ReparationResource extends Resource
                                                         ->whereNot('state', StatesClass::Deactivated()->value)
                                                         ->pluck('plate_number', 'id');
                                                 }
+
                                             } else {
 
                                                 if (
@@ -322,31 +330,31 @@ class ReparationResource extends Resource
                             ])->columns(2),
 
                         Section::make('Informations du prestataire')
-                            ->description(fn ($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('raison_social_fr') : '')
+                            ->description(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('raison_social_fr') : '')
                             ->collapsible()
                             ->schema([
                                 Grid::make(3)
                                     ->schema([
                                         Placeholder::make('Raison sociale')
-                                            ->content(fn ($get) => $get('prestataire_id') && (Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('nom_fr')) ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('nom_fr') ?? 'rr' : '-'),
+                                            ->content(fn($get) => $get('prestataire_id') && (Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('nom_fr')) ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('nom_fr') ?? 'rr' : '-'),
 
                                         Placeholder::make('Adresse')
-                                            ->content(fn ($get) => $get('prestataire_id') ? (Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('adr_fr')) : '-'),
+                                            ->content(fn($get) => $get('prestataire_id') ? (Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('adr_fr')) : '-'),
 
                                         Placeholder::make('Contact_1')
-                                            ->content(fn ($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('tel_fr') : '-'),
+                                            ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('tel_fr') : '-'),
 
                                         Placeholder::make('Contact_2')
-                                            ->content(fn ($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('tel2_frs') : '-'),
+                                            ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('tel2_frs') : '-'),
 
                                         Placeholder::make('Secteur d\'activité')
-                                            ->content(fn ($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('sect_activ') : '-'),
+                                            ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('sect_activ') : '-'),
 
                                         Placeholder::make('Ville')
-                                            ->content(fn ($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('ville_fr') : '-'),
+                                            ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('ville_fr') : '-'),
 
                                         Placeholder::make('Numéro de compte')
-                                            ->content(fn ($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('numero_compte') : '-'),
+                                            ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('numero_compte') : '-'),
                                     ]),
 
                                 Section::make('Devis')
@@ -355,6 +363,7 @@ class ReparationResource extends Resource
                                             ->disk('public')
                                             ->directory('proforma')
                                             ->required()
+                                            ->preserveFilenames()
                                             ->label('Proforma')
                                             ->enableDownload()
                                             ->enableOpen(),
@@ -422,6 +431,7 @@ class ReparationResource extends Resource
                             ]),
 
                         Section::make('Suivi budgétaire des engagements')
+                        ->disabled(fn() => !auth()->user()->hasRole(RolesEnum::Budget()->value))
                             ->schema([
 
                                 Grid::make(2)
@@ -492,7 +502,7 @@ class ReparationResource extends Resource
 
                                                 Placeholder::make('intitule')
                                                     ->label('Intitulé du compte')
-                                                    ->content(fn ($get) => in_array($get('compte_imputation'), config('app.comptes_charge')) ? CompteCharge::where('radical_interne', $get('compte_imputation'))->first()->intitule : new HtmlString('<i>Aucun compte sélectionné</i>')),
+                                                    ->content(fn($get) => in_array($get('compte_imputation'), config('app.comptes_charge')) ? CompteCharge::where('radical_interne', $get('compte_imputation'))->first()->intitule : new HtmlString('<i>Aucun compte sélectionné</i>')),
 
                                                 Placeholder::make('carosserie')
                                                     ->label('Carrosserie du véhicule')
@@ -521,14 +531,14 @@ class ReparationResource extends Resource
                                                     ->reactive()
                                                     ->afterStateUpdated(function ($get, $set) {
 
-                                                        $reste = $get('dispo_prov') - $get('montant_proj');
+                                                        $reste = intval($get('dispo_prov')) - intval($get('montant_proj'));
 
                                                         $set('dispo_prov_apre', $reste);
 
                                                     }),
 
                                                 TextInput::make('dispo_prov_apre')
-                                                    ->label('Disponibilité provisoire après engagement du projet')
+                                                    ->label('Disponibilité provisoire après engagement')
                                                     ->numeric()
                                                     ->required()
                                                     ->disabled()
@@ -585,112 +595,115 @@ class ReparationResource extends Resource
 
                                 Select::make('révisions')
                                     ->label('Type de la réparation')
-                                    ->relationship('typeReparations', 'libelle', fn (Builder $query) => $query->where('state', StatesClass::Activated()->value))
+                                    ->relationship('typeReparations', 'libelle', fn(Builder $query) => $query->where('state', StatesClass::Activated()->value))
                                     ->multiple()
                                     ->searchable()
                                     ->preload(true)
                                     ->required(),
 
-                                // FilamentBuilder::make('infos')
-                                //     ->label('Achats')
-                                //     ->blocks([
-                                //         FilamentBuilder\Block::make('Achat')
-                                //             ->icon('heroicon-o-adjustments')
-                                //             ->schema([
-                                //                 Grid::make(4)
-                                //                     ->schema([
-                                //                         TextInput::make('Designation'),
+                                FilamentBuilder::make('infos')
+                                    ->label('Achats')
+                                    ->blocks([
+                                        FilamentBuilder\Block::make('Achat')
+                                            ->icon('heroicon-o-adjustments')
+                                            ->schema([
 
-                                //                         TextInput::make('nombre')
-                                //                             ->numeric()
-                                //                             ->minValue(1)
-                                //                             ->reactive()
-                                //                             ->afterStateUpdated(fn ($state, callable $set, $get) => $set('montant', $state * $get('Prix_unitaire'))),
+                                                TextInput::make('Designation'),
 
-                                //                         TextInput::make('Prix_unitaire')
-                                //                             ->numeric()
-                                //                             ->suffix('FCFA')
-                                //                             ->minValue(1)
-                                //                             ->reactive()
-                                //                             ->integer()
-                                //                             ->afterStateUpdated(fn ($state, callable $set, $get) => $set('montant', $state * $get('nombre'))),
+                                                Grid::make(3)
+                                                    ->schema([
 
-                                //                         TextInput::make('montant')
-                                //                             ->suffix('FCFA')
-                                //                             ->numeric()
-                                //                             ->integer()
-                                //                             ->disabled()
-                                //                             ->dehydrated(true),
-                                //                     ]),
-                                //             ]),
-                                //     ])
-                                //     ->collapsible(),
+
+                                                        TextInput::make('nombre')
+                                                            ->numeric()
+                                                            ->minValue(1)
+                                                            ->reactive()
+                                                            ->afterStateUpdated(fn($state, callable $set, $get) => $set('montant', $state * $get('Prix_unitaire'))),
+
+                                                        TextInput::make('Prix_unitaire')
+                                                            ->numeric()
+                                                            ->suffix('FCFA')
+                                                            ->minValue(1)
+                                                            ->reactive()
+                                                            ->integer()
+                                                            ->afterStateUpdated(fn($state, callable $set, $get) => $set('montant', $state * $get('nombre'))),
+
+                                                        TextInput::make('montant')
+                                                            ->suffix('FCFA')
+                                                            ->numeric()
+                                                            ->integer()
+                                                            ->disabled()
+                                                            ->dehydrated(true),
+                                                    ]),
+                                            ]),
+                                    ])
+                                    ->collapsible(),
                             ]),
 
                     ]),
 
-                Grid::make(2)->schema([
+                // Grid::make(2)->schema([
 
-                    RichEditor::make('avis_diga')
-                        ->label('Avis de la DIGA')
-                        ->disableAllToolbarButtons()
-                        ->placeholder('Observations de la DIGA')
-                        ->disabled(function ($record) {
+                //     RichEditor::make('avis_diga')
+                //         ->label('Avis de la DIGA')
+                //         ->disableAllToolbarButtons()
+                //         ->placeholder('Observations de la DIGA')
+                //         ->disabled(function ($record) {
 
-                            if ($record) {
+                //             if ($record) {
 
-                                if (auth()->user()->hasAnyRole([RolesEnum::Diga()->value])) {
-                                    return false;
-                                }
+                //                 if (auth()->user()->hasAnyRole([RolesEnum::Diga()->value])) {
+                //                     return false;
+                //                 }
 
-                                return true;
-                            }
+                //                 return true;
+                //             }
 
-                        })
-                        ->visible(function ($record) {
+                //         })
+                //         ->visible(function ($record) {
 
-                            if ($record) {
+                //             if ($record) {
 
-                                $remainingSteps = ControlFunctions::getIndicesAfterNthOccurrence($record, RolesEnum::Diga()->value, 1);
+                //                 $remainingSteps = ControlFunctions::getIndicesAfterNthOccurrence($record, RolesEnum::Diga()->value, 1);
 
-                                if (in_array($record->validation_step, $remainingSteps)) {
-                                    return true;
-                                }
+                //                 if (in_array($record->validation_step, $remainingSteps)) {
+                //                     return true;
+                //                 }
 
-                                return false;
-                            }
-                        }),
+                //                 return false;
+                //             }
+                //         }),
 
-                    RichEditor::make('avis_dg')
-                        ->label('Avis du Directeur Général / Intérimaire')
-                        ->disableAllToolbarButtons()
-                        ->placeholder('Observations du Directeur général')
-                        ->disabled(function ($record) {
+                //     RichEditor::make('avis_dg')
+                //         ->label('Avis du Directeur Général / Intérimaire')
+                //         ->disableAllToolbarButtons()
+                //         ->placeholder('Observations du Directeur général')
+                //         ->disabled(function ($record) {
 
-                            if ($record) {
+                //             if ($record) {
 
-                                if (auth()->user()->hasAnyRole([RolesEnum::Directeur_general()->value, RolesEnum::Interimaire_DG()->value])) {
-                                    return false;
-                                }
+                //                 if (auth()->user()->hasAnyRole([RolesEnum::Directeur_general()->value, RolesEnum::Interimaire_DG()->value])) {
+                //                     return false;
+                //                 }
 
-                                return true;
-                            }
+                //                 return true;
+                //             }
 
-                        })
-                        ->visible(function ($record) {
+                //         })
+                //         ->visible(function ($record) {
 
-                            if ($record) {
-                                $remainingSteps = ControlFunctions::getIndicesAfterNthOccurrence($record, RolesEnum::Directeur_general()->value, 1);
+                //             if ($record) {
+                //                 $remainingSteps = ControlFunctions::getIndicesAfterNthOccurrence($record, RolesEnum::Directeur_general()->value, 1);
 
-                                if (in_array($record->validation_step, $remainingSteps)) {
-                                    return true;
-                                }
+                //                 if (in_array($record->validation_step, $remainingSteps)) {
+                //                     return true;
+                //                 }
 
-                                return false;
-                            }
-                        }),
+                //                 return false;
+                //             }
+                //         }),
 
-                ]),
+                // ]),
 
                 RichEditor::make('details')
                     ->label('Détails')
@@ -719,7 +732,7 @@ class ReparationResource extends Resource
 
                 TextColumn::make('engine.departement_id')
                     ->label('Centre')
-                    ->formatStateUsing(fn ($state) => (DB::table('centre')->where('code_centre', $state)->first()->sigle_centre))
+                    ->formatStateUsing(fn($state) => (DB::table('centre')->where('code_centre', $state)->first()->sigle_centre))
                     ->searchable()
                     ->sortable(),
 
@@ -754,7 +767,7 @@ class ReparationResource extends Resource
                         } else {
                             $validator = (Role::find($state))->name;
 
-                            return 'En attente de validation de: '.$validator;
+                            return 'En attente de validation de: ' . $validator;
                         }
 
                     })
@@ -776,48 +789,45 @@ class ReparationResource extends Resource
             ->filters([
 
                 Filter::make('status')
-                ->label('Status')
-                ->form([
-                    Grid::make(2)
-                        ->schema([
+                    ->label('Status')
+                    ->form([
+                        Grid::make(2)
+                            ->schema([
 
-                            Select::make('status')
-                                ->label('Status')
-                                ->options([
-                                    "OnGoing" => "En cours",
-                                    "ended" =>  "Terminée"
-                                ]),
+                                Select::make('status')
+                                    ->label('Status')
+                                    ->options([
+                                        "OnGoing" => "En cours",
+                                        "ended" => "Terminée"
+                                    ]),
 
-                        ])->columns(1),
-                ])
-                ->query(function (Builder $query, array $data): Builder {
-                    return $query
-                        ->when(
-                            $data['status'],
-                            function($query, $data){ 
-                                if($data  == "OnGoing"){
-                                    return $query->whereNotIn('validation_state', [ StatesClass::NextValue()->value, StatesClass::Deactivated()->value, ReparationValidationStates::Termine()->value, StatesClass::NextValue()->value, 'Rejete']);
-                                }
-                                elseif($data  == "ended"){
+                            ])->columns(1),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['status'],
+                                function ($query, $data) {
+                                    if ($data == "OnGoing") {
+                                        return $query->whereNotIn('validation_state', [StatesClass::NextValue()->value, StatesClass::Deactivated()->value, ReparationValidationStates::Termine()->value, StatesClass::NextValue()->value, 'Rejete']);
+                                    } elseif ($data == "ended") {
 
-                                    return $query->where('validation_state', StatesClass::NextValue()->value);
-                                }
-                              
-                            },
-                        );
-                })
-                ->indicateUsing(function (array $data): ?string {
-                    if ($data['status']  == "OnGoing" ) {
+                                        return $query->where('validation_state', StatesClass::NextValue()->value);
+                                    }
 
-                        return 'Status: En cours';
-                    }
-                    elseif($data['status'] == "OnGoing" ){
+                                },
+                            );
+                    })
+                    ->indicateUsing(function (array $data): ?string {
+                        if ($data['status'] == "OnGoing") {
 
-                        return 'Status: Terminée';
-                    }
-                     
-                    else return null;
-                }),
+                            return 'Status: En cours';
+                        } elseif ($data['status'] == "OnGoing") {
+
+                            return 'Status: Terminée';
+                        } else
+                            return null;
+                    }),
 
                 Filter::make('date_lancement')
                     ->label('Date d\'envoi en réparation')
@@ -837,16 +847,16 @@ class ReparationResource extends Resource
                         return $query
                             ->when(
                                 $data['date_from'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('date_lancement', '>=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('date_lancement', '>=', $date),
                             )
                             ->when(
                                 $data['date_to'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('date_lancement', '<=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('date_lancement', '<=', $date),
                             );
                     })
                     ->indicateUsing(function (array $data): ?string {
                         if (($data['date_from']) && ($data['date_from'])) {
-                            return 'Date d\'envoi en réparation:  '.Carbon::parse($data['date_from'])->format('d-m-Y').' au '.Carbon::parse($data['date_to'])->format('d-m-Y');
+                            return 'Date d\'envoi en réparation:  ' . Carbon::parse($data['date_from'])->format('d-m-Y') . ' au ' . Carbon::parse($data['date_to'])->format('d-m-Y');
                         }
 
                         return null;
@@ -870,11 +880,11 @@ class ReparationResource extends Resource
                                 }
                             );
                     })->indicateUsing(function (array $data): ?string {
-                        if (! $data['prestataire_id']) {
+                        if (!$data['prestataire_id']) {
                             return null;
                         }
 
-                        return 'Prestataire: '.Prestataire::where('code_fr', $data['prestataire_id'])->value('raison_social_fr');
+                        return 'Prestataire: ' . Prestataire::where('code_fr', $data['prestataire_id'])->value('raison_social_fr');
                     }),
 
                 SelectFilter::make('Type de la réparation')
@@ -899,12 +909,12 @@ class ReparationResource extends Resource
                                 }
                             );
                     })->indicateUsing(function (array $data): ?string {
-                        if (! $data['appreciation']) {
+                        if (!$data['appreciation']) {
                             return null;
                         } elseif ($data['appreciation'] == AppreciationClass::Insatisfaisant()->value) {
-                            return 'Appreciation: '.AppreciationClass::Insatisfaisant()->value;
+                            return 'Appreciation: ' . AppreciationClass::Insatisfaisant()->value;
                         } else {
-                            return 'Appreciation: '.AppreciationClass::Satisfaisant()->value;
+                            return 'Appreciation: ' . AppreciationClass::Satisfaisant()->value;
                         }
                     }),
 

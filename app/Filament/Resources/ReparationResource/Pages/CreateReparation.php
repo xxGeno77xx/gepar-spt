@@ -238,7 +238,8 @@ class CreateReparation extends CreateRecord
     protected function handleRecordCreation(array $data): Model
     {
 
-        $engineCircuit = Engine::find($data['engine_id'])?->circuit_id ?? null;
+        try{
+            $engineCircuit = Engine::find($data['engine_id'])?->circuit_id ?? null;
 
         $check = ControlFunctions::checkEngineType($data['engine_id']);
 
@@ -251,8 +252,18 @@ class CreateReparation extends CreateRecord
         }
         $data = [
             ...$data,
+            'intitule_reparation' => strtoupper($data["intitule_reparation"]),
             'circuit_id' => $engineCircuit,
         ];
+
+        }
+        catch(\Exception $e){
+            Notification::make("error")
+                ->title("Erreur")
+                ->body($e->getMessage())
+                ->send();
+        }
+        
 
         return static::getModel()::create($data);
     }
