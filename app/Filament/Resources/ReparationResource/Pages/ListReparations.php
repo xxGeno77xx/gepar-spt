@@ -71,7 +71,7 @@ class ListReparations extends ListRecords
                 RolesEnum::Delegue_Direction_Generale()->value,
                 RolesEnum::Delegue_Division()->value,
                 RolesEnum::Chef_division()->value,
-                
+                RolesPermissionsSeeder::User,  
                 RolesEnum::user()->value
             ])
         ) {

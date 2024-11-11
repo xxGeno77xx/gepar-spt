@@ -34,6 +34,39 @@ use Carbon\Carbon;
 <style>
     /* heading */
 
+    /* 
+    
+    .conteneur {
+        position: relative;
+        width: 300px;
+        height: 200px;
+        background-color: #f0f0f0;
+        border: 1px solid #ddd;
+        text-align: center;
+        padding: 20px;
+        overflow: hidden;
+    }
+
+    /* Style du texte en filigrane */
+    .fili::before {
+        content: "CECI EST UN TEST";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-45deg);
+        font-size: 50px;
+        color: rgba(0, 0, 0, 0.1); /* Opacité réduite pour l'effet de filigrane */
+        white-space: nowrap;
+        pointer-events: none; /* Pour que le filigrane ne soit pas interactif */
+        user-select: none; /* Empêche la sélection du texte */
+    }
+
+    /* Style du contenu réel de la div */
+    .contenu {
+        position: relative;
+        z-index: 1;
+    }
+    */
 
     .signature {
         text-align: right;
@@ -450,11 +483,18 @@ use Carbon\Carbon;
             </div>
             <br>
 
-            <div class="signature">
-                <p ><b>Le Directeur de Général</b></p>
-                <p> Lomé, {{Carbon::parse($reparation->date_valid_dg)->format("d/m/Y")}}</p>
-                <img src="assets/sign.png" alt=""  style="width: 12%; height: auto;">
+            <div class="fili">
+                <div class="contenu">
+                    <div class="signature">
+                        <p ><b>Le Directeur de Général</b></p>
+                        <p> Lomé, {{Carbon::parse($reparation->date_valid_dg)->format("d/m/Y")}}</p>
+                        <img src="assets/sign.png" alt=""  style="width: 12%; height: auto;">
+                    </div>
+                </div>
             </div>
+
+
+          
 
         </div>
 

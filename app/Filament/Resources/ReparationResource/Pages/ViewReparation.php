@@ -35,6 +35,24 @@ class ViewReparation extends ViewRecord
                 EditAction::make('edit')
                     ->visible(function ($record) {
 
+
+                        $NonEditors =[
+                            RolesEnum::Chef_division()->value,
+                            RolesEnum::Chef_section()->value,
+                            RolesEnum::Directeur()->value,
+                            RolesEnum::Directeur_general()->value,
+                        ];
+
+
+                        $loggedUser = auth()->user();
+
+
+                        if($loggedUser->hasAnyRole( $NonEditors))
+                        {
+                            return false;
+                        }
+
+
                         if ($this->record->validation_state == ReparationValidationStates::Rejete()->value || $this->record->validation_state == 'nextValue') {
 
                             return false;
@@ -547,6 +565,15 @@ class ViewReparation extends ViewRecord
                     ])
 
                     ->visible(function ($record) {
+
+                        if($this->record){
+
+                            if(!is_null($this->record->date_valid_dg)){
+ 
+                                return false;
+                            }
+                        }
+                        
 
                         if ($this->record->validation_state == ReparationValidationStates::Rejete()->value || $this->record->validation_state == 'nextValue') {
 
