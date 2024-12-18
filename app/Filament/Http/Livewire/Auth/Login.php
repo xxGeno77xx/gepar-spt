@@ -2,29 +2,30 @@
 
 namespace App\Filament\Http\Livewire\Auth;
 
-use App\Models\DbaUser;
-use App\Models\Departement;
-use App\Models\DepartementUser;
+use Closure;
 use App\Models\User;
-use App\Support\Database\RolesEnum;
-use App\Support\Database\StatesClass;
-use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
-use DanHarrin\LivewireRateLimiting\WithRateLimiting;
+use App\Models\DbaUser;
+use Livewire\Component;
+use App\Models\Departement;
 use Filament\Facades\Filament;
-use Filament\Forms\ComponentContainer;
-use Filament\Forms\Components\Checkbox;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Radio;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Contracts\HasForms;
-use Filament\Http\Responses\Auth\Contracts\LoginResponse;
+use App\Models\DepartementUser;
+use App\Support\Database\RolesEnum;
 use Illuminate\Contracts\View\View;
+use Filament\Forms\Components\Radio;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Support\Database\StatesClass;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
+use Filament\Forms\ComponentContainer;
+use Filament\Forms\Contracts\HasForms;
+use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\TextInput;
 use Illuminate\Validation\ValidationException;
-use Livewire\Component;
+use Filament\Forms\Concerns\InteractsWithForms;
+use DanHarrin\LivewireRateLimiting\WithRateLimiting;
+use Filament\Http\Responses\Auth\Contracts\LoginResponse;
+use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 
 /**
  * @property ComponentContainer $form
@@ -55,6 +56,8 @@ class Login extends Component implements HasForms
 
     public function authenticate(): ?LoginResponse
     {
+
+        
 
         $authenticationLimit = config('app.LOGIN_LIMIT', 4);
 
@@ -98,11 +101,13 @@ class Login extends Component implements HasForms
 
         if (! $userToLogIn) {
 
+
             if (! isset($data['departement_id'])) {
                 throw ValidationException::withMessages(['username' => 'C\'est votre première connexion. Cochez la case "Nouvel utilisateur" puis choisissez votre département et votre poste']);
             }
 
-            $createUser = User::create([
+
+            $createUser = User::firstOrCreate([
                 'email' => $data['email'],
                 'password' => Hash::make('L@poste+2024'),
                 'name' => strtoupper($data['name']),
@@ -215,13 +220,23 @@ class Login extends Component implements HasForms
 
             TextInput::make('email')
                 ->label(__('Adresse mail'))
-                ->required()
-                ->unique(ignoreRecord: true)
+                ->unique()
                 ->regex('/.*@laposte\.tg$/')
                 ->email()
                 ->visible(fn ($get) => $get('new_user') == 1 ? true : false)
                 ->required(fn ($get) => $get('new_user') == 1 ? true : false)
-                ->autocomplete(),
+                ->rules([
+                    function () {
+                        return function (string $attribute, $value, Closure $fail) {
+
+                            $existing = User::whereRaw("email = ?", [$value])->first();
+                            
+                            if (!is_null($existing)) {
+                                $fail('Cette :attribute est déjà prise.');
+                            }
+                        };
+                    },
+                ]),
 
             Select::make('departement_id')
                 ->label('Département')
