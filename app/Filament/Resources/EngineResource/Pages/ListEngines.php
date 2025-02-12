@@ -2,15 +2,21 @@
 
 namespace App\Filament\Resources\EngineResource\Pages;
 
-use App\Filament\Resources\EngineResource;
 use App\Models\Role;
-use App\Support\Database\PermissionsClass;
-use App\Support\Database\RolesEnum;
-use App\Support\Database\StatesClass;
-use Database\Seeders\RolesPermissionsSeeder;
 use Filament\Pages\Actions;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Filament\Pages\Actions\Action;
+use Illuminate\Support\Facades\DB;
+use App\Support\Database\RolesEnum;
+use Filament\Forms\Components\Grid;
+use App\Support\Database\StatesClass;
+use Filament\Notifications\Notification;
+use Filament\Forms\Components\DatePicker;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\EngineResource;
+use App\Support\Database\PermissionsClass;
+use Database\Seeders\RolesPermissionsSeeder;
 
 class ListEngines extends ListRecords
 {
@@ -21,10 +27,67 @@ class ListEngines extends ListRecords
     protected function getActions(): array
     {
         return [
+            Action::make('print')
+                ->label('Fiche de consommation')
+                ->form([
+                    Grid::make(2)
+                        ->schema([
+                            DatePicker::make('start_date')
+                                ->label('Date début')
+                                ->required(),
+                            DatePicker::make('end_date')
+                                ->label('Date fin')
+                                ->required()
+                                ->after('start_date')
+                        ])
+                ])
+                
+                ->action(function($data) {
+
+                    $totalConsommation = $this->getConsommation($data["start_date"], $data["end_date"])->sum('consommation');
+
+                    $totalMontant = $this->getConsommation($data["start_date"], $data["end_date"])->sum('montant');
+
+                    $nombreTotalPrises = $this->getConsommation($data["start_date"], $data["end_date"])->sum('nombreprises');
+                    
+                   return  Self::stream('consommationForDept',
+                     [
+                        'data'                  => $this->getConsommation($data["start_date"], $data["end_date"]),
+                        'startDate'             => $data["start_date"],
+                        'endDate'               => $data["end_date"],
+                        'totalConsommation'     => $totalConsommation,
+                        'totalMontant'          => $totalMontant,
+                        'nombreTotalPrises'     => $nombreTotalPrises,
+                     ],
+                     "consommation");
+
+                }  )
+                ->icon('heroicon-o-printer'),
+
             Actions\CreateAction::make()
                 ->label('Ajouter un engin'),
         ];
 
+    }
+
+    protected function getConsommation($startDate, $endDate)
+    {
+        return $this->getTableQuery()
+        ->join("consommation_carburants", "consommation_carburants.engine_id", "engines.id")
+        ->join('carburants', 'carburants.id', 'consommation_carburants.carburant_id')
+        ->join('centre', 'engines.departement_id', 'centre.code_centre')
+
+        ->select([
+            'engines.plate_number',
+             'carburants.type_carburant',
+             'centre.sigle_centre',
+            DB::raw('SUM(consommation_carburants.montant_total) as montant'),
+            DB::raw('SUM(consommation_carburants.quantite) as consommation'),
+            DB::raw('COUNT(consommation_carburants.quantite) as nombrePrises'),
+            ])
+            ->groupBy(['engines.plate_number', 'carburants.type_carburant', 'centre.sigle_centre'])
+            ->whereBetween('consommation_carburants.date_prise', [$startDate, $endDate])
+            ->get();
     }
 
     protected function getTableRecordsPerPageSelectOptions(): array
@@ -34,7 +97,7 @@ class ListEngines extends ListRecords
 
     protected function getTableQuery(): Builder
     {
-        
+
         $loggedUser = auth()->user();
 
         $seeAll = [
@@ -44,17 +107,17 @@ class ListEngines extends ListRecords
             RolesEnum::Chef_DPL()->value,
         ];
         $specific = Role::whereNotIn('name', $seeAll)->pluck('name')->toArray();
- 
+
         if (!$loggedUser->hasAnyRole($specific)) {
-            
+
             return $this->seeAllQuery();
 
-        } elseif($loggedUser->hasRole(RolesEnum::Dpl()->value) &&  $loggedUser->hasRole(RolesEnum::Chef_division()->value)) {
-             
+        } elseif ($loggedUser->hasRole(RolesEnum::Dpl()->value) && $loggedUser->hasRole(RolesEnum::Chef_division()->value)) {
+
             return $this->seeAllQuery();
-            
-        }
-        else return $this->specificQuery();
+
+        } else
+            return $this->specificQuery();
     }
 
     protected function authorizeAccess(): void
@@ -63,7 +126,7 @@ class ListEngines extends ListRecords
 
         $userPermission = $user->hasAnyPermission([PermissionsClass::engines_read()->value, PermissionsClass::Engines_update()->value, PermissionsClass::Engines_create()->value]);
 
-        abort_if(! $userPermission, 403, __("Vous n'avez pas access à cette page"));
+        abort_if(!$userPermission, 403, __("Vous n'avez pas access à cette page"));
     }
 
     protected function shouldPersistTableFiltersInSession(): bool
@@ -107,5 +170,26 @@ class ListEngines extends ListRecords
                 'engines.state',
                 'engines.departement_id'
             );
+    }
+
+
+
+    public static function stream(string $viewName, array $data, string $fileName)
+    {
+
+        $pdf = Pdf::loadView($viewName, $data);
+
+        return response()->streamDownload(function () use ($pdf) {
+
+            echo $pdf->stream();
+
+            Notification::make('stream')
+                ->title(__('Téléchargement'))
+                ->body(__('La fiche a été téléchargée'))
+                ->icon('heroicon-o-printer')
+                ->send();
+
+        }, $fileName.'.pdf');
+
     }
 }

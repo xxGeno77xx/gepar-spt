@@ -153,14 +153,25 @@ class UserResource extends Resource
         return $table
             ->columns([
 
-                TextColumn::make('name')
-                    ->searchable()
-                    ->label('Prénom')
-                    ->sortable(),
 
-                TextColumn::make('lastname')
-                    ->label('Nom de famille')
-                    ->searchable(),
+                 
+                TextColumn::make('username') 
+                    ->label('Nom d\'utilisateur')
+                    ->sortable()
+                    ->searchable(query:function($query, $search){
+
+                        return $query->selectRaw('username')->whereRaw('LOWER(username) LIKE ?', ['%'.strtolower($search).'%']);
+
+                    }),
+
+                // TextColumn::make('name')
+                //     ->searchable()
+                //     ->label('Prénom')
+                //     ->sortable(),
+
+                // TextColumn::make('lastname')
+                //     ->label('Nom de famille')
+                //     ->searchable(),
 
                 TextColumn::make('poste')
                     ->label('Poste occupé')

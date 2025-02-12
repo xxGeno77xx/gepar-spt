@@ -63,35 +63,35 @@ class CreateReparation extends CreateRecord
             ->keyBindings(['mod+s']);
     }
 
-    protected function beforeCreate(): void
-    {
-        $newRaparation = $this->data;
+    // protected function beforeCreate(): void
+    // {
+    //     $newRaparation = $this->data;
 
-        $latestReparation = Reparation::select(['engine_id', 'created_at', 'date_fin'])
-            ->orderbydesc('created_at')
-            ->where('engine_id', $newRaparation['engine_id'])
-            ->where('state', StatesClass::Activated()->value)
-            ->where('validation_state', '<>', ReparationValidationStates::Rejete()->value)
-            ->first();
+    //     $latestReparation = Reparation::select(['engine_id', 'created_at', 'date_fin'])
+    //         ->orderbydesc('created_at')
+    //         ->where('engine_id', $newRaparation['engine_id'])
+    //         ->where('state', StatesClass::Activated()->value)
+    //         ->where('validation_state', '<>', ReparationValidationStates::Rejete()->value)
+    //         ->first();
 
-        if ($latestReparation) {
-            if (! $latestReparation->date_fin) {
-                Notification::make()
-                    ->warning()
-                    ->title('Attention!')
-                    ->body('La réparation précédente n\'est pas encore terminée.Veuillez la compléter avant d\'en renseigner une nouvelle!!!')
-                    ->persistent()
-                    ->send();
+    //     if ($latestReparation) {
+    //         if (! $latestReparation->date_fin) {
+    //             Notification::make()
+    //                 ->warning()
+    //                 ->title('Attention!')
+    //                 ->body('La réparation précédente n\'est pas encore terminée.Veuillez la compléter avant d\'en renseigner une nouvelle!!!')
+    //                 ->persistent()
+    //                 ->send();
 
-                $this->halt();
-            }
-        }
+    //             $this->halt();
+    //         }
+    //     }
 
-        if (! is_null($newRaparation['date_fin'])) {
+    //     if (! is_null($newRaparation['date_fin'])) {
 
-        }
+    //     }
 
-    }
+    // }
 
     public function afterCreate()
     {

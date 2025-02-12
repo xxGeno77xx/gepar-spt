@@ -29,6 +29,7 @@ class ViewReparation extends ViewRecord
 
     protected function getActions(): array
     {
+        
         if (auth()->user()->hasPermissionTo(PermissionsClass::Reparation_update()->value)) {
             return [
 
@@ -48,7 +49,10 @@ class ViewReparation extends ViewRecord
 
 
                         if($loggedUser->hasAnyRole( $NonEditors))
-                        {
+                        { 
+                            if (intval($this->record->validation_step) == 0 && (intval($this->record->creator_id) == auth()->user()->id)) {
+                                return true;
+                            } 
                             return false;
                         }
 
@@ -57,7 +61,7 @@ class ViewReparation extends ViewRecord
 
                             return false;
 
-                        } elseif (($this->record->validation_step) == 0 && ($this->record->creator_id == auth()->user()->id)) {
+                        } elseif (intval($this->record->validation_step) == 0 && (intval($this->record->creator_id) == auth()->user()->id)) { dd('ok');
                             return true;
                         } else {
 

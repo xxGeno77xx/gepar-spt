@@ -345,7 +345,7 @@ class ReparationResource extends Resource
                                             ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('tel_fr') : '-'),
 
                                         Placeholder::make('Contact_2')
-                                            ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('tel2_frs') : '-'),
+                                            ->content(fn($get) => Prestataire::where('code_fr', '=', $get('prestataire_id'))->first()->tel2_frs ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->first()->tel2_frs : '-'),
 
                                         Placeholder::make('Secteur d\'activité')
                                             ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('sect_activ') : '-'),
@@ -353,9 +353,8 @@ class ReparationResource extends Resource
                                         Placeholder::make('Ville')
                                             ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('ville_fr') : '-'),
 
-                                        Placeholder::make('Numéro de compte')
-                                            ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('numero_compte') : '-'),
                                     ]),
+
 
                                 Section::make('Devis')
                                     ->schema([
@@ -431,7 +430,7 @@ class ReparationResource extends Resource
                             ]),
 
                         Section::make('Suivi budgétaire des engagements')
-                        ->disabled(fn() => !auth()->user()->hasRole(RolesEnum::Budget()->value))
+                            ->disabled(fn() => !auth()->user()->hasRole(RolesEnum::Budget()->value))
                             ->schema([
 
                                 Grid::make(2)
@@ -457,9 +456,39 @@ class ReparationResource extends Resource
                                             ->label(strtoupper('references du projet'))
                                             ->schema([
 
-                                                TextInput::make('type_budget')
+                                                Select::make('type_budget')
                                                     ->label('Type ')
-                                                    ->required(),
+                                                    ->options([
+                                                        "BT" => "Bon de travail",
+                                                        "PC" => "Projet de commande",
+                                                        "CT" => "Contrat de travail",
+                                                        "LC" => "Lettre de commande"
+
+                                                    ])
+                                                    ->required()
+                                                    ->reactive()
+                                                    ->afterStateUpdated(function($get, $set){
+                                                    /**set num_budget en fonction de options de type_budget */
+
+                                                    $sequence = DB::getSequence();
+                                                    
+
+                                                    switch ($get("type_budget")) {
+
+                                                        case "BT":
+                                                            $set("num_budget", "BT-".str_pad($sequence->nextValue('GEPAR.BON_TRAVAIL'), 6, '0', STR_PAD_LEFT));
+                                                            break;
+
+                                                        case "PC":
+                                                            $set("num_budget", "BT-".str_pad($sequence->nextValue('GEPAR.PROJET_COMMANDE'), 6, '0', STR_PAD_LEFT));
+                                                            break;
+
+                                                            default:   $set("num_budget", 0)  ;
+                                                            break;
+                                                    }
+
+
+                                                    }),
 
                                                 TextInput::make('num_budget')
                                                     ->label('N° '),
