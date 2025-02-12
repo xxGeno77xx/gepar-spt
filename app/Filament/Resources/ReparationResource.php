@@ -491,7 +491,8 @@ class ReparationResource extends Resource
                                                     }),
 
                                                 TextInput::make('num_budget')
-                                                    ->label('N° '),
+                                                    ->label('N° ')
+                                                    ->helperText(fn() => new HtmlString('<p wire:loading> chargement en cours...</p>')),
                                             ]),
                                     ]),
 
