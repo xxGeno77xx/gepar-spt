@@ -345,7 +345,7 @@ class ReparationResource extends Resource
                                             ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('tel_fr') : '-'),
 
                                         Placeholder::make('Contact_2')
-                                            ->content(fn($get) => Prestataire::where('code_fr', '=', $get('prestataire_id'))->first()->tel2_frs ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->first()->tel2_frs : '-'),
+                                            ->content(fn($get) => Prestataire::where('code_fr', '=', $get('prestataire_id'))->first()?->tel2_frs ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->first()->tel2_frs : '-'),
 
                                         Placeholder::make('Secteur d\'activité')
                                             ->content(fn($get) => $get('prestataire_id') ? Prestataire::where('code_fr', '=', $get('prestataire_id'))->get()->value('sect_activ') : '-'),
@@ -492,7 +492,7 @@ class ReparationResource extends Resource
 
                                                 TextInput::make('num_budget')
                                                     ->label('N° ')
-                                                    ->helperText(fn() => new HtmlString('<p wire:loading> chargement en cours...</p>')),
+                                                    ->helperText(fn() =>   new HtmlString('<i  style="color:Orange; font-weight:" wire:loading> chargement en cours... </i>')),
                                             ]),
                                     ]),
 
@@ -516,7 +516,8 @@ class ReparationResource extends Resource
                                             ->schema([
                                                 Select::make('compte_imputation')
                                                     ->label('Numero de compte ')
-                                                    ->options(CompteCharge::whereIn('radical_interne', config('app.comptes_charge'))->pluck('radical_interne', 'radical_interne'))
+                                                    // ->options(CompteCharge::whereIn('radical_interne', config('app.comptes_charge'))->pluck('radical_interne', 'radical_interne'))
+                                                    ->options(CompteCharge::pluck('radical_interne', 'radical_interne'))
                                                     ->searchable()
                                                     ->required()
                                                     ->reactive()
@@ -621,6 +622,7 @@ class ReparationResource extends Resource
                             }),
 
                         Section::make('Travaux à faire')
+                        ->description('Détail des achats à faire.')
                             ->schema([
 
                                 Select::make('révisions')
@@ -628,6 +630,7 @@ class ReparationResource extends Resource
                                     ->relationship('typeReparations', 'libelle', fn(Builder $query) => $query->where('state', StatesClass::Activated()->value))
                                     ->multiple()
                                     ->searchable()
+                                    ->helperText(new HtmlString('<i>Veuillez contacter la DPL au besoin pour ajouter de pièces  qui ne sont pas dans la liste, ou sélectionnez révision simple</i>'))
                                     ->preload(true)
                                     ->required(),
 
